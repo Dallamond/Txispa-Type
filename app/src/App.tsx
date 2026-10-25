@@ -1,7 +1,9 @@
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
+import type { Intento } from "./types";
 import { useAjustes } from "./hooks/useAjustes";
 import { useTecladoFisico } from "./hooks/useTecladoFisico";
 import { crearAlmacenIndexedDB } from "./lib/almacen";
+import { useIntentos } from "./hooks/useIntentos";
 import Hoy from "./components/Hoy";
 import Calentar from "./components/Calentar";
 import Test from "./components/Test";
@@ -25,6 +27,8 @@ export default function App() {
   const [pestana, setPestana] = useState<PestanaId>("hoy");
   const tecladoFisico = useTecladoFisico();
   const almacen = useMemo(() => crearAlmacenIndexedDB(), []);
+  const { intentos } = useIntentos(almacen);
+  const guardar = useCallback((i: Intento) => almacen.add(i), [almacen]);
 
   return (
     <div className="app">
@@ -55,7 +59,7 @@ export default function App() {
         )}
         {pestana === "hoy" && <Hoy />}
         {pestana === "calentar" && <Calentar />}
-        {pestana === "test" && <Test ajustes={ajustes} />}
+        {pestana === "test" && <Test ajustes={ajustes} intentos={intentos} onGuardar={guardar} onCambiarAjustes={cambiarAjustes} />}
         {pestana === "entrenar" && <Entrenar />}
         {pestana === "estadisticas" && <Estadisticas />}
         {pestana === "ajustes" && (
