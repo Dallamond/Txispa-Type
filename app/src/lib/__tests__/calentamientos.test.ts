@@ -1,6 +1,8 @@
 import { describe, it, expect } from "vitest";
 import {
   EJERCICIOS,
+  RUTINAS,
+  duracionDisponible,
   duracionRutina,
   ejerciciosDeRutina,
   pasoGuiado,
@@ -10,6 +12,9 @@ import {
   wpmFantasma,
 } from "../calentamientos";
 import { CHARMAP } from "../../data/keyboard";
+import { analizar } from "../debiles";
+import { fraccionAlternancia } from "../textos";
+import { intentoDePrueba } from "./ayudas";
 
 describe("rutinas", () => {
   it("duran lo que dice la especificación", () => {
@@ -18,11 +23,21 @@ describe("rutinas", () => {
     expect(duracionRutina("completa")).toBe(495);
   });
 
-  it("solo incluyen ejercicios disponibles", () => {
+  it("todos los ejercicios de las rutinas están disponibles", () => {
     for (const r of ["rapida", "estandar", "completa"] as const) {
-      expect(ejerciciosDeRutina(r).every((e) => e.disponible)).toBe(true);
+      expect(ejerciciosDeRutina(r)).toHaveLength(RUTINAS[r].length);
     }
     expect(ejerciciosDeRutina("rapida").map((e) => e.id)).toEqual(["manos", "escala", "fila-base", "lento"]);
+  });
+});
+
+describe("duracionDisponible", () => {
+  it("solo cuenta lo que se hace de verdad, con las pausas de 3 s", () => {
+    // manos 45 + escala 30 + fila base 60 + lento 60 = 195, más 4 pausas
+    expect(duracionDisponible("rapida")).toBe(195 + 12);
+    // con todos los ejercicios disponibles: la duración de la rutina más 3 s por ejercicio
+    expect(duracionDisponible("estandar")).toBe(duracionRutina("estandar") + 3 * 7);
+    expect(duracionDisponible("completa")).toBe(duracionRutina("completa") + 3 * 9);
   });
 });
 
@@ -84,8 +99,33 @@ describe("textoEjercicio", () => {
     for (const w of p) for (const ch of w) expect(CHARMAP[ch]).toBeDefined();
   });
 
-  it("un ejercicio sin generador lanza un error claro", () => {
-    expect(() => textoEjercicio("pares", 1, { puntuacion: true })).toThrow();
+  it("un ejercicio guiado no tiene texto y lanza un error claro", () => {
+    expect(() => textoEjercicio("manos", 1, { puntuacion: true })).toThrow();
+  });
+
+  it("la escalera sube de 2 a 10 letras con cada palabra repetida 5 veces", () => {
+    const p = textoEjercicio("escalera", 3, { puntuacion: false });
+    expect(p).toHaveLength(45);
+    for (let largo = 2; largo <= 10; largo++) {
+      const grupo = p.slice((largo - 2) * 5, (largo - 1) * 5);
+      expect(new Set(grupo).size).toBe(1);
+      expect(grupo[0]).toHaveLength(largo);
+    }
+  });
+
+  it("alternancia solo usa palabras que cambian de mano", () => {
+    const p = textoEjercicio("alternancia", 4, { puntuacion: true });
+    expect(p).toHaveLength(150);
+    for (const w of p) expect(fraccionAlternancia(w)).toBeGreaterThanOrEqual(0.7);
+  });
+
+  it("pares sin datos cae a alternancia y con datos refuerza esos pares", () => {
+    const sin = textoEjercicio("pares", 5, { puntuacion: false });
+    expect(sin.every((w) => fraccionAlternancia(w) >= 0.7)).toBe(true);
+    const analisis = analizar([intentoDePrueba("a", "2026-10-01T10:00:00Z", { teclas: { a: { n: 200, e: 0, ms: 30000, msN: 200 } }, pares: { "er": { n: 20, ms: 20 * 400 } } })], { semillas: false });
+    expect(analisis.pares.map((p) => p.par)).toEqual(["er"]);
+    const con = textoEjercicio("pares", 5, { puntuacion: false, analisis });
+    expect(con.filter((w) => w.includes("er")).length).toBeGreaterThan(sin.filter((w) => w.includes("er")).length);
   });
 });
 

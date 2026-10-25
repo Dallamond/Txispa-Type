@@ -3,7 +3,9 @@
 
 import type { Rutina } from "../types";
 import { mulberry32 } from "./rng";
-import { palabrasDelBanco } from "./textos";
+import { PALABRAS } from "../data/palabras";
+import type { Analisis } from "./debiles";
+import { palabrasAlternancia, palabrasDebiles, palabrasDelBanco } from "./textos";
 
 export type IdEjercicio =
   | "manos"
@@ -78,7 +80,7 @@ export const EJERCICIOS: Record<IdEjercicio, Ejercicio> = {
     tipo: "texto",
     entrena: "Solapamiento entre manos",
     detalle: "Palabras que alternan mano izquierda y derecha.",
-    disponible: false,
+    disponible: true,
   },
   pares: {
     id: "pares",
@@ -87,7 +89,7 @@ export const EJERCICIOS: Record<IdEjercicio, Ejercicio> = {
     tipo: "texto",
     entrena: "Tus puntos lentos",
     detalle: "Texto con tus pares de letras más lentos, a ritmo tranquilo.",
-    disponible: false,
+    disponible: true,
   },
   lento: {
     id: "lento",
@@ -106,7 +108,7 @@ export const EJERCICIOS: Record<IdEjercicio, Ejercicio> = {
     tipo: "texto",
     entrena: "Fluidez creciente",
     detalle: "Cada palabra se repite 5 veces y la siguiente tiene una letra más.",
-    disponible: false,
+    disponible: true,
   },
   metronomo: {
     id: "metronomo",
@@ -115,7 +117,7 @@ export const EJERCICIOS: Record<IdEjercicio, Ejercicio> = {
     tipo: "texto",
     entrena: "Ritmo parejo",
     detalle: "Teclea una frase al compás de un pulso.",
-    disponible: false,
+    disponible: true,
   },
 };
 
@@ -133,6 +135,12 @@ export const WPM_INICIAL = 46;
 /** Ejercicios de una rutina que se pueden hacer ya. */
 export function ejerciciosDeRutina(rutina: Rutina): Ejercicio[] {
   return RUTINAS[rutina].map((id) => EJERCICIOS[id]).filter((e) => e.disponible);
+}
+
+/** Duración de lo que se hace de verdad hoy: solo ejercicios disponibles, con las pausas entre ellos. */
+export function duracionDisponible(rutina: Rutina): number {
+  const ejs = ejerciciosDeRutina(rutina);
+  return ejs.reduce((s, e) => s + e.segundos, 0) + PAUSA_ENTRE_EJERCICIOS * ejs.length;
 }
 
 export function duracionRutina(rutina: Rutina): number {
@@ -201,7 +209,11 @@ function alReves(s: string): string {
 
 /** Palabras de un ejercicio de texto. Determinista por semilla.
  * Solo los ejercicios `disponible` tienen generador. */
-export function textoEjercicio(id: IdEjercicio, seed: number, opciones: { puntuacion: boolean }): string[] {
+export function textoEjercicio(
+  id: IdEjercicio,
+  seed: number,
+  opciones: { puntuacion: boolean; analisis?: Analisis }
+): string[] {
   switch (id) {
     case "escala":
       return [ABECEDARIO, alReves(ABECEDARIO), ABECEDARIO, alReves(ABECEDARIO)];
@@ -222,9 +234,33 @@ export function textoEjercicio(id: IdEjercicio, seed: number, opciones: { puntua
     }
     case "lento":
       return palabrasDelBanco(seed, { puntuacion: opciones.puntuacion, minPalabras: 150 });
+    case "metronomo":
+      return palabrasDelBanco(seed, { puntuacion: opciones.puntuacion, minPalabras: 150 });
+    case "alternancia":
+      return palabrasAlternancia(seed, { puntuacion: false, minPalabras: 150 });
+    case "pares": {
+      const op = { puntuacion: false, minPalabras: 150 };
+      return opciones.analisis && opciones.analisis.pares.length > 0
+        ? palabrasDebiles(seed, opciones.analisis, op, true)
+        : palabrasAlternancia(seed, op);
+    }
+    case "escalera":
+      return escalera(seed);
     default:
-      throw new Error(`El ejercicio ${id} aún no tiene generador de texto`);
+      throw new Error(`El ejercicio ${id} no tiene generador de texto`);
   }
+}
+
+/** Escalera: una palabra por longitud (2 a 10 letras), cada una repetida 5 veces. */
+export function escalera(seed: number): string[] {
+  const rng = mulberry32(seed);
+  const out: string[] = [];
+  for (let largo = 2; largo <= 10; largo++) {
+    const candidatas = PALABRAS.filter((w) => w.length === largo);
+    const palabra = candidatas[Math.floor(rng() * candidatas.length)];
+    for (let k = 0; k < 5; k++) out.push(palabra);
+  }
+  return out;
 }
 
 /** wpm al que avanza el cursor fantasma: el wpm medio × el porcentaje del ejercicio. */

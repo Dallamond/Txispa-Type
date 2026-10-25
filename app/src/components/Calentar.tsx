@@ -4,7 +4,7 @@ import {
   EJERCICIOS,
   PAUSA_ENTRE_EJERCICIOS,
   RUTINAS,
-  duracionRutina,
+  duracionDisponible,
   ejerciciosDeRutina,
   pasoGuiado,
   textoEjercicio,
@@ -123,7 +123,7 @@ function Elegir({
 }) {
   const rutina = ajustes.rutinaCalentamiento;
   const ejercicios = ejerciciosDeRutina(rutina);
-  const hechos = ejercicios.reduce((s, e) => s + e.segundos, 0);
+  const total = duracionDisponible(rutina);
   const pendientes = RUTINAS[rutina].length - ejercicios.length;
 
   return (
@@ -136,7 +136,7 @@ function Elegir({
         <div className="seg" role="group" aria-label="Rutina">
           {(Object.keys(NOMBRE_RUTINA) as Rutina[]).map((r) => (
             <button key={r} type="button" className={rutina === r ? "on" : ""} onClick={() => onCambiarAjustes({ rutinaCalentamiento: r })}>
-              {NOMBRE_RUTINA[r]} ({minutos(duracionRutina(r))})
+              {NOMBRE_RUTINA[r]} ({minutos(duracionDisponible(r))})
             </button>
           ))}
         </div>
@@ -153,7 +153,7 @@ function Elegir({
 
       <div className="acciones">
         <button type="button" className="btn primario" onClick={() => onEmpezar(ejercicios)} autoFocus>
-          Empezar ({minutos(hechos)})
+          Empezar ({minutos(total)})
         </button>
       </div>
 
