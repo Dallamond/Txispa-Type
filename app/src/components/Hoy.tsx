@@ -1,7 +1,6 @@
 import { useMemo } from "react";
 import type { Ajustes, Intento } from "../types";
 import {
-  diaLocal,
   mediaSemanal,
   mediasSemanales,
   objetivoDelDia,
@@ -9,6 +8,9 @@ import {
   testsDelDia,
   variacionSemanal,
 } from "../lib/estadisticas";
+
+import { formatoNumero, formatoVariacion, precisionBaja } from "../lib/historial";
+import { useHoy } from "../hooks/useHoy";
 
 type Destino = "calentar" | "test" | "estadisticas";
 
@@ -18,10 +20,9 @@ interface Props {
   onIr: (destino: Destino) => void;
 }
 
-const fmt = (n: number, d = 1) => n.toFixed(d).replace(".", ",");
 
 export default function Hoy({ ajustes, intentos, onIr }: Props) {
-  const hoy = diaLocal(new Date());
+  const hoy = useHoy();
   const datos = useMemo(() => {
     const lista = [...intentos];
     const semana = mediaSemanal(lista, hoy);
@@ -46,16 +47,15 @@ export default function Hoy({ ajustes, intentos, onIr }: Props) {
             <div className="cifra-etiqueta">{datos.racha === 1 ? "día de racha" : "días de racha"}</div>
           </div>
           <div className="cifra">
-            <div className="cifra-valor">{semana ? fmt(semana.wpm) : "—"}</div>
+            <div className="cifra-valor">{semana ? formatoNumero(semana.wpm) : "—"}</div>
             <div className="cifra-etiqueta">ppm media 7 días</div>
             {semana && (
               <div className="tenue">
-                {fmt(semana.acc)}% de precisión
+                {formatoNumero(semana.acc)} % de precisión
                 {datos.variacion !== null && (
                   <span className={datos.variacion >= 0 ? "cifra-delta sube" : "cifra-delta baja"}>
                     {" "}
-                    · {datos.variacion >= 0 ? "+" : "−"}
-                    {fmt(Math.abs(datos.variacion))}% vs semana anterior
+                    · {formatoVariacion(datos.variacion)} vs semana anterior
                   </span>
                 )}
               </div>
@@ -109,8 +109,8 @@ export default function Hoy({ ajustes, intentos, onIr }: Props) {
           <h2>Tests de hoy</h2>
           <div className="fichas">
             {datos.deHoy.map((i) => (
-              <span key={i.id} className={`ficha mono${i.acc < 95 ? " baja-precision" : ""}`}>
-                {fmt(i.wpm)} ppm · {fmt(i.acc)}%
+              <span key={i.id} className={`ficha mono${precisionBaja(i.acc) ? " baja-precision" : ""}`}>
+                {formatoNumero(i.wpm)} ppm · {formatoNumero(i.acc)} %
               </span>
             ))}
           </div>

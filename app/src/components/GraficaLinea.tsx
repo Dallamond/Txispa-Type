@@ -1,5 +1,5 @@
 import { dominioY, indicesEjeX } from "../lib/grafica";
-import { formatoNumero, mediaMovil } from "../lib/historial";
+import { formatoNumero, mediaMovil, ticksRedondos } from "../lib/historial";
 
 interface Props {
   /** Valores de más antiguo a más reciente. */
@@ -28,8 +28,8 @@ export default function GraficaLinea({ valores, etiquetas, metrica, titulo, unid
   const x = (i: number) => (n === 1 ? M.l + anchoUtil / 2 : M.l + (i / (n - 1)) * anchoUtil);
   const y = (v: number) => M.t + (1 - (v - lo) / (hi - lo)) * altoUtil;
 
-  const paso = (hi - lo) / 4;
-  const ticks = [0, 1, 2, 3, 4].map((k) => lo + paso * k);
+  const ticks = ticksRedondos(lo, hi);
+  const decimalesTick = ticks.every(Number.isInteger) ? 0 : 1;
   const movil = mediaMovil(valores, 5);
   const linea = (vs: readonly number[]) => vs.map((v, i) => `${i === 0 ? "M" : "L"}${x(i).toFixed(1)} ${y(v).toFixed(1)}`).join(" ");
 
@@ -45,7 +45,7 @@ export default function GraficaLinea({ valores, etiquetas, metrica, titulo, unid
         <g key={t}>
           <line x1={M.l} x2={W - M.r} y1={y(t)} y2={y(t)} className="grafica-rejilla" />
           <text x={M.l - 6} y={y(t) + 4} textAnchor="end" className="grafica-texto">
-            {formatoNumero(t, Number.isInteger(paso) ? 0 : 1)}
+            {formatoNumero(t, decimalesTick)}
           </text>
         </g>
       ))}

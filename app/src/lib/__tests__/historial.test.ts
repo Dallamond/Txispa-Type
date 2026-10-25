@@ -11,6 +11,7 @@ import {
   ordenarHistorial,
   precisionBaja,
   serieParaGrafica,
+  ticksRedondos,
 } from "../historial";
 import type { Intento } from "../../types";
 import { intentoDePrueba } from "./ayudas";
@@ -63,5 +64,29 @@ describe("historial", () => {
     expect(formatoHora("2026-07-01T10:05:00.000Z")).toBe("12:05");
     expect(etiquetaDuracion(30)).toBe("30 s");
     expect(etiquetaDuracion(120)).toBe("2 min");
+  });
+});
+
+describe("ticksRedondos", () => {
+  it("usa pasos redondos dentro del dominio", () => {
+    expect(ticksRedondos(30, 70)).toEqual([30, 40, 50, 60, 70]);
+    expect(ticksRedondos(85, 100)).toEqual([85, 90, 95, 100]);
+    expect(ticksRedondos(0, 12)).toEqual([0, 5, 10]);
+  });
+
+  it("entre 2 y 7 marcas y siempre dentro del rango", () => {
+    for (const [lo, hi] of [[0, 1], [3, 97], [90, 100], [12, 13.5], [0, 250]] as const) {
+      const t = ticksRedondos(lo, hi);
+      expect(t.length).toBeGreaterThanOrEqual(2);
+      expect(t.length).toBeLessThanOrEqual(7);
+      for (const v of t) {
+        expect(v).toBeGreaterThanOrEqual(lo - 1e-9);
+        expect(v).toBeLessThanOrEqual(hi + 1e-9);
+      }
+    }
+  });
+
+  it("un rango vacío devuelve solo el valor", () => {
+    expect(ticksRedondos(5, 5)).toEqual([5]);
   });
 });

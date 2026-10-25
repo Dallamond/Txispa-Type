@@ -7,7 +7,6 @@ export type FiltroModo = "test" | "entreno" | "todos";
 export type CampoOrden = "fecha" | "velocidad" | "precision";
 export type Direccion = "asc" | "desc";
 
-export { PRECISION_MINIMA };
 
 export function filtrarPorDuracion<T extends Intento>(intentos: readonly T[], duracion: FiltroDuracion): T[] {
   return duracion === "todas" ? [...intentos] : intentos.filter((i) => i.durationSec === duracion);
@@ -75,4 +74,19 @@ export function formatoVariacion(pct: number): string {
 
 export function etiquetaDuracion(s: number): string {
   return s < 60 || s % 60 !== 0 ? `${s} s` : `${s / 60} min`;
+}
+
+/** Marcas del eje Y en valores redondos (1, 2, 5 × 10^k) dentro de [lo, hi]: el paso
+ * más pequeño que deja como mucho 6 marcas. */
+export function ticksRedondos(lo: number, hi: number): number[] {
+  const rango = hi - lo;
+  if (!(rango > 0)) return [lo];
+  const e0 = Math.floor(Math.log10(rango)) - 2;
+  const pasos: number[] = [];
+  for (let e = e0; e <= e0 + 4; e++) for (const m of [1, 2, 5]) pasos.push(m * 10 ** e);
+  const cuenta = (p: number) => Math.floor(hi / p + 1e-9) - Math.ceil(lo / p - 1e-9) + 1;
+  const paso = pasos.find((p) => cuenta(p) <= 6) ?? pasos[pasos.length - 1];
+  const out: number[] = [];
+  for (let k = Math.ceil(lo / paso - 1e-9); k * paso <= hi + paso * 1e-9; k++) out.push(Math.round(k * paso * 1e6) / 1e6 + 0);
+  return out;
 }

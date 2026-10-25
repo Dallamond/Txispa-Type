@@ -3,7 +3,8 @@ import type { Ajustes, Duracion, Intento } from "../types";
 import { DURACIONES } from "../lib/ajustes";
 import { newSeed } from "../lib/rng";
 import { palabrasDelBanco } from "../lib/textos";
-import { diaLocal, objetivoDelDia, mediaSemanal } from "../lib/estadisticas";
+import { objetivoDelDia, mediaSemanal } from "../lib/estadisticas";
+import { useHoy } from "../hooks/useHoy";
 import type { ConfigIntento } from "../lib/intento";
 import Tecleo from "./Tecleo";
 
@@ -45,7 +46,7 @@ export default function Test({ ajustes, intentos, onGuardar, onCambiarAjustes }:
   const salir = useCallback(() => setPrueba(null), []);
   const repetir = useCallback(() => empezar(prueba?.config.durationSec ?? ajustes.duracionPorDefecto), [empezar, prueba, ajustes.duracionPorDefecto]);
 
-  const hoy = diaLocal(new Date());
+  const hoy = useHoy();
   const objetivo = useMemo(() => objetivoDelDia([...intentos], hoy, ajustes.objetivoTests), [intentos, hoy, ajustes.objetivoTests]);
   const semana = useMemo(() => mediaSemanal([...intentos], hoy), [intentos, hoy]);
 
