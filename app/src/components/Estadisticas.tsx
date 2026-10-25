@@ -21,7 +21,7 @@ import {
   filtrarPorDuracion,
   filtrarPorModo,
   formatoDia,
-  formatoDiaCorto,
+  etiquetasEje,
   formatoHora,
   formatoNumero,
   formatoTiempo,
@@ -70,9 +70,18 @@ function formatoSigno(n: number): string {
   return `${n > 0 ? "+" : n < 0 ? "−" : ""}${s}`;
 }
 
+type Vista = "resumen" | "teclas" | "historial";
+
+const VISTAS: Array<{ id: Vista; texto: string }> = [
+  { id: "resumen", texto: "Resumen" },
+  { id: "teclas", texto: "Teclas y errores" },
+  { id: "historial", texto: "Historial" },
+];
+
 export default function Estadisticas({ intentos, ajustes, pulsaciones, onPracticar }: Props) {
   const [duracion, setDuracion] = useState<FiltroDuracion>("todas");
   const [modo, setModo] = useState<FiltroModo>("test");
+  const [vista, setVista] = useState<Vista>("resumen");
   const [orden, setOrden] = useState<{ campo: CampoOrden; dir: Direccion }>({ campo: "fecha", dir: "desc" });
 
   const hoy = useHoy();
@@ -121,48 +130,31 @@ export default function Estadisticas({ intentos, ajustes, pulsaciones, onPractic
 
   const cambiarOrden = (campo: CampoOrden) =>
     setOrden((o) => (o.campo === campo ? { campo, dir: o.dir === "desc" ? "asc" : "desc" } : { campo, dir: "desc" }));
-  const etiquetas = serie.map((t) => formatoDiaCorto(t.localDate));
+  const etiquetas = etiquetasEje(serie);
 
   return (
     <>
+      <nav className="subpestanas" aria-label="Vistas de estadísticas">
+        {VISTAS.map((v) => (
+          <button key={v.id} type="button" className={vista === v.id ? "on" : ""} aria-current={vista === v.id ? "page" : undefined} onClick={() => setVista(v.id)}>
+            {v.texto}
+          </button>
+        ))}
+      </nav>
+      {vista === "resumen" && (
+        <>
       <section className="tarjeta">
-        <h1>Estadísticas</h1>
         <div className="est-cifras">
-          <div className="cifra">
-            <div className="cifra-valor">{tests.length}</div>
-            <div className="cifra-etiqueta">Tests totales</div>
-          </div>
-          <div className="cifra">
-            <div className="cifra-valor">{formatoEntero(pulsaciones)}</div>
-            <div className="cifra-etiqueta">Pulsaciones totales</div>
-            <div className="est-cifra-sub">aciertos y errores; tests, entrenos y calentamientos</div>
-          </div>
-          <div className="cifra">
-            <div className="cifra-valor">{formatoTiempo(tiempoHoy.segundos)}</div>
-            <div className="cifra-etiqueta">Tiempo hoy</div>
-            <div className="est-cifra-sub">meta: {ajustes.objetivoMinutos} min al día</div>
-          </div>
-          <div className="cifra">
-            <div className="cifra-valor">{resumen.racha}</div>
-            <div className="cifra-etiqueta">Racha (días)</div>
-            <div className="est-cifra-sub">objetivo: {ajustes.objetivoTests} tests al día</div>
-          </div>
-          <div className="cifra">
-            <div className="cifra-valor">{resumen.mejor ? formatoNumero(resumen.mejor.wpm) : "–"}</div>
-            <div className="cifra-etiqueta">Mejor ppm</div>
-            {resumen.mejor && <div className="est-cifra-sub">con {formatoNumero(resumen.mejor.acc)} % de precisión</div>}
-          </div>
-          <div className="cifra">
+          <div className="cifra cifra-hero">
             <div className="cifra-valor">{resumen.semana ? formatoNumero(resumen.semana.wpm) : "–"}</div>
             <div className="cifra-etiqueta">Media 7 días (ppm)</div>
             {resumen.semana ? (
               <div className="est-cifra-sub">
-                con {formatoNumero(resumen.semana.acc)} % de precisión
+                {formatoNumero(resumen.semana.acc)} % de precisión
                 {resumen.variacion !== null && (
                   <>
                     {" · "}
-                    <span className={`cifra-delta ${resumen.variacion >= 0 ? "sube" : "baja"}`}>{formatoVariacion(resumen.variacion)}</span> frente a la semana
-                    anterior
+                    <span className={`cifra-delta ${resumen.variacion >= 0 ? "sube" : "baja"}`}>{formatoVariacion(resumen.variacion)}</span> vs semana anterior
                   </>
                 )}
               </div>
@@ -170,9 +162,32 @@ export default function Estadisticas({ intentos, ajustes, pulsaciones, onPractic
               <div className="est-cifra-sub">sin tests esta semana</div>
             )}
           </div>
+          <div className="cifra">
+            <div className="cifra-valor">{resumen.mejor ? formatoNumero(resumen.mejor.wpm) : "–"}</div>
+            <div className="cifra-etiqueta">Mejor ppm</div>
+            {resumen.mejor && <div className="est-cifra-sub">con {formatoNumero(resumen.mejor.acc)} % de precisión</div>}
+          </div>
+          <div className="cifra">
+            <div className="cifra-valor">{tests.length}</div>
+            <div className="cifra-etiqueta">Tests totales</div>
+          </div>
+          <div className="cifra">
+            <div className="cifra-valor">{resumen.racha}</div>
+            <div className="cifra-etiqueta">Racha (días)</div>
+            <div className="est-cifra-sub">objetivo: {ajustes.objetivoTests} tests al día</div>
+          </div>
+          <div className="cifra">
+            <div className="cifra-valor">{formatoTiempo(tiempoHoy.segundos)}</div>
+            <div className="cifra-etiqueta">Tiempo hoy</div>
+            <div className="est-cifra-sub">meta: {ajustes.objetivoMinutos} min al día</div>
+          </div>
+          <div className="cifra">
+            <div className="cifra-valor">{formatoEntero(pulsaciones)}</div>
+            <div className="cifra-etiqueta">Pulsaciones totales</div>
+            <div className="est-cifra-sub">tests, entrenos y calentamientos</div>
+          </div>
         </div>
       </section>
-
       <section className="tarjeta">
         <div className="est-filtros">
           <h1>Evolución</h1>
@@ -192,10 +207,14 @@ export default function Estadisticas({ intentos, ajustes, pulsaciones, onPractic
         ) : (
           <>
             <p className="tenue">Últimos {serie.length} tests. Línea gruesa: media móvil de 5.</p>
-            <h2>Velocidad neta (ppm)</h2>
-            <GraficaLinea valores={serie.map((t) => t.wpm)} etiquetas={etiquetas} metrica="wpm" titulo="Velocidad neta" unidad="ppm" />
-            <h2>Precisión (%)</h2>
-            <GraficaLinea
+            <div className="graficas-par">
+              <figure className="grafica-caja">
+                <figcaption>Velocidad neta (ppm)</figcaption>
+                <GraficaLinea valores={serie.map((t) => t.wpm)} etiquetas={etiquetas} metrica="wpm" titulo="Velocidad neta" unidad="ppm" />
+              </figure>
+              <figure className="grafica-caja">
+                <figcaption>Precisión (%)</figcaption>
+                <GraficaLinea
               valores={serie.map((t) => t.acc)}
               etiquetas={etiquetas}
               metrica="acc"
@@ -203,11 +222,35 @@ export default function Estadisticas({ intentos, ajustes, pulsaciones, onPractic
               unidad="%"
               umbralBajo={PRECISION_MINIMA}
             />
+              </figure>
+            </div>
             <p className="tenue">Los puntos en rojo son tests con precisión por debajo del {PRECISION_MINIMA} %.</p>
           </>
         )}
       </section>
-
+      <section className="tarjeta">
+        <h1>Tendencia</h1>
+        <div className="est-cifras">
+          <div className="cifra">
+            <div className="cifra-valor">{tendenciaSemanal !== null ? formatoSigno(tendenciaSemanal) : "–"}</div>
+            <div className="cifra-etiqueta">ppm por semana</div>
+            <div className="est-cifra-sub">
+              {tendenciaSemanal !== null ? "pendiente de las últimas 8 semanas" : "faltan semanas con datos"}
+            </div>
+          </div>
+          <div className="cifra">
+            <div className="cifra-valor">{medianaHoy !== null ? formatoNumero(medianaHoy) : "–"}</div>
+            <div className="cifra-etiqueta">Mediana de hoy (ppm)</div>
+            {medianaHoy === null && <div className="est-cifra-sub">sin tests hoy</div>}
+          </div>
+          <div className="cifra">
+            <div className="cifra-valor">{peorHoy !== null ? formatoNumero(peorHoy) : "–"}</div>
+            <div className="cifra-etiqueta">Peor test de hoy (ppm)</div>
+            {peorHoy === null && <div className="est-cifra-sub">sin tests hoy</div>}
+          </div>
+        </div>
+        <p className="tenue">La tendencia es la pendiente de las medias semanales de las últimas 8 semanas.</p>
+      </section>
       <section className="tarjeta">
         <h1>Últimos 14 días</h1>
         {dias.length === 0 ? (
@@ -243,7 +286,143 @@ export default function Estadisticas({ intentos, ajustes, pulsaciones, onPractic
           </div>
         )}
       </section>
+      <section className="tarjeta">
+        <h1>Calendario</h1>
+        <Calendario hoy={hoy} cumplidos={cumplidos} />
+      </section>
+        </>
+      )}
+      {vista === "teclas" && (
+        <>
+      <section className="tarjeta">
+        <h1>Teclas y pares débiles</h1>
+        <p className="tenue">Calculado con tus últimos {analisis.intentosUsados} intentos (máximo 30).</p>
+        <div className="deb-teclado">
+          <VirtualKeyboard guide={false} calor={calor} />
+        </div>
+        <div className="deb-leyenda" aria-label="Leyenda del mapa de calor">
+          <span className="deb-leyenda-item">
+            <span className="deb-muestra sin-datos" aria-hidden="true" /> gris = pocos datos
+          </span>
+          <span className="deb-leyenda-item">
+            <span className="deb-muestra rojo" aria-hidden="true" /> rojo = más problemas
+          </span>
+        </div>
 
+        <div className="deb-acciones">
+          <button type="button" className="btn primario" disabled={analisis.debiles.length === 0} onClick={() => onPracticar("debiles")}>
+            Practicar teclas problemáticas
+          </button>
+          <button type="button" className="btn" disabled={analisis.pares.length === 0} onClick={() => onPracticar("pares")}>
+            Practicar pares lentos
+          </button>
+        </div>
+
+        <div className="deb-tablas">
+          <div>
+        {analisis.debiles.length === 0 ? (
+          <p className="tenue">
+            Todavía no hay teclas débiles claras. Sigue haciendo tests y entrenos: cuando haya datos suficientes aparecerán aquí las teclas que más fallas o
+            que tecleas más despacio.
+          </p>
+        ) : (
+          <>
+            <h2>Teclas débiles</h2>
+            <div className="est-tabla-caja">
+              <table className="est-tabla">
+                <thead>
+                  <tr>
+                    <th scope="col">Tecla</th>
+                    <th scope="col">Fallos</th>
+                    <th scope="col">Latencia</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {analisis.debiles.map((t) => (
+                    <tr key={t.tecla}>
+                      <td>
+                        <kbd className="deb-tecla">{t.tecla}</kbd>
+                        {t.semilla && (
+                          <>
+                            {" "}
+                            <span className="deb-semilla" title="dato inicial de typing.com, aún sin datos propios suficientes">
+                              semilla
+                            </span>
+                          </>
+                        )}
+                      </td>
+                      <td>{formatoNumero(t.errRate * 100)} %</td>
+                      <td>{t.latRel !== null ? `×${formatoNumero(t.latRel)} de lo normal` : "—"}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            {analisis.debiles.some((t) => t.semilla) && (
+              <p className="tenue">
+                <span className="deb-semilla">semilla</span>: dato inicial de typing.com, aún sin datos propios suficientes.
+              </p>
+            )}
+          </>
+        )}
+
+          </div>
+          <div>
+        <h2>Pares lentos</h2>
+        {analisis.pares.length === 0 ? (
+          <p className="tenue">Aún no hay pares claramente lentos.</p>
+        ) : (
+          <div className="est-tabla-caja">
+            <table className="est-tabla">
+              <thead>
+                <tr>
+                  <th scope="col">Par</th>
+                  <th scope="col">Tiempo medio</th>
+                  <th scope="col">Veces</th>
+                  <th scope="col">Latencia</th>
+                </tr>
+              </thead>
+              <tbody>
+                {analisis.pares.map((p) => (
+                  <tr key={p.par}>
+                    <td>
+                      <kbd className="deb-tecla">{p.par}</kbd>
+                    </td>
+                    <td>{formatoEntero(p.ms)} ms</td>
+                    <td>{formatoEntero(p.n)}</td>
+                    <td>×{formatoNumero(p.latRel)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+
+          </div>
+        </div>
+      </section>
+      <section className="tarjeta">
+        <h1>Confusiones</h1>
+        {confusiones.length === 0 ? (
+          <p className="tenue">Sin confusiones registradas en tus últimos intentos. Buena señal.</p>
+        ) : (
+          <>
+            <p className="tenue">Las más repetidas en tus últimos {analisis.intentosUsados} intentos: lo que debías teclear → lo que tecleaste.</p>
+            <ol className="conf-lista">
+              {confusiones.map((c) => (
+                <li key={`${c.esperada}>${c.escrita}`}>
+                  <kbd className="deb-tecla">{c.esperada}</kbd> → <kbd className="deb-tecla">{c.escrita}</kbd> · {c.veces} {c.veces === 1 ? "vez" : "veces"} ·{" "}
+                  {formatoEntero(c.porcentaje)} %
+                </li>
+              ))}
+            </ol>
+          </>
+        )}
+      </section>
+        </>
+      )}
+      {vista === "historial" && (
+        <>
       <section className="tarjeta">
         <div className="est-filtros">
           <h1>Historial</h1>
@@ -295,155 +474,8 @@ export default function Estadisticas({ intentos, ajustes, pulsaciones, onPractic
           </div>
         )}
       </section>
-
-      <section className="tarjeta">
-        <h1>Tendencia</h1>
-        <div className="est-cifras">
-          <div className="cifra">
-            <div className="cifra-valor">{tendenciaSemanal !== null ? formatoSigno(tendenciaSemanal) : "–"}</div>
-            <div className="cifra-etiqueta">ppm por semana</div>
-            <div className="est-cifra-sub">
-              {tendenciaSemanal !== null ? `Tendencia: ${formatoSigno(tendenciaSemanal)} ppm por semana` : "Tendencia: sin datos suficientes"}
-            </div>
-          </div>
-          <div className="cifra">
-            <div className="cifra-valor">{medianaHoy !== null ? formatoNumero(medianaHoy) : "–"}</div>
-            <div className="cifra-etiqueta">Mediana de hoy (ppm)</div>
-            {medianaHoy === null && <div className="est-cifra-sub">sin tests hoy</div>}
-          </div>
-          <div className="cifra">
-            <div className="cifra-valor">{peorHoy !== null ? formatoNumero(peorHoy) : "–"}</div>
-            <div className="cifra-etiqueta">Peor test de hoy (ppm)</div>
-            {peorHoy === null && <div className="est-cifra-sub">sin tests hoy</div>}
-          </div>
-        </div>
-        <p className="tenue">La tendencia es la pendiente de las medias semanales de las últimas 8 semanas.</p>
-      </section>
-
-      <section className="tarjeta">
-        <h1>Teclas y pares débiles</h1>
-        <p className="tenue">Calculado con tus últimos {analisis.intentosUsados} intentos (máximo 30).</p>
-        <div className="deb-teclado">
-          <VirtualKeyboard guide={false} calor={calor} />
-        </div>
-        <div className="deb-leyenda" aria-label="Leyenda del mapa de calor">
-          <span className="deb-leyenda-item">
-            <span className="deb-muestra sin-datos" aria-hidden="true" /> gris = pocos datos
-          </span>
-          <span className="deb-leyenda-item">
-            <span className="deb-muestra rojo" aria-hidden="true" /> rojo = más problemas
-          </span>
-        </div>
-
-        {analisis.debiles.length === 0 ? (
-          <p className="tenue">
-            Todavía no hay teclas débiles claras. Sigue haciendo tests y entrenos: cuando haya datos suficientes aparecerán aquí las teclas que más fallas o
-            que tecleas más despacio.
-          </p>
-        ) : (
-          <>
-            <h2>Teclas débiles</h2>
-            <div className="est-tabla-caja">
-              <table className="est-tabla">
-                <thead>
-                  <tr>
-                    <th scope="col">Tecla</th>
-                    <th scope="col">Fallos</th>
-                    <th scope="col">Latencia</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {analisis.debiles.map((t) => (
-                    <tr key={t.tecla}>
-                      <td>
-                        <kbd className="deb-tecla">{t.tecla}</kbd>
-                        {t.semilla && (
-                          <>
-                            {" "}
-                            <span className="deb-semilla" title="dato inicial de typing.com, aún sin datos propios suficientes">
-                              semilla
-                            </span>
-                          </>
-                        )}
-                      </td>
-                      <td>{formatoNumero(t.errRate * 100)} %</td>
-                      <td>{t.latRel !== null ? `×${formatoNumero(t.latRel)} de lo normal` : "—"}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-            {analisis.debiles.some((t) => t.semilla) && (
-              <p className="tenue">
-                <span className="deb-semilla">semilla</span>: dato inicial de typing.com, aún sin datos propios suficientes.
-              </p>
-            )}
-          </>
-        )}
-
-        <h2>Pares lentos</h2>
-        {analisis.pares.length === 0 ? (
-          <p className="tenue">Aún no hay pares claramente lentos.</p>
-        ) : (
-          <div className="est-tabla-caja">
-            <table className="est-tabla">
-              <thead>
-                <tr>
-                  <th scope="col">Par</th>
-                  <th scope="col">Tiempo medio</th>
-                  <th scope="col">Veces</th>
-                  <th scope="col">Latencia</th>
-                </tr>
-              </thead>
-              <tbody>
-                {analisis.pares.map((p) => (
-                  <tr key={p.par}>
-                    <td>
-                      <kbd className="deb-tecla">{p.par}</kbd>
-                    </td>
-                    <td>{formatoEntero(p.ms)} ms</td>
-                    <td>{formatoEntero(p.n)}</td>
-                    <td>×{formatoNumero(p.latRel)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-
-        <div className="deb-acciones">
-          <button type="button" className="btn primario" disabled={analisis.debiles.length === 0} onClick={() => onPracticar("debiles")}>
-            Practicar teclas problemáticas
-          </button>
-          <button type="button" className="btn" disabled={analisis.pares.length === 0} onClick={() => onPracticar("pares")}>
-            Practicar pares lentos
-          </button>
-        </div>
-      </section>
-
-      <section className="tarjeta">
-        <h1>Confusiones</h1>
-        {confusiones.length === 0 ? (
-          <p className="tenue">Sin confusiones registradas en tus últimos intentos. Buena señal.</p>
-        ) : (
-          <>
-            <p className="tenue">Las más repetidas en tus últimos {analisis.intentosUsados} intentos: lo que debías teclear → lo que tecleaste.</p>
-            <ol className="conf-lista">
-              {confusiones.map((c) => (
-                <li key={`${c.esperada}>${c.escrita}`}>
-                  <kbd className="deb-tecla">{c.esperada}</kbd> → <kbd className="deb-tecla">{c.escrita}</kbd> · {c.veces} {c.veces === 1 ? "vez" : "veces"} ·{" "}
-                  {formatoEntero(c.porcentaje)} %
-                </li>
-              ))}
-            </ol>
-          </>
-        )}
-      </section>
-
-      <section className="tarjeta">
-        <h1>Calendario</h1>
-        <Calendario hoy={hoy} cumplidos={cumplidos} />
-      </section>
+        </>
+      )}
     </>
   );
 }

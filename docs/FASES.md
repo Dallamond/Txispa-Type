@@ -14,6 +14,7 @@ Cambios de esta sesión, tras probar la app Lucas:
 - Pulsaciones totales (aciertos más errores) y tiempo de hoy en Estadísticas.
 - El resultado de un test muestra la gráfica de todos los tests con el actual resaltado, su puesto y si es récord (`posicionEnHistorial`).
 - Calentar pasa a ser una sola sesión tecleada de duración elegible (se quitan los ejercicios de manos y las rutinas; ajuste `calentamientoMin`, 5 por defecto). Temporizador m:ss arriba en todas las pantallas de tecleo.
+- Rediseño de la interfaz: paleta más neutra, cabecera con pestañas subrayadas, tarjetas con más aire, cifras sin cajas y tablas sin fondos rojos. Estadísticas se divide en tres vistas (Resumen, Teclas y errores, Historial). Las gráficas miden su ancho real (texto a tamaño natural), con degradado bajo la media móvil, valor final y horas en el eje cuando todos los tests son del mismo día.
 - Cabecera fija con el tiempo de práctica de hoy (reloj, meta y barra, en vivo; solo tests y entrenos) y el contador global de pulsaciones, que sube en vivo (intentos guardados + calentamientos en `txispatype.calentamiento.v1` + sesión en curso).
 - Fase 4: `lib/ia.ts` (listado de modelos, generación con 30 s, validación, un reintento, caché de 20 textos), fuente **IA** en Entrenar y en el entreno del jueves, ajustes de Ollama con "Detectar modelos", y `iaHashes` en el intento.
 
@@ -31,6 +32,11 @@ Decisión que conviene que revises: un entreno largo necesita unas 1300 palabras
 - [ ] Cerrar la pestaña a mitad de un test y volver: no queda nada guardado a medias. Ctrl+R durante un test: no cuenta como fallo.
 - [ ] Resultado: la gráfica muestra todos los tests, el punto grande es el actual y el puesto tiene sentido.
 - [ ] Ritmo constante y teclas falladas del resultado tienen sentido.
+
+**Aspecto general**
+- [ ] Tema claro: contraste correcto en cabecera, tarjetas, tablas y gráficas.
+- [ ] Estadísticas > Resumen, Teclas y errores, Historial: todo se lee bien con ~1280x720 y en una ventana estrecha (las gráficas pasan a una columna).
+- [ ] Las gráficas del Resumen y la del resultado de un test se ven nítidas y con el eje X legible.
 
 **Contador y cabecera**
 - [ ] La cabecera se queda fija al hacer scroll y el contador sube con cada pulsación, también en el calentamiento.

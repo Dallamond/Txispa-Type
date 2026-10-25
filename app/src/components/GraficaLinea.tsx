@@ -1,3 +1,4 @@
+import { useEffect, useId, useRef, useState } from "react";
 import { dominioY, indicesEjeX } from "../lib/grafica";
 import { formatoNumero, mediaMovil, ticksRedondos } from "../lib/historial";
 
@@ -16,11 +17,28 @@ interface Props {
   destacar?: number;
 }
 
-const W = 640;
-const H = 220;
-const M = { t: 12, r: 14, b: 26, l: 40 };
+const M = { t: 16, r: 14, b: 26, l: 40 };
+
+/** Ancho del SVG = ancho real de su caja, para que el texto salga siempre a tamaño natural. */
+function useAncho(): [React.RefObject<HTMLDivElement | null>, number] {
+  const ref = useRef<HTMLDivElement | null>(null);
+  const [ancho, setAncho] = useState(640);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof ResizeObserver === "undefined") return;
+    const medir = () => setAncho(Math.max(260, Math.round(el.clientWidth)));
+    medir();
+    const ro = new ResizeObserver(medir);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+  return [ref, ancho];
+}
 
 export default function GraficaLinea({ valores, etiquetas, metrica, titulo, unidad, umbralBajo, destacar }: Props) {
+  const [caja, W] = useAncho();
+  const idDegradado = useId();
+  const H = Math.min(300, Math.max(200, Math.round(W * 0.55)));
   const n = valores.length;
   if (n === 0) return <p className="tenue">Sin datos para esta gráfica.</p>;
 
@@ -41,8 +59,15 @@ export default function GraficaLinea({ valores, etiquetas, metrica, titulo, unid
   )}, máximo ${formatoNumero(Math.max(...valores))}.`;
 
   return (
+    <div ref={caja} className="grafica-contenedor">
     <svg className="grafica" viewBox={`0 0 ${W} ${H}`} role="img" aria-label={resumen} preserveAspectRatio="xMidYMid meet">
       <title>{resumen}</title>
+      <defs>
+        <linearGradient id={idDegradado} x1="0" x2="0" y1="0" y2="1">
+          <stop offset="0%" stopColor="var(--accent)" stopOpacity="0.28" />
+          <stop offset="100%" stopColor="var(--accent)" stopOpacity="0" />
+        </linearGradient>
+      </defs>
       {ticks.map((t) => (
         <g key={t}>
           <line x1={M.l} x2={W - M.r} y1={y(t)} y2={y(t)} className="grafica-rejilla" />
@@ -56,8 +81,14 @@ export default function GraficaLinea({ valores, etiquetas, metrica, titulo, unid
           {etiquetas[i]}
         </text>
       ))}
+      {n > 1 && <path d={`${linea(movil)} L${x(n - 1).toFixed(1)} ${(H - M.b).toFixed(1)} L${x(0).toFixed(1)} ${(H - M.b).toFixed(1)} Z`} className="grafica-area" fill={`url(#${idDegradado})`} />}
       {n > 1 && <path d={linea(valores)} className="grafica-serie" />}
       {n > 1 && <path d={linea(movil)} className="grafica-movil" />}
+      {destacar === undefined && n > 1 && (
+        <text x={x(n - 1)} y={y(ultimo) - 10} textAnchor="end" className="grafica-etiqueta-final" aria-hidden="true">
+          {formatoNumero(ultimo)}
+        </text>
+      )}
       {destacar !== undefined && destacar >= 0 && destacar < n && (
         <g aria-hidden="true">
           <line x1={x(destacar)} x2={x(destacar)} y1={M.t} y2={H - M.b} className="grafica-guia" />
@@ -76,5 +107,6 @@ export default function GraficaLinea({ valores, etiquetas, metrica, titulo, unid
         </circle>
       ))}
     </svg>
+    </div>
   );
 }

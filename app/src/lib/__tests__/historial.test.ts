@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   etiquetaDuracion,
+  etiquetasEje,
   filtrarPorDuracion,
   filtrarPorModo,
   formatoDia,
@@ -138,5 +139,15 @@ describe("formatoReloj", () => {
     expect(formatoReloj(425)).toBe("7:05");
     expect(formatoReloj(3723)).toBe("1:02:03");
     expect(formatoReloj(-4)).toBe("0:00");
+  });
+});
+
+describe("etiquetasEje", () => {
+  const mk = (id: string, dia: string, hora: string): Intento => intentoDePrueba(id, dia + "T" + hora + ":00:00.000Z");
+  it("usa la hora si todos los tests son del mismo día y el día si no", () => {
+    const mismo = etiquetasEje([mk("a", "2026-10-25", "08"), mk("b", "2026-10-25", "09")]);
+    expect(mismo[0]).toMatch(/^\d{1,2}:\d{2}$/);
+    expect(etiquetasEje([mk("a", "2026-10-24", "08"), mk("b", "2026-10-25", "09")])).toEqual(["24/10", "25/10"]);
+    expect(etiquetasEje([])).toEqual([]);
   });
 });

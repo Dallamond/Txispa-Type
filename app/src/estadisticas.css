@@ -1,8 +1,78 @@
 /* Pantalla Estadísticas: solo estilos propios; los tokens vienen de index.css. */
 .est-cifras {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 10px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 28px 32px;
+}
+
+@media (max-width: 720px) {
+  .est-cifras {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.est-cifras .cifra-hero .cifra-valor {
+  font-size: 40px;
+  color: var(--accent);
+}
+
+/* Sub-pestañas: Resumen, Teclas y errores, Historial. */
+.subpestanas {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 16px;
+}
+
+.subpestanas button {
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--dim);
+  padding: 7px 16px;
+  border-radius: 999px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: color 0.12s ease, background 0.12s ease;
+}
+
+.subpestanas button:hover {
+  color: var(--text);
+}
+
+.subpestanas button.on {
+  background: var(--bg2);
+  border-color: var(--border);
+  color: var(--text);
+}
+
+.subpestanas button:focus-visible {
+  outline: none;
+  box-shadow: var(--ring);
+}
+
+.graficas-par {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+  margin: 14px 0 8px;
+}
+
+@media (max-width: 860px) {
+  .graficas-par {
+    grid-template-columns: 1fr;
+  }
+}
+
+.grafica-caja {
+  margin: 0;
+}
+
+.grafica-caja figcaption {
+  font-size: 11.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--dim);
+  margin-bottom: 6px;
 }
 
 .est-filtros {
@@ -11,7 +81,7 @@
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  margin: 0 0 8px;
+  margin: 0 0 12px;
 }
 
 .est-filtros h1 {
@@ -24,6 +94,10 @@
   font-variant-numeric: tabular-nums;
 }
 
+.grafica-contenedor {
+  width: 100%;
+}
+
 .grafica {
   width: 100%;
   height: auto;
@@ -33,10 +107,11 @@
 .grafica-rejilla {
   stroke: var(--border-soft);
   stroke-width: 1;
+  stroke-dasharray: 2 4;
 }
 
 .grafica-texto {
-  fill: var(--dim);
+  fill: var(--faint);
   font-size: 11px;
   font-variant-numeric: tabular-nums;
 }
@@ -45,6 +120,7 @@
   fill: none;
   stroke: var(--faint);
   stroke-width: 1;
+  opacity: 0.7;
 }
 
 .grafica-movil {
@@ -52,11 +128,23 @@
   stroke: var(--accent);
   stroke-width: 2.5;
   stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+.grafica-area {
+  stroke: none;
+}
+
+.grafica-etiqueta-final {
+  fill: var(--text);
+  font-size: 12px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
 }
 
 .grafica-punto {
   fill: var(--text);
-  opacity: 0.75;
+  opacity: 0.6;
 }
 
 .grafica-punto.bajo {
@@ -75,12 +163,20 @@
   font-variant-numeric: tabular-nums;
 }
 
+.est-tabla tbody tr:hover td {
+  background: var(--bg3);
+}
+
 .est-tabla th,
 .est-tabla td {
-  padding: 6px 10px;
+  padding: 10px 12px;
   text-align: right;
   border-bottom: 1px solid var(--border-soft);
   white-space: nowrap;
+}
+
+.est-tabla tbody tr:last-child td {
+  border-bottom: 0;
 }
 
 .est-tabla th:first-child,
@@ -89,11 +185,11 @@
 }
 
 .est-tabla th {
-  color: var(--dim);
+  color: var(--faint);
   font-weight: 600;
-  font-size: 12px;
+  font-size: 11.5px;
   text-transform: uppercase;
-  letter-spacing: 0.4px;
+  letter-spacing: 0.08em;
 }
 
 .est-tabla th button {
@@ -109,7 +205,7 @@
 }
 
 .est-tabla tr.baja td {
-  background: color-mix(in srgb, var(--danger) 12%, transparent);
+  background: transparent;
 }
 
 .est-tabla td.baja {
@@ -251,4 +347,21 @@
   stroke-width: 1;
   stroke-dasharray: 3 4;
   opacity: 0.6;
+}
+
+.deb-tablas {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px 32px;
+  margin-top: 8px;
+}
+
+@media (max-width: 860px) {
+  .deb-tablas {
+    grid-template-columns: 1fr;
+  }
+}
+
+.deb-acciones {
+  margin: 4px 0 8px;
 }

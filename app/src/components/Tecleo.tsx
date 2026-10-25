@@ -17,7 +17,7 @@ import { posicionFantasma } from "../lib/calentamientos";
 import { useContadorTecleo } from "../hooks/ContadorTecleo";
 import AreaTexto from "./AreaTexto";
 import GraficaLinea from "./GraficaLinea";
-import { formatoDiaCorto, posicionEnHistorial } from "../lib/historial";
+import { etiquetasEje, posicionEnHistorial } from "../lib/historial";
 import VirtualKeyboard from "./VirtualKeyboard";
 
 interface Props {
@@ -298,7 +298,7 @@ function Resultado({
               </p>
               <GraficaLinea
                 valores={posicion.serie.map((t) => t.wpm)}
-                etiquetas={posicion.serie.map((t) => formatoDiaCorto(t.localDate))}
+                etiquetas={etiquetasEje(posicion.serie)}
                 metrica="wpm"
                 titulo="Velocidad neta de todos los tests"
                 unidad="ppm"

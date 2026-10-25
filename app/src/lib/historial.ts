@@ -133,3 +133,9 @@ export function posicionEnHistorial(intentos: readonly Intento[], actual: Intent
   const serie = tests.slice(-n);
   return { serie, indice: serie.findIndex((t) => t.id === actual.id), puesto, total: tests.length, esRecord };
 }
+
+/** Etiquetas del eje X de una serie de tests: la hora si todos son del mismo día, el día si no. */
+export function etiquetasEje(serie: readonly Intento[]): string[] {
+  const mismoDia = new Set(serie.map((t) => t.localDate)).size <= 1;
+  return serie.map((t) => (mismoDia ? formatoHora(t.date) : formatoDiaCorto(t.localDate)));
+}
