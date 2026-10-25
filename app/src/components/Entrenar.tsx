@@ -6,11 +6,11 @@ import type { ConfigIntento } from "../lib/intento";
 import { calcularAjustes, focoDelDia, type FuenteEntreno } from "../lib/plan";
 import { newSeed } from "../lib/rng";
 import { PALABRAS_MINIMAS, palabrasAlternancia, palabrasDebiles, palabrasDelBanco } from "../lib/textos";
-import { WPM_INICIAL } from "../lib/calentamientos";
+import { WPM_INICIAL, pulsoInicial } from "../lib/calentamientos";
 import { useHoy } from "../hooks/useHoy";
 import Tecleo from "./Tecleo";
 
-export type FuenteEntrenar = "debiles" | "pares" | "alternancia" | "banco";
+export type FuenteEntrenar = "debiles" | "pares" | "alternancia" | "banco" | "metronomo";
 
 export interface PedidoEntreno {
   fuente: FuenteEntrenar;
@@ -31,6 +31,7 @@ const FUENTES: { id: FuenteEntrenar; nombre: string; detalle: string }[] = [
   { id: "pares", nombre: "Pares lentos", detalle: "Solo refuerza los pares de letras en los que pierdes tiempo." },
   { id: "alternancia", nombre: "Alternancia de manos", detalle: "Palabras que cambian de mano a cada letra." },
   { id: "banco", nombre: "Texto corrido", detalle: "Párrafos naturales en español." },
+  { id: "metronomo", nombre: "Metrónomo", detalle: "Texto al compás de un pulso que puedes subir o bajar." },
 ];
 
 const DURACIONES_ENTRENO = [60, 120, 300, 600, 720];
@@ -44,11 +45,12 @@ interface Sesion {
   /** Para repetir la misma sesión con otro texto. */
   fuenteUi: FuenteEntrenar;
   fantasmaPorcentaje: number | null;
+  pulsoWpm: number | null;
 }
 
 /** De la fuente del plan a la que sabe generar la pantalla (la IA llega en la fase 4). */
 function fuenteDelPlan(f: FuenteEntreno): FuenteEntrenar {
-  return f === "ia" || f === "metronomo" ? "banco" : f;
+  return f === "ia" ? "banco" : f;
 }
 
 export default function Entrenar({ ajustes, intentos, onGuardar, pedido }: Props) {
@@ -80,14 +82,23 @@ export default function Entrenar({ ajustes, intentos, onGuardar, pedido }: Props
         default:
           palabras = palabrasDelBanco(seed, op);
       }
-      const fuenteGuardada: Fuente = f === "debiles" || f === "pares" ? "debiles" : f === "alternancia" ? "alternancia" : "banco";
+      const fuenteGuardada: Fuente =
+        f === "debiles" || f === "pares" ? "debiles" : f === "alternancia" ? "alternancia" : f === "metronomo" ? "ejercicio" : "banco";
       setSesion({
-        config: { modo: "entreno", fuente: fuenteGuardada, durationSec, seed, estricto: ajustes.estrictoPorDefecto },
+        config: {
+          modo: "entreno",
+          fuente: fuenteGuardada,
+          ...(f === "metronomo" ? { ejercicioId: "metronomo" } : {}),
+          durationSec,
+          seed,
+          estricto: ajustes.estrictoPorDefecto,
+        },
         palabras,
         titulo: `Entreno · ${FUENTES.find((x) => x.id === f)?.nombre ?? f} · ${etiqueta(durationSec)}`,
         fantasmaWpm: fantasmaPorcentaje === null ? null : (wpmMedio ?? WPM_INICIAL) * fantasmaPorcentaje,
         fuenteUi: f,
         fantasmaPorcentaje,
+        pulsoWpm: f === "metronomo" ? pulsoInicial(wpmMedio) : null,
       });
       setClave((c) => c + 1);
     },
@@ -120,6 +131,7 @@ export default function Entrenar({ ajustes, intentos, onGuardar, pedido }: Props
         guardar
         etiqueta={sesion.titulo}
         fantasmaWpm={sesion.fantasmaWpm}
+        pulsoWpm={sesion.pulsoWpm}
         onGuardar={onGuardar}
         onSalir={salir}
         onRepetir={repetir}

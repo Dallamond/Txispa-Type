@@ -11,8 +11,22 @@ import {
 
 import { formatoNumero, formatoVariacion, precisionBaja } from "../lib/historial";
 import { useHoy } from "../hooks/useHoy";
+import { calcularAjustes, focoDelDia, pasosDelDia, type PasoPlan } from "../lib/plan";
 
-type Destino = "calentar" | "test" | "estadisticas";
+type Destino = "calentar" | "entrenar" | "test" | "estadisticas";
+
+const DESTINO: Record<PasoPlan["id"], Destino> = {
+  calentamiento: "calentar",
+  entreno: "entrenar",
+  tests: "test",
+  revision: "estadisticas",
+};
+const ACCION: Record<PasoPlan["id"], string> = {
+  calentamiento: "Calentar",
+  entreno: "Entrenar",
+  tests: "Hacer un test",
+  revision: "Ver estadísticas",
+};
 
 interface Props {
   ajustes: Ajustes;
@@ -32,8 +46,11 @@ export default function Hoy({ ajustes, intentos, onIr }: Props) {
       semana,
       variacion: variacionSemanal(mediasSemanales(lista, hoy, 2)),
       deHoy: testsDelDia(lista, hoy),
+      foco: focoDelDia(hoy),
+      ajustes: calcularAjustes(lista, hoy, ajustes.reglasDeAjuste),
+      pasos: pasosDelDia(hoy, hoy, lista, ajustes.objetivoTests),
     };
-  }, [intentos, hoy, ajustes.objetivoTests]);
+  }, [intentos, hoy, ajustes.objetivoTests, ajustes.reglasDeAjuste]);
 
   const { objetivo, semana } = datos;
 
@@ -65,43 +82,31 @@ export default function Hoy({ ajustes, intentos, onIr }: Props) {
       </section>
 
       <section className="tarjeta">
-        <h1>Plan de hoy</h1>
+        <h1>Plan de hoy · {datos.foco.dia}</h1>
+        <p className="tenue">
+          <b>{datos.foco.foco}.</b> {datos.foco.entreno.descripcion}
+        </p>
+        {datos.ajustes.ajustes.map((a) => (
+          <p key={a.id} className="aviso-regla">
+            {a.motivo}
+          </p>
+        ))}
         <ol className="plan">
-          <li>
-            <div>
-              <b>Calentamiento</b>
-              <div className="tenue">Suelta las manos antes de medirte. No cuenta en las estadísticas.</div>
-            </div>
-            <button type="button" className="btn" onClick={() => onIr("calentar")}>
-              Calentar
-            </button>
-          </li>
-          <li>
-            <div>
-              <b>
-                Tests ({objetivo.hechos} de {objetivo.objetivo})
-              </b>
-              <div className="tenue">
-                {objetivo.cumplido
-                  ? "Objetivo cumplido. Cada test extra suma datos."
-                  : `Te ${objetivo.objetivo - objetivo.hechos === 1 ? "falta 1 test" : `faltan ${objetivo.objetivo - objetivo.hechos} tests`} para cumplir el objetivo.`}
+          {datos.pasos.map((p) => (
+            <li key={p.id} className={p.hecho ? "hecho" : ""}>
+              <div>
+                <b>
+                  {p.hecho ? "✓ " : ""}
+                  {p.titulo}
+                </b>
+                <div className="tenue">{p.detalle}</div>
               </div>
-            </div>
-            <button type="button" className="btn primario" onClick={() => onIr("test")}>
-              Hacer un test
-            </button>
-          </li>
-          <li>
-            <div>
-              <b>Revisión</b>
-              <div className="tenue">Mira tus teclas falladas y la evolución de la semana.</div>
-            </div>
-            <button type="button" className="btn" onClick={() => onIr("estadisticas")}>
-              Ver estadísticas
-            </button>
-          </li>
+              <button type="button" className={p.id === "tests" && !p.hecho ? "btn primario" : "btn"} onClick={() => onIr(DESTINO[p.id])}>
+                {ACCION[p.id]}
+              </button>
+            </li>
+          ))}
         </ol>
-        <p className="tenue">El entrenamiento diario dirigido a tus teclas débiles llega en la fase 3.</p>
       </section>
 
       {datos.deHoy.length > 0 && (

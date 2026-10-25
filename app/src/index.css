@@ -746,3 +746,40 @@ kbd {
   outline: none;
   box-shadow: var(--ring);
 }
+
+/* ---------- metrónomo ---------- */
+
+.pulso-control {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.pulso-luz {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+}
+
+.pulso-luz.on {
+  background: var(--accent);
+  border-color: var(--accent);
+  box-shadow: 0 0 10px var(--accent);
+}
+
+.aviso-regla {
+  background: var(--bg3);
+  border-left: 3px solid var(--warn);
+  padding: 8px 12px;
+  border-radius: 6px;
+  margin: 8px 0;
+  font-size: 14px;
+}
+
+.plan li.hecho {
+  opacity: 0.75;
+}
