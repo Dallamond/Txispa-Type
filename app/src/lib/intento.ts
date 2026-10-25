@@ -8,6 +8,7 @@ export interface ConfigIntento {
   modo: Modo;
   fuente: Fuente;
   ejercicioId?: string;
+  iaHashes?: string[];
   durationSec: number;
   seed: number;
   estricto: boolean;
@@ -45,6 +46,7 @@ export function crearIntento(p: {
     confusiones: agr.confusiones,
   };
   if (config.ejercicioId) intento.ejercicioId = config.ejercicioId;
+  if (config.iaHashes && config.iaHashes.length > 0) intento.iaHashes = config.iaHashes;
   return intento;
 }
 

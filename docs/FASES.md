@@ -6,6 +6,59 @@ Marca las tareas con `- [x]` al terminarlas. Detalle técnico en `ESPECIFICACION
 
 ## Estado
 
+**Fase 4 codificada (25 de octubre de 2026); fases 2 y 3 pendientes de las puertas de Lucas.** Repo: https://github.com/Dallamond/Txispa-Type. `npm run check` en verde (263 tests).
+
+Cambios de esta sesión, tras probar la app Lucas:
+- Texto de prueba sin recuadro, 1,8 rem y columna de 40 caracteres (unas 6 palabras por fila).
+- Meta de tiempo diario (`objetivoMinutos`, 20 min por defecto): barra en Hoy y ajuste. Cuentan tests y entrenos, no los calentamientos (no se guardan).
+- Pulsaciones totales (aciertos más errores) y tiempo de hoy en Estadísticas.
+- El resultado de un test muestra la gráfica de todos los tests con el actual resaltado, su puesto y si es récord (`posicionEnHistorial`).
+- Fase 4: `lib/ia.ts` (listado de modelos, generación con 30 s, validación, un reintento, caché de 20 textos), fuente **IA** en Entrenar y en el entreno del jueves, ajustes de Ollama con "Detectar modelos", y `iaHashes` en el intento.
+
+Decisión que conviene que revises: un entreno largo necesita unas 1300 palabras y cada llamada da unas 65, así que se generan como mucho 6 textos seguidos y el resto se completa con el banco, con aviso en pantalla. Si falla la primera, se usa el banco entero y se avisa.
+
+**No verificado:** nada de esto en navegador ni con un Ollama real (no había Ollama en el equipo de desarrollo; solo tests con `fetch` simulado). Tampoco el tecleo real (tildes, AltGr, cursor fantasma, metrónomo).
+
+### Checklist manual por secciones
+
+**Test** (Test)
+- [ ] El texto se ve cómodo: tamaño y ancho. Si no, ajusta `font-size` y `max-width` de `.texto-viewport` en `index.css`.
+- [ ] Tildes y ñ (á é í ó ú ü, mayúsculas con tilde): no cuentan fallo.
+- [ ] AltGr y símbolos: no se rompe nada.
+- [ ] Test de 60 s: ppm y precisión parecidas a typing.com.
+- [ ] Cerrar la pestaña a mitad de un test y volver: no queda nada guardado a medias. Ctrl+R durante un test: no cuenta como fallo.
+- [ ] Resultado: la gráfica muestra todos los tests, el punto grande es el actual y el puesto tiene sentido.
+- [ ] Ritmo constante y teclas falladas del resultado tienen sentido.
+
+**Hoy**
+- [ ] Barra de tiempo diario sube al terminar tests y entrenos, y se pone verde al llegar a la meta.
+- [ ] Propone el entreno correcto cada día de la semana y da el motivo si baja el ritmo.
+
+**Calentar**
+- [ ] Calentamiento completo (8 min): los nueve ejercicios encadenan con pausa de 3 s.
+- [ ] Cursor fantasma: ¿ayuda o molesta?
+
+**Entrenar**
+- [ ] Teclas débiles: muchas V, X, U e Y al empezar (semillas de typing.com), que pasan poco a poco a tus datos.
+- [ ] Metrónomo: suena y parpadea, − y + cambian el pulso, la desviación en ms tiene sentido.
+- [ ] IA sin Ollama (o sin modelo elegido): cae al banco y avisa en pantalla, sin romperse.
+- [ ] IA con Ollama: Cancelar funciona mientras genera; el texto no lleva comillas, markdown ni caracteres raros; tras repetir no se repite el mismo texto.
+- [ ] Puerta 4: los textos de la IA se pueden usar sin retoques.
+
+**Estadísticas**
+- [ ] Con 0 tests (estado vacío) y con varios días; filtro de duración; ordenar el historial.
+- [ ] Pulsaciones totales y tiempo de hoy son coherentes con lo que has tecleado.
+- [ ] Mapa de calor marca tus teclas flojas; "Practicar teclas problemáticas" abre un entreno al momento.
+
+**Ajustes**
+- [ ] Meta de minutos y tests al día se guardan. Tema claro y tamaño de texto. En ~1280x720 el texto y el teclado caben sin scroll.
+- [ ] Ollama: "Detectar modelos" lista los instalados; con Ollama apagado da un aviso claro.
+- [ ] Exportar, borrar todo e importar: los intentos vuelven y no se duplican al importar dos veces.
+
+**Puertas:** puerta 2 (una semana con tres tests al día sin perder datos) y puerta 3 (dos semanas con la media estable o subiendo).
+
+### Estado de la fase 3 (anterior)
+
 **Fase 3 codificada (25 de octubre de 2026); fase 2 pendiente de la puerta 2 de Lucas.** Repo: https://github.com/Dallamond/Txispa-Type. `npm run check` en verde (240 tests).
 
 Fase 3, qué hay:
@@ -116,11 +169,11 @@ Que la app decida qué practicar.
 
 ## Fase 4: IA local
 
-- [ ] `ia.ts`: listado de modelos, generación con tiempo máximo, validación y reintento.
-- [ ] Ajustes de Ollama (URL, modelo, botón "detectar modelos").
-- [ ] Fuente `ia` en Entrenar y en el entreno del jueves.
-- [ ] Caché de los últimos 20 textos y aviso claro cuando se usa el banco como respaldo.
-- [ ] Documentar `OLLAMA_ORIGINS` y la cuestión de HTTP y HTTPS.
+- [x] `ia.ts`: listado de modelos, generación con tiempo máximo, validación y reintento.
+- [x] Ajustes de Ollama (URL, modelo, botón "detectar modelos").
+- [x] Fuente `ia` en Entrenar y en el entreno del jueves.
+- [x] Caché de los últimos 20 textos y aviso claro cuando se usa el banco como respaldo.
+- [x] Documentar `OLLAMA_ORIGINS` y la cuestión de HTTP y HTTPS.
 
 **Hecho cuando:** con Ollama encendido, el entreno del jueves genera un texto usable; con Ollama apagado, cae al banco con un aviso y no se rompe nada.
 

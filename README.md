@@ -40,6 +40,16 @@ La hoja de proyecto también está como documento editable en claude.ai: https:/
 - Teclas más falladas: V (17%), X (11%), U (9%), Y (8%). Marcadas para mejorar: T, D, G, C, B, M.
 - Metas propuestas: media de 55 ppm a 30 días y de 65 a 90 días, con 96% y 97% de precisión.
 
+## IA local (opcional, Ollama)
+
+Es la única llamada de red de la app y va a la dirección que pongas en Ajustes (por defecto `http://localhost:11434`). Sin Ollama, todo funciona igual y los entrenos con IA usan el banco con un aviso.
+
+1. Instala Ollama y un modelo pequeño, por ejemplo `ollama pull llama3.2`.
+2. Permite el origen de la app. En Windows, variable de usuario `OLLAMA_ORIGINS` con `http://localhost:5173` (o el origen donde sirvas la app) y reinicia Ollama.
+3. En Ajustes > IA local pulsa **Detectar modelos** y elige uno.
+
+**HTTP y HTTPS:** si la app se sirve por HTTPS (por ejemplo desde el homelab), el navegador bloquea las llamadas a `http://localhost` o a una IP en HTTP (contenido mixto). Mientras se decide, la opción sencilla es servir la app por HTTP en la LAN. Los textos generados se validan (250 a 600 caracteres, solo caracteres permitidos, dos frases, sin repetir los últimos 20) y se guardan en `txispatype.ia.v1`.
+
 ## Preguntas abiertas
 
 - ¿Tema oscuro (como Shellpath) o claro por defecto?

@@ -4,6 +4,7 @@ import type { RunStore } from "../lib/almacen";
 import { DURACIONES, RUTINAS } from "../lib/ajustes";
 import { crearExportacion, leerImportacion, nombreArchivo } from "../lib/exportar";
 import { diaLocal } from "../lib/estadisticas";
+import { listarModelos } from "../lib/ia";
 
 interface Props {
   ajustes: Ajustes;
@@ -18,6 +19,24 @@ export default function AjustesPantalla({ ajustes, onCambiar, almacen, intentos 
   const [mensaje, setMensaje] = useState("");
   const [confirmaBorrar, setConfirmaBorrar] = useState(false);
   const archivoRef = useRef<HTMLInputElement | null>(null);
+  const [modelos, setModelos] = useState<string[]>([]);
+  const [estadoOllama, setEstadoOllama] = useState("");
+
+  async function detectarModelos() {
+    setEstadoOllama("Buscando…");
+    try {
+      const lista = await listarModelos(ajustes.ollamaUrl);
+      setModelos(lista);
+      if (lista.length === 0) setEstadoOllama("Ollama responde, pero no tiene modelos instalados (ollama pull <modelo>).");
+      else {
+        setEstadoOllama(`${lista.length} ${lista.length === 1 ? "modelo" : "modelos"} encontrados.`);
+        if (!lista.includes(ajustes.ollamaModelo)) onCambiar({ ollamaModelo: lista[0] });
+      }
+    } catch {
+      setModelos([]);
+      setEstadoOllama("No se pudo conectar. ¿Ollama está encendido y OLLAMA_ORIGINS incluye el origen de esta web? (ver README)");
+    }
+  }
 
   function exportar() {
     const ahora = new Date();
@@ -104,6 +123,33 @@ export default function AjustesPantalla({ ajustes, onCambiar, almacen, intentos 
         <span>Puntuación y mayúsculas</span>
         <input type="checkbox" checked={ajustes.puntuacionYMayusculas} onChange={(e) => onCambiar({ puntuacionYMayusculas: e.target.checked })} />
       </label>
+
+      <h2>IA local (Ollama)</h2>
+      <p className="tenue">Opcional. Solo se llama a la dirección de abajo; nada sale a internet. Sin modelo, los entrenos con IA usan el banco de textos.</p>
+      <label className="fila">
+        <span>Dirección de Ollama</span>
+        <input type="text" className="entrada-texto" value={ajustes.ollamaUrl} onChange={(e) => onCambiar({ ollamaUrl: e.target.value })} spellCheck={false} />
+      </label>
+      <div className="fila">
+        <span>Modelo</span>
+        <span className="fila-controles">
+          {modelos.length > 0 ? (
+            <select value={ajustes.ollamaModelo} onChange={(e) => onCambiar({ ollamaModelo: e.target.value })} aria-label="Modelo de Ollama">
+              {modelos.map((m) => (
+                <option key={m} value={m}>
+                  {m}
+                </option>
+              ))}
+            </select>
+          ) : (
+            <input type="text" className="entrada-texto" value={ajustes.ollamaModelo} placeholder="p. ej. llama3.2" onChange={(e) => onCambiar({ ollamaModelo: e.target.value })} spellCheck={false} aria-label="Modelo de Ollama" />
+          )}
+          <button type="button" className="btn" onClick={() => void detectarModelos()}>
+            Detectar modelos
+          </button>
+        </span>
+      </div>
+      {estadoOllama && <p className="tenue" role="status">{estadoOllama}</p>}
 
       <h2>Pantalla</h2>
       <div className="fila">

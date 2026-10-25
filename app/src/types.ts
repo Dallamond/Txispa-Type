@@ -40,6 +40,8 @@ export interface Intento {
   fuente: Fuente;
   /** Si fuente === "ejercicio". */
   ejercicioId?: string;
+  /** Si fuente === "ia": hash de cada texto generado que se usó (el modelo no es determinista). */
+  iaHashes?: string[];
   durationSec: number;
   elapsedSec: number;
   seed: number;

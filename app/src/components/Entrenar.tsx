@@ -1,16 +1,18 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { Ajustes, Fuente, Intento } from "../types";
 import { analizar } from "../lib/debiles";
 import { mediaSemanal } from "../lib/estadisticas";
 import type { ConfigIntento } from "../lib/intento";
+import { almacenLocal } from "../lib/ajustes";
+import { generarTextosIA } from "../lib/ia";
 import { calcularAjustes, focoDelDia, type FuenteEntreno } from "../lib/plan";
 import { newSeed } from "../lib/rng";
-import { PALABRAS_MINIMAS, palabrasAlternancia, palabrasDebiles, palabrasDelBanco } from "../lib/textos";
+import { PALABRAS_MINIMAS, palabrasAlternancia, palabrasDebiles, palabrasDelBanco, simplificarPalabra } from "../lib/textos";
 import { WPM_INICIAL, pulsoInicial } from "../lib/calentamientos";
 import { useHoy } from "../hooks/useHoy";
 import Tecleo from "./Tecleo";
 
-export type FuenteEntrenar = "debiles" | "pares" | "alternancia" | "banco" | "metronomo";
+export type FuenteEntrenar = "debiles" | "pares" | "alternancia" | "banco" | "ia" | "metronomo";
 
 export interface PedidoEntreno {
   fuente: FuenteEntrenar;
@@ -31,6 +33,7 @@ const FUENTES: { id: FuenteEntrenar; nombre: string; detalle: string }[] = [
   { id: "pares", nombre: "Pares lentos", detalle: "Solo refuerza los pares de letras en los que pierdes tiempo." },
   { id: "alternancia", nombre: "Alternancia de manos", detalle: "Palabras que cambian de mano a cada letra." },
   { id: "banco", nombre: "Texto corrido", detalle: "Párrafos naturales en español." },
+  { id: "ia", nombre: "Texto con IA", detalle: "Un modelo local de Ollama escribe textos con tus teclas débiles. Si no responde, usa el banco." },
   { id: "metronomo", nombre: "Metrónomo", detalle: "Texto al compás de un pulso que puedes subir o bajar." },
 ];
 
@@ -46,12 +49,11 @@ interface Sesion {
   fuenteUi: FuenteEntrenar;
   fantasmaPorcentaje: number | null;
   pulsoWpm: number | null;
+  /** Aviso visible durante la sesión (p. ej. "se usó el banco como respaldo"). */
+  aviso: string | null;
 }
 
-/** De la fuente del plan a la que sabe generar la pantalla (la IA llega en la fase 4). */
-function fuenteDelPlan(f: FuenteEntreno): FuenteEntrenar {
-  return f === "ia" ? "banco" : f;
-}
+const fuenteDelPlan = (f: FuenteEntreno): FuenteEntrenar => f;
 
 export default function Entrenar({ ajustes, intentos, onGuardar, pedido }: Props) {
   const [fuente, setFuente] = useState<FuenteEntrenar>("debiles");
@@ -64,11 +66,20 @@ export default function Entrenar({ ajustes, intentos, onGuardar, pedido }: Props
   const foco = focoDelDia(hoy);
   const wpmMedio = useMemo(() => mediaSemanal([...intentos], hoy)?.wpm ?? null, [intentos, hoy]);
 
+  const [generando, setGenerando] = useState<{ hechos: number; total: number } | null>(null);
+  // Cada petición lleva un número; si cancelas o pides otra, la respuesta vieja se ignora.
+  const peticion = useRef(0);
+
   const empezar = useCallback(
-    (f: FuenteEntrenar, durationSec: number, fantasmaPorcentaje: number | null = null) => {
+    async (f: FuenteEntrenar, durationSec: number, fantasmaPorcentaje: number | null = null) => {
+      const mia = ++peticion.current;
       const seed = newSeed();
       const op = { puntuacion: ajustes.puntuacionYMayusculas, minPalabras: Math.max(PALABRAS_MINIMAS, Math.ceil((durationSec / 60) * 110)) };
       let palabras: string[];
+      let fuenteGuardada: Fuente =
+        f === "debiles" || f === "pares" ? "debiles" : f === "alternancia" ? "alternancia" : f === "metronomo" ? "ejercicio" : f === "ia" ? "ia" : "banco";
+      let iaHashes: string[] = [];
+      let aviso: string | null = null;
       switch (f) {
         case "debiles":
           palabras = palabrasDebiles(seed, analisis, op);
@@ -79,16 +90,53 @@ export default function Entrenar({ ajustes, intentos, onGuardar, pedido }: Props
         case "alternancia":
           palabras = palabrasAlternancia(seed, op);
           break;
+        case "ia": {
+          const respaldo = palabrasDelBanco(seed, op);
+          palabras = respaldo;
+          fuenteGuardada = "banco";
+          if (!ajustes.ollamaModelo) {
+            aviso = "No hay modelo de Ollama elegido en Ajustes: se usa el banco de textos.";
+            break;
+          }
+          setGenerando({ hechos: 0, total: 1 });
+          const r = await generarTextosIA({
+            url: ajustes.ollamaUrl,
+            modelo: ajustes.ollamaModelo,
+            letras: analisis.debiles.map((t) => t.tecla).filter((t) => /\p{L}/u.test(t)),
+            palabrasObjetivo: op.minPalabras,
+            almacen: almacenLocal(),
+            alProgreso: (hechos, total) => {
+              if (mia === peticion.current) setGenerando({ hechos, total });
+            },
+          });
+          if (mia !== peticion.current) return; // cancelado o sustituido por otra petición
+          setGenerando(null);
+          if (r.textos.length === 0) {
+            aviso = `Ollama no ha dado un texto válido (${r.motivoFallo ?? "sin respuesta"}): se usa el banco de textos.`;
+            break;
+          }
+          const deIA = r.textos
+            .flatMap((t) => t.texto.split(/\s+/))
+            .map((w) => (op.puntuacion ? w : simplificarPalabra(w)))
+            .filter(Boolean);
+          // Un entreno largo necesita más palabras de las que da la IA en un tiempo razonable: se completa con el banco.
+          palabras = deIA.length >= op.minPalabras ? deIA : [...deIA, ...respaldo.slice(0, op.minPalabras - deIA.length)];
+          fuenteGuardada = "ia";
+          iaHashes = r.textos.map((t) => t.hash);
+          if (deIA.length < op.minPalabras) {
+            aviso = `La IA aportó ${deIA.length} palabras de ${op.minPalabras}: el resto del texto es del banco.`;
+          }
+          break;
+        }
         default:
           palabras = palabrasDelBanco(seed, op);
       }
-      const fuenteGuardada: Fuente =
-        f === "debiles" || f === "pares" ? "debiles" : f === "alternancia" ? "alternancia" : f === "metronomo" ? "ejercicio" : "banco";
       setSesion({
         config: {
           modo: "entreno",
           fuente: fuenteGuardada,
           ...(f === "metronomo" ? { ejercicioId: "metronomo" } : {}),
+          ...(iaHashes.length > 0 ? { iaHashes } : {}),
           durationSec,
           seed,
           estricto: ajustes.estrictoPorDefecto,
@@ -99,10 +147,11 @@ export default function Entrenar({ ajustes, intentos, onGuardar, pedido }: Props
         fuenteUi: f,
         fantasmaPorcentaje,
         pulsoWpm: f === "metronomo" ? pulsoInicial(wpmMedio) : null,
+        aviso,
       });
       setClave((c) => c + 1);
     },
-    [analisis, ajustes.puntuacionYMayusculas, ajustes.estrictoPorDefecto, wpmMedio]
+    [analisis, ajustes.puntuacionYMayusculas, ajustes.estrictoPorDefecto, ajustes.ollamaUrl, ajustes.ollamaModelo, wpmMedio]
   );
 
   // Petición desde otra pantalla: se atiende una sola vez por número de petición.
@@ -111,17 +160,39 @@ export default function Entrenar({ ajustes, intentos, onGuardar, pedido }: Props
     if (pedido && pedido.n !== atendido) {
       setAtendido(pedido.n);
       setFuente(pedido.fuente);
-      empezar(pedido.fuente, 300);
+      void empezar(pedido.fuente, 300);
     }
   }, [pedido, atendido, empezar]);
 
   const salir = useCallback(() => setSesion(null), []);
+  const cancelar = useCallback(() => {
+    peticion.current++;
+    setGenerando(null);
+  }, []);
   const repetir = useCallback(() => {
-    if (sesion) empezar(sesion.fuenteUi, sesion.config.durationSec, sesion.fantasmaPorcentaje);
+    if (sesion) void empezar(sesion.fuenteUi, sesion.config.durationSec, sesion.fantasmaPorcentaje);
   }, [sesion, empezar]);
+
+  if (generando) {
+    return (
+      <section className="tarjeta">
+        <h1>Generando texto con IA…</h1>
+        <p className="tenue" role="status">
+          Texto {Math.min(generando.hechos + 1, generando.total)} de {generando.total}. Cada uno puede tardar hasta 30 s.
+        </p>
+        <div className="acciones">
+          <button type="button" className="btn" onClick={cancelar}>
+            Cancelar
+          </button>
+        </div>
+      </section>
+    );
+  }
 
   if (sesion) {
     return (
+      <>
+        {sesion.aviso && <p className="aviso-regla" role="status">{sesion.aviso}</p>}
       <Tecleo
         key={clave}
         palabras={sesion.palabras}
@@ -136,6 +207,7 @@ export default function Entrenar({ ajustes, intentos, onGuardar, pedido }: Props
         onSalir={salir}
         onRepetir={repetir}
       />
+      </>
     );
   }
 
@@ -164,7 +236,7 @@ export default function Entrenar({ ajustes, intentos, onGuardar, pedido }: Props
           ))}
         </div>
         {hayEntrenoHoy ? (
-          <button type="button" className="btn primario" onClick={() => empezar(fuenteHoy, foco.entreno.minutos * 60, porcentajeHoy)}>
+          <button type="button" className="btn primario" onClick={() => void empezar(fuenteHoy, foco.entreno.minutos * 60, porcentajeHoy)}>
             Entreno del día ({foco.entreno.minutos} min)
           </button>
         ) : (
@@ -218,7 +290,7 @@ export default function Entrenar({ ajustes, intentos, onGuardar, pedido }: Props
       {analisis.debiles.some((t) => t.semilla) && <p className="tenue">* Datos iniciales de typing.com: se irán sustituyendo por los tuyos.</p>}
 
       <div className="acciones">
-        <button type="button" className="btn primario" onClick={() => empezar(fuente, duracion)}>
+        <button type="button" className="btn primario" onClick={() => void empezar(fuente, duracion)}>
           Comenzar
         </button>
       </div>

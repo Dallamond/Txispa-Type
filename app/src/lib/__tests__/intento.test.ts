@@ -39,6 +39,16 @@ describe("crearIntento", () => {
     });
     expect(i.ejercicioId).toBe("lento");
   });
+
+  it("anota los hashes de la IA solo si hay", () => {
+    const m = new MotorTecleo(["a"]);
+    m.tecla("a", 0);
+    const base = { motor: m, ts: 1000, id: "z", fecha: new Date() };
+    const con = crearIntento({ ...base, config: { modo: "entreno", fuente: "ia", iaHashes: ["ab12"], durationSec: 60, seed: 1, estricto: false } });
+    const sin = crearIntento({ ...base, config: { modo: "entreno", fuente: "banco", iaHashes: [], durationSec: 60, seed: 1, estricto: false } });
+    expect(con.iaHashes).toEqual(["ab12"]);
+    expect("iaHashes" in sin).toBe(false);
+  });
 });
 
 describe("teclasMasFalladas", () => {

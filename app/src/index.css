@@ -790,3 +790,20 @@ kbd {
   align-items: baseline;
   gap: 12px;
 }
+
+.entrada-texto {
+  min-width: 220px;
+  background: var(--bg3);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  padding: 6px 10px;
+  font: inherit;
+}
+
+.fila-controles {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
