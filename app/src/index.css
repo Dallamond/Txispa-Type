@@ -451,11 +451,11 @@ button {
 .texto-viewport {
   --linea: 1.9em;
   font-family: var(--mono);
-  font-size: 2.3rem;
+  font-size: 1.8rem;
   line-height: var(--linea);
   height: calc(var(--linea) * 3);
-  /* Ancho acotado en caracteres: unas 4 palabras por fila. */
-  max-width: 24ch;
+  /* Ancho acotado en caracteres: unas 6 palabras por fila. */
+  max-width: 40ch;
   margin: 0 auto;
   overflow: hidden;
 }
