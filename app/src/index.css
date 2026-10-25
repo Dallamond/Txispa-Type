@@ -616,3 +616,27 @@ kbd {
 .acciones {
   flex-wrap: wrap;
 }
+
+/* ---------- calentamientos ---------- */
+
+.calentar-pausa {
+  text-align: center;
+}
+
+.calentar-pausa .acciones {
+  justify-content: center;
+}
+
+.calentar-pausa h1 {
+  font-size: 22px;
+}
+
+.lista-ejercicios {
+  margin: 12px 0 12px 20px;
+  line-height: 1.8;
+}
+
+.ch.fantasma {
+  background: color-mix(in srgb, var(--accent) 28%, transparent);
+  border-radius: 3px;
+}

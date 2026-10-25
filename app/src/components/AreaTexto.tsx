@@ -1,5 +1,6 @@
 import { memo, useLayoutEffect, useRef, useState } from "react";
 import { charState } from "../lib/typing";
+import { ubicarEnPalabras } from "../lib/calentamientos";
 
 // Texto a teclear: se desplaza para que la palabra activa quede en la segunda
 // línea visible (una de contexto y una por delante). Adaptado de TextoTest.tsx
@@ -11,9 +12,11 @@ interface Props {
   idx: number;
   /** Cuántas palabras por delante de la activa se montan. */
   adelante?: number;
+  /** Posición (carácter del texto corrido) del cursor fantasma, o undefined si no hay. */
+  fantasma?: number;
 }
 
-export default function AreaTexto({ palabras, tecleadas, idx, adelante = 120 }: Props) {
+export default function AreaTexto({ palabras, tecleadas, idx, adelante = 120, fantasma }: Props) {
   const activaRef = useRef<HTMLSpanElement | null>(null);
   const [desplaz, setDesplaz] = useState(0);
 
@@ -29,6 +32,7 @@ export default function AreaTexto({ palabras, tecleadas, idx, adelante = 120 }: 
 
   // El corte va solo por delante: recortar por detrás remaquetaría el texto a cada palabra.
   const hasta = Math.min(palabras.length, idx + adelante);
+  const g = fantasma === undefined ? null : ubicarEnPalabras(palabras, fantasma);
 
   return (
     <div className="texto-caja">
@@ -41,6 +45,7 @@ export default function AreaTexto({ palabras, tecleadas, idx, adelante = 120 }: 
               tecleada={tecleadas[i] ?? ""}
               estado={i < idx ? "hecha" : i === idx ? "activa" : "pendiente"}
               innerRef={i === idx ? activaRef : undefined}
+              fantasma={g && g.palabra === i ? g.letra : -1}
             />
           ))}
         </div>
@@ -56,21 +61,24 @@ const Palabra = memo(function Palabra({
   tecleada,
   estado,
   innerRef,
+  fantasma,
 }: {
   palabra: string;
   tecleada: string;
   estado: "hecha" | "activa" | "pendiente";
   innerRef?: React.RefObject<HTMLSpanElement | null>;
+  /** Letra de esta palabra donde está el cursor fantasma, o -1. */
+  fantasma: number;
 }) {
   // Pendientes y palabras clavadas: texto plano, sin una etiqueta por letra.
-  if (estado === "pendiente") {
+  if (estado === "pendiente" && fantasma < 0) {
     return (
       <span className="w" ref={innerRef}>
         {palabra}
       </span>
     );
   }
-  if (estado === "hecha" && tecleada === palabra) {
+  if (estado === "hecha" && tecleada === palabra && fantasma < 0) {
     return (
       <span className="w hecha" ref={innerRef}>
         {palabra}
@@ -88,6 +96,7 @@ const Palabra = memo(function Palabra({
         // En una palabra cerrada, "sin teclear" significa "te la dejaste".
         let cls = `ch ${st === "pending" && cerrada ? "falta" : st}`;
         if (estado === "activa" && k === tecleada.length) cls += " cursor";
+        if (k === fantasma) cls += " fantasma";
         return (
           <span key={k} className={cls}>
             {ch}

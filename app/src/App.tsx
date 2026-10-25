@@ -58,10 +58,10 @@ export default function App() {
           </p>
         )}
         {pestana === "hoy" && <Hoy />}
-        {pestana === "calentar" && <Calentar />}
+        {pestana === "calentar" && <Calentar ajustes={ajustes} intentos={intentos} onCambiarAjustes={cambiarAjustes} onIr={setPestana} />}
         {pestana === "test" && <Test ajustes={ajustes} intentos={intentos} onGuardar={guardar} onCambiarAjustes={cambiarAjustes} />}
         {pestana === "entrenar" && <Entrenar />}
-        {pestana === "estadisticas" && <Estadisticas />}
+        {pestana === "estadisticas" && <Estadisticas intentos={intentos} ajustes={ajustes} />}
         {pestana === "ajustes" && (
           <AjustesPantalla ajustes={ajustes} onCambiar={cambiarAjustes} almacen={almacen} intentos={intentos} />
         )}

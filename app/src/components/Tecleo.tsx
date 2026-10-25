@@ -12,6 +12,7 @@ import {
 } from "../lib/intento";
 import { mediaUltimos } from "../lib/estadisticas";
 import { precision, wpmNeta } from "../lib/medidas";
+import { posicionFantasma } from "../lib/calentamientos";
 import AreaTexto from "./AreaTexto";
 import VirtualKeyboard from "./VirtualKeyboard";
 
@@ -27,13 +28,17 @@ interface Props {
   onGuardar: (intento: Intento) => Promise<void> | void;
   onSalir: () => void;
   onRepetir: () => void;
+  /** Wpm al que avanza el cursor fantasma (calentamientos). */
+  fantasmaWpm?: number | null;
+  /** Si se da, al terminar se avisa por aquí y no se muestra la pantalla de resultado. */
+  onTerminar?: (intento: Intento) => void;
 }
 
 const fmt = (n: number, d = 1) => n.toFixed(d).replace(".", ",");
 
 /** Una prueba completa: texto, cronómetro, métricas en vivo y resultado.
  * El padre la remonta (con `key`) para repetir con otro texto. */
-export default function Tecleo({ palabras, config, ajustes, intentos, guardar, etiqueta, onGuardar, onSalir, onRepetir }: Props) {
+export default function Tecleo({ palabras, config, ajustes, intentos, guardar, etiqueta, onGuardar, onSalir, onRepetir, fantasmaWpm, onTerminar }: Props) {
   const [motor] = useState(() => new MotorTecleo(palabras, config.estricto));
   const [, repinta] = useReducer((n: number) => n + 1, 0);
   const [resultado, setResultado] = useState<Intento | null>(null);
@@ -41,6 +46,8 @@ export default function Tecleo({ palabras, config, ajustes, intentos, guardar, e
   const terminadoRef = useRef(false);
   const alGuardarRef = useRef(onGuardar);
   alGuardarRef.current = onGuardar;
+  const alTerminarRef = useRef(onTerminar);
+  alTerminarRef.current = onTerminar;
 
   const terminar = useCallback(
     (ts: number) => {
@@ -48,6 +55,7 @@ export default function Tecleo({ palabras, config, ajustes, intentos, guardar, e
       terminadoRef.current = true;
       const intento = crearIntento({ motor, ts, config, id: crypto.randomUUID(), fecha: new Date() });
       setResultado(intento);
+      alTerminarRef.current?.(intento);
       if (guardar && motor.correct + motor.errors > 0) void alGuardarRef.current(intento);
     },
     [motor, config, guardar]
@@ -97,7 +105,7 @@ export default function Tecleo({ palabras, config, ajustes, intentos, guardar, e
 
   // Enter repite una vez mostrado el resultado.
   useEffect(() => {
-    if (!resultado) return;
+    if (!resultado || onTerminar) return;
     const alPulsar = (e: KeyboardEvent) => {
       if (e.key === "Enter") {
         e.preventDefault();
@@ -106,9 +114,10 @@ export default function Tecleo({ palabras, config, ajustes, intentos, guardar, e
     };
     window.addEventListener("keydown", alPulsar);
     return () => window.removeEventListener("keydown", alPulsar);
-  }, [resultado, onRepetir]);
+  }, [resultado, onRepetir, onTerminar]);
 
   if (resultado) {
+    if (onTerminar) return null;
     return (
       <Resultado
         intento={resultado}
@@ -149,7 +158,12 @@ export default function Tecleo({ palabras, config, ajustes, intentos, guardar, e
         {motor.inicio === null && <div className="tenue">Empieza a teclear para arrancar el reloj</div>}
       </div>
 
-      <AreaTexto palabras={motor.palabras} tecleadas={motor.tecleadas} idx={motor.idx} />
+      <AreaTexto
+        palabras={motor.palabras}
+        tecleadas={motor.tecleadas}
+        idx={motor.idx}
+        fantasma={fantasmaWpm && motor.inicio !== null ? posicionFantasma(fantasmaWpm, el) : undefined}
+      />
 
       {ajustes.tecladoVisible && (
         <VirtualKeyboard nextChar={motor.siguienteCaracter} pressedKey={pressedKey} guide={ajustes.guiaDedos} />
