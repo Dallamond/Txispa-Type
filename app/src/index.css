@@ -1,0 +1,398 @@
+/* Txispa Type: tokens, temas y teclado.
+   Sin fuentes externas ni CDN: la app tiene que funcionar sin internet.
+   Los estilos del teclado salen de Shellpath (index.css), solo lo necesario. */
+
+:root,
+[data-theme="oscuro"] {
+  --bg: #141413;
+  --bg2: #1d1d1b;
+  --bg3: #262522;
+  --border: #2c2b28;
+  --border-soft: #232321;
+  --text: #ecebe5;
+  --dim: #a09e95;
+  --faint: #77756e;
+  --accent: #ff7a33;
+  --accent-ink: #141413;
+  --ok: #4cc27d;
+  --warn: #e3b341;
+  --danger: #ff6b6b;
+  --cursor: #ff7a3333;
+  --shadow: 0 6px 18px rgba(0, 0, 0, 0.45), 0 1px 3px rgba(0, 0, 0, 0.4);
+  --ring: 0 0 0 3px rgba(255, 122, 51, 0.3);
+  color-scheme: dark;
+}
+
+[data-theme="claro"] {
+  --bg: #f6f5f1;
+  --bg2: #ffffff;
+  --bg3: #efede6;
+  --border: #e3e1d9;
+  --border-soft: #ecebe4;
+  --text: #1d1d1b;
+  --dim: #5f5d56;
+  --faint: #77756e;
+  --accent: #c8470a;
+  --accent-ink: #ffffff;
+  --ok: #1c8a4a;
+  --warn: #9a6b00;
+  --danger: #c0392b;
+  --cursor: #e0560d22;
+  --shadow: 0 4px 14px rgba(20, 20, 10, 0.08), 0 1px 3px rgba(20, 20, 10, 0.05);
+  --ring: 0 0 0 3px rgba(200, 71, 10, 0.25);
+  color-scheme: light;
+}
+
+:root {
+  /* Superficie del teclado: oscura en ambos temas, como en Shellpath. */
+  --tbg2: #1f1e1c;
+  --tborder: #34322e;
+  --ttext: #d6d4cc;
+  --tdim: #8c8a82;
+  --tgreen: #4cc27d;
+  --tamber: #e3b341;
+  --tred: #f85149;
+  --tblue: #58a6ff;
+
+  /* Guía de dedos: mismo dedo de cada mano, mismo color. */
+  --f0: #f85149;
+  --f1: #e3b341;
+  --f2: #3fb950;
+  --f3: #58a6ff;
+  --f4: #58a6ff;
+  --f5: #3fb950;
+  --f6: #e3b341;
+  --f7: #f85149;
+  --fthumb: #8b949e;
+
+  --r-sm: 8px;
+  --r: 12px;
+  --r-lg: 18px;
+  --ui: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --mono: ui-monospace, "Cascadia Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100%;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--ui);
+  line-height: 1.5;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+}
+
+.mono {
+  font-family: var(--mono);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+/* ---------- teclado ---------- */
+
+.keyboard {
+  --kb-tapa: var(--tbg2);
+  --kb-borde: var(--tborder);
+  --kb-cara-a: #2a2926;
+  --kb-cara-b: #1e1d1b;
+  --kb-texto: var(--ttext);
+  --kb-sub: var(--tdim);
+  --kb-brillo: #ffffff12;
+  max-width: 860px;
+  margin: 0 auto;
+  user-select: none;
+  background: var(--kb-tapa);
+  border: 1px solid var(--kb-borde);
+  border-radius: 12px;
+  padding: 12px;
+}
+
+.krow {
+  display: flex;
+  gap: 5px;
+  margin-bottom: 5px;
+  justify-content: center;
+}
+
+.krow:last-child {
+  margin-bottom: 0;
+}
+
+.key {
+  height: 44px;
+  min-width: 44px;
+  flex: 0 0 auto;
+  border: 1px solid var(--kb-borde);
+  border-radius: 6px;
+  background: linear-gradient(180deg, var(--kb-cara-a) 0%, var(--kb-cara-b) 100%);
+  box-shadow: inset 0 1px 0 var(--kb-brillo), 0 1px 0 #00000055;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--kb-texto);
+  position: relative;
+  transition: background 0.09s ease, box-shadow 0.09s ease, color 0.09s ease;
+}
+
+.key .sub {
+  font-size: 8px;
+  color: var(--kb-sub);
+  position: absolute;
+  top: 3px;
+  left: 5px;
+}
+
+.key .sub2 {
+  font-size: 8px;
+  color: var(--kb-sub);
+  position: absolute;
+  top: 3px;
+  right: 5px;
+}
+
+.key.wide {
+  min-width: 66px;
+  font-size: 10px;
+}
+
+.key.xwide {
+  min-width: 90px;
+  font-size: 10px;
+}
+
+.key.space {
+  min-width: 320px;
+}
+
+/* Tecla activa: color pleno del dedo que le toca. */
+.key.next {
+  background: var(--fkey, var(--tamber));
+  border-color: var(--fkey, var(--tamber));
+  color: #0d1117;
+  font-weight: 700;
+  box-shadow: 0 0 0 1px var(--fkey, var(--tamber)), 0 0 16px -2px var(--fkey, var(--tamber));
+}
+
+.key.next .sub,
+.key.next .sub2 {
+  color: #0d1117;
+  opacity: 0.55;
+}
+
+/* Modificador o tecla muerta que acompaña: solo contorno. */
+.key.next-mod {
+  border-color: var(--tblue);
+  color: var(--tblue);
+  box-shadow: inset 0 0 0 1px var(--tblue);
+}
+
+.key.pressed {
+  background: var(--tgreen);
+  color: #0d1117;
+  border-color: var(--tgreen);
+  box-shadow: none;
+}
+
+/* Mapa de calor (estadísticas): `--calor` va de 0 a 1 en cada tecla. */
+.key.calor {
+  background: color-mix(in srgb, var(--tred) calc(var(--calor, 0) * 100%), var(--kb-cara-b));
+  color: #fff;
+}
+
+.key.sin-datos {
+  opacity: 0.55;
+}
+
+.finger-hint {
+  text-align: center;
+  font-size: 11px;
+  color: var(--tamber);
+  margin: 10px 0 4px;
+  min-height: 15px;
+}
+
+/* Guía de dedos: el color es un canto inferior, no el fondo entero. */
+.keyboard.guide .key::after {
+  content: "";
+  position: absolute;
+  left: 6px;
+  right: 6px;
+  bottom: 3px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--fkey, var(--tdim));
+  opacity: 0.5;
+}
+
+.keyboard.guide .key.next {
+  background: var(--fkey, var(--tamber));
+}
+
+.keyboard.guide .key.pressed {
+  background: var(--tgreen);
+}
+
+.keyboard.guide .key.calor {
+  background: color-mix(in srgb, var(--tred) calc(var(--calor, 0) * 100%), var(--kb-cara-b));
+}
+
+.keyboard.guide .key.next::after,
+.keyboard.guide .key.pressed::after {
+  display: none;
+}
+
+/* ---------- estructura de la app ---------- */
+
+.app-cabecera {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 14px 16px;
+}
+
+.logo {
+  font-weight: 700;
+  letter-spacing: 0.2px;
+}
+
+.logo span {
+  color: var(--accent);
+}
+
+.pestanas,
+.seg {
+  display: flex;
+  gap: 4px;
+  background: var(--bg3);
+  padding: 4px;
+  border-radius: 10px;
+}
+
+.pestanas button,
+.seg button {
+  border: 0;
+  background: transparent;
+  padding: 6px 14px;
+  border-radius: 7px;
+  cursor: pointer;
+  color: var(--dim);
+}
+
+.pestanas button.on,
+.seg button.on {
+  background: var(--bg2);
+  color: var(--text);
+  box-shadow: 0 1px 2px #0003;
+}
+
+.pestanas button:focus-visible,
+.seg button:focus-visible,
+.btn:focus-visible {
+  outline: none;
+  box-shadow: var(--ring);
+}
+
+.app-main {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 0 16px 48px;
+}
+
+.tarjeta {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 18px;
+  margin-bottom: 14px;
+}
+
+.tarjeta h1 {
+  font-size: 18px;
+  margin-bottom: 8px;
+}
+
+.tarjeta h2 {
+  font-size: 13px;
+  margin: 18px 0 6px;
+  color: var(--dim);
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+}
+
+.tenue {
+  color: var(--dim);
+  font-size: 14px;
+}
+
+.fila {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.btn {
+  border: 1px solid var(--border);
+  background: var(--bg2);
+  padding: 7px 14px;
+  border-radius: 9px;
+  cursor: pointer;
+}
+
+.btn.primario {
+  background: var(--accent);
+  color: var(--accent-ink);
+  border-color: var(--accent);
+}
+
+.aviso {
+  background: var(--bg3);
+  border: 1px solid var(--warn);
+  color: var(--warn);
+  padding: 10px 14px;
+  border-radius: var(--r-sm);
+  margin-bottom: 14px;
+  font-size: 14px;
+}
