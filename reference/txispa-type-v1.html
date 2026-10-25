@@ -1,0 +1,555 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Txispa Type</title>
+<style>
+:root{
+  --bg:#f6f5f1; --panel:#ffffff; --ink:#1d1d1b; --mute:#77756e; --line:#e3e1d9;
+  --accent:#e0560d; --ok:#1c8a4a; --bad:#d23a3a; --cur:#e0560d22; --chip:#efede6;
+}
+@media (prefers-color-scheme: dark){
+  :root{ --bg:#141413; --panel:#1d1d1b; --ink:#ecebe5; --mute:#8c8a82; --line:#2c2b28;
+    --accent:#ff7a33; --ok:#4cc27d; --bad:#ff6b6b; --cur:#ff7a3333; --chip:#262522; }
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:14px 16px;max-width:1000px;margin:0 auto}
+.logo{font-weight:700;letter-spacing:.2px}
+.logo span{color:var(--accent)}
+nav{display:flex;gap:4px;background:var(--chip);padding:4px;border-radius:10px}
+button,select,input{font:inherit;color:inherit}
+nav button,.seg button{border:0;background:transparent;padding:6px 14px;border-radius:7px;cursor:pointer;color:var(--mute)}
+nav button.on,.seg button.on{background:var(--panel);color:var(--ink);box-shadow:0 1px 2px #0002}
+main{max-width:1000px;margin:0 auto;padding:0 16px 48px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px;margin-bottom:14px}
+.bar{display:flex;gap:14px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+.seg{display:flex;gap:2px;background:var(--chip);padding:3px;border-radius:9px}
+.seg button{padding:5px 11px;font-size:14px}
+label.tg{display:flex;gap:6px;align-items:center;color:var(--mute);font-size:14px;cursor:pointer}
+.hud{display:flex;gap:26px;margin-bottom:10px;font-variant-numeric:tabular-nums}
+.hud div{display:flex;flex-direction:column}
+.hud b{font-size:30px;line-height:1.1}
+.hud small{color:var(--mute);font-size:12px;text-transform:uppercase;letter-spacing:.6px}
+#text{font:24px/1.9 ui-monospace,"JetBrains Mono",Menlo,Consolas,monospace;height:calc(24px*1.9*3 + 8px);overflow:hidden;position:relative;color:var(--mute);cursor:text;word-break:break-word;outline:none}
+#text span.ok{color:var(--ink)}
+#text span.bad{color:var(--bad);background:#d23a3a22;border-radius:3px}
+#text span.cur{background:var(--cur);border-radius:3px;box-shadow:inset 0 -2px 0 var(--accent)}
+#text.blur{opacity:.45}
+.hint{color:var(--mute);font-size:13px;margin-top:10px;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+#ta{position:absolute;opacity:0;pointer-events:none;width:1px;height:1px}
+.status{color:var(--accent);font-size:13px;min-height:18px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
+.stat{background:var(--chip);border-radius:10px;padding:10px 12px}
+.stat small{color:var(--mute);display:block;font-size:12px}
+.stat b{font-size:24px;font-variant-numeric:tabular-nums}
+.stat em{font-style:normal;font-size:12px;color:var(--mute)}
+.up{color:var(--ok)!important}.down{color:var(--bad)!important}
+h2{font-size:15px;margin:0 0 10px}
+h3{font-size:13px;margin:16px 0 6px;color:var(--mute);text-transform:uppercase;letter-spacing:.6px}
+canvas{width:100%;height:160px;display:block}
+table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line);font-size:14px}
+th{color:var(--mute);font-weight:500;font-size:12px}
+.dots{display:flex;gap:6px;margin-top:6px}
+.dots i{width:14px;height:14px;border-radius:50%;background:var(--chip);border:1px solid var(--line)}
+.dots i.f{background:var(--accent);border-color:var(--accent)}
+.kb{display:flex;flex-direction:column;gap:6px;align-items:center;margin:8px 0}
+.kb div{display:flex;gap:6px}
+.k{width:44px;height:44px;border-radius:8px;display:flex;align-items:center;justify-content:center;background:var(--chip);color:var(--ink);font:600 15px ui-monospace,monospace}
+.k.sp{width:260px}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{background:var(--chip);padding:3px 9px;border-radius:7px;font:14px ui-monospace,monospace}
+.btn{border:1px solid var(--line);background:var(--panel);padding:7px 14px;border-radius:9px;cursor:pointer}
+.btn.pri{background:var(--accent);color:#fff;border-color:var(--accent)}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:8px 0}
+input[type=text],input[type=number],select{background:var(--chip);border:1px solid var(--line);border-radius:8px;padding:6px 10px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media (max-width:700px){.two{grid-template-columns:1fr}#text{font-size:19px;height:calc(19px*1.9*3 + 8px)}.k{width:30px;height:34px;font-size:13px}.k.sp{width:150px}.kb div{gap:4px}}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">txispa<span>type</span></div>
+  <nav id="nav">
+    <button data-v="practice" class="on">Practicar</button>
+    <button data-v="stats">Estadísticas</button>
+    <button data-v="settings">Ajustes</button>
+  </nav>
+</header>
+<main>
+
+<section id="v-practice">
+  <div class="card">
+    <div class="bar">
+      <div class="seg" id="modeSeg">
+        <button data-m="free">Libre</button>
+        <button data-m="weak">Teclas débiles</button>
+        <button data-m="ai">IA local</button>
+      </div>
+      <div class="seg" id="durSeg">
+        <button data-d="30">30 s</button>
+        <button data-d="60">60 s</button>
+        <button data-d="120">120 s</button>
+      </div>
+      <label class="tg"><input type="checkbox" id="strict"> Modo estricto (no avanza con error)</label>
+      <label class="tg"><input type="checkbox" id="punct"> Puntuación y mayúsculas</label>
+    </div>
+    <div class="hud">
+      <div><b id="hTime">60</b><small>segundos</small></div>
+      <div><b id="hWpm">0</b><small>ppm netas</small></div>
+      <div><b id="hAcc">100%</b><small>precisión</small></div>
+    </div>
+    <div id="text" tabindex="0"></div>
+    <textarea id="ta" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"></textarea>
+    <div class="hint"><span id="hintL">Empieza a escribir para arrancar el cronómetro.</span><span><b>Esc</b> nuevo texto · <b>Enter</b> siguiente tras el resultado</span></div>
+    <div class="status" id="status"></div>
+  </div>
+  <div class="card hidden" id="result"></div>
+  <div class="card" id="todayCard"></div>
+</section>
+
+<section id="v-stats" class="hidden"></section>
+
+<section id="v-settings" class="hidden">
+  <div class="card">
+    <h2>Objetivo diario</h2>
+    <div class="row"><label>Tests al día <input type="number" id="goal" min="1" max="20" style="width:70px"></label></div>
+  </div>
+  <div class="card">
+    <h2>IA local (Ollama)</h2>
+    <p style="color:var(--mute);margin-top:0">Genera textos en español con las letras que más fallas. Abre este archivo desde un servidor local (por ejemplo <code>python3 -m http.server</code>) o arranca Ollama con <code>OLLAMA_ORIGINS=*</code>.</p>
+    <div class="row">
+      <label>URL <input type="text" id="oUrl" style="width:240px"></label>
+      <button class="btn" id="oDetect">Detectar modelos</button>
+    </div>
+    <div class="row">
+      <label>Modelo <select id="oModel"></select></label>
+      <span class="status" id="oMsg"></span>
+    </div>
+  </div>
+  <div class="card">
+    <h2>Datos</h2>
+    <p style="color:var(--mute);margin-top:0">Todo se guarda en este navegador. Exporta una copia de vez en cuando.</p>
+    <div class="row">
+      <button class="btn" id="exp">Exportar JSON</button>
+      <button class="btn" id="imp">Importar JSON</button>
+      <input type="file" id="impFile" accept=".json" class="hidden">
+      <button class="btn" id="reset" style="color:var(--bad)">Borrar todo</button>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<script>
+"use strict";
+/* ---------- utilidades y almacenamiento ---------- */
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+const LS = "txispaType.v1";
+function loadDB(){
+  try{ const d = JSON.parse(localStorage.getItem(LS)); if(d && d.sessions) return d; }catch(e){}
+  return {sessions:[], keys:{}, bigrams:{}, settings:{}};
+}
+let db = loadDB();
+function save(){ try{ localStorage.setItem(LS, JSON.stringify(db)); }catch(e){} }
+const S = Object.assign({mode:"free", dur:60, strict:false, punct:true, goal:4, ollamaUrl:"http://localhost:11434", model:""}, db.settings);
+function saveSettings(){ db.settings = S; save(); }
+const dayKey = ts => new Date(ts).toLocaleDateString("sv");
+const avg = a => a.length ? a.reduce((x,y)=>x+y,0)/a.length : 0;
+const fmt = (n,d=0) => Number(n).toFixed(d);
+
+/* ---------- banco de palabras ---------- */
+const WORDS = ("casa tiempo año día vida mundo hombre mujer trabajo parte lugar caso momento forma agua noche tarde mañana ciudad pueblo montaña camino sierra bosque río mar cielo tierra fuego viento nieve sol luna estrella invierno verano otoño primavera " +
+"hacer poder decir saber querer llegar pasar deber poner parecer quedar creer hablar llevar dejar seguir encontrar llamar venir pensar salir volver tomar conocer vivir sentir tratar mirar contar empezar esperar buscar existir entrar trabajar escribir perder producir ocurrir entender pedir recibir recordar terminar permitir aparecer conseguir comenzar servir sacar necesitar mantener resultar leer caer cambiar presentar crear abrir considerar oír acabar " +
+"grande pequeño nuevo viejo bueno malo mejor peor largo corto alto bajo fuerte rápido lento difícil fácil importante necesario posible diferente mismo propio primero último siguiente único general social público libre claro simple natural tranquilo pesado ligero limpio oscuro cálido frío " +
+"también siempre nunca ahora después antes entonces todavía aunque porque cuando mientras donde como sobre entre desde hasta contra según durante además quizá tampoco todo nada algo alguien nadie cada otro tanto mucho poco más menos " +
+"programa ordenador teclado pantalla ratón código archivo carpeta servidor red sistema datos modelo memoria tarjeta gráfica proyecto idea negocio camiseta diseño cliente pedido precio estudio clase examen libro página texto palabra frase letra número vídeo cámara música canción película juego amigo familia padre madre hermano compañero equipo grupo persona gente niño " +
+"camino mochila refugio cumbre senda piedra nube lluvia sendero aventura paisaje silencio energía alegría sorpresa pequeña montañero cabaña guitarra ventana puerta cocina mesa silla habitación jardín coche bicicleta tren avión viaje maleta " +
+"español inglés años señal compañía enseñanza otoño sueño diseñar mañana montaña pequeño cuñado campaña dueño baño ñoño riñón cigüeña pingüino vergüenza lingüística " +
+"también además allí aquí así después según qué cómo cuándo dónde está será habrá público música teléfono información acción canción razón corazón lección máquina práctica rápido último cálculo teórico económico histórico mágico").split(/\s+/).filter(Boolean);
+
+/* ---------- modelo de teclas débiles ---------- */
+function keyScore(st){
+  if(!st || st.n < 5) return 0;
+  const err = st.e / st.n;
+  const gl = globalLatency();
+  const lat = st.tn ? (st.t / st.tn) : gl;
+  const slow = gl ? Math.max(0, lat/gl - 1) : 0;
+  return err*10 + slow*1.5;
+}
+function globalLatency(){
+  let t=0, n=0;
+  for(const k in db.keys){ t += db.keys[k].t||0; n += db.keys[k].tn||0; }
+  return n ? t/n : 0;
+}
+function weakList(){
+  return Object.keys(db.keys).map(k => ({k, s:keyScore(db.keys[k]), st:db.keys[k]}))
+    .filter(x => x.s > 0.15 && x.k !== "␣").sort((a,b)=>b.s-a.s);
+}
+function slowBigrams(limit=8){
+  const gl = globalLatency() || 1;
+  return Object.entries(db.bigrams).filter(([,v])=>v.n>=4)
+    .map(([bg,v])=>({bg, ms:v.t/v.n, n:v.n, r:(v.t/v.n)/gl}))
+    .sort((a,b)=>b.r-a.r).slice(0,limit);
+}
+
+/* ---------- generador de texto ---------- */
+function weakModel(){
+  const wl = weakList().slice(0,8);
+  if(!wl.length) return null;
+  const charW = {}; wl.forEach(x => charW[x.k] = Math.min(x.s,6));
+  const bg = {}; slowBigrams(10).forEach(x => { if(x.r > 1.2) bg[x.bg] = x.r-1; });
+  return {charW, bg};
+}
+function wordBoost(w, m){
+  let b = 0;
+  for(let i=0;i<w.length;i++){
+    b += (m.charW[w[i]]||0) * 1.2;
+    if(i && m.bg[w[i-1]+w[i]]) b += m.bg[w[i-1]+w[i]] * 2;
+  }
+  return b / Math.sqrt(w.length);
+}
+function makeText(n=60){
+  const m = S.mode === "weak" ? weakModel() : null;
+  const weights = WORDS.map(w => 1 + (m ? wordBoost(w,m)*3 : 0));
+  const total = weights.reduce((a,b)=>a+b,0);
+  const out = []; let last = "";
+  while(out.length < n){
+    let r = Math.random()*total, i = 0;
+    while(i < weights.length-1 && (r -= weights[i]) > 0) i++;
+    if(WORDS[i] === last) continue;
+    out.push(last = WORDS[i]);
+  }
+  if(!S.punct) return out.join(" ");
+  let res = [], i = 0;
+  while(i < out.length){
+    const len = 6 + Math.floor(Math.random()*7);
+    const sent = out.slice(i, i+len);
+    i += len;
+    sent[0] = sent[0][0].toUpperCase() + sent[0].slice(1);
+    for(let j=2;j<sent.length-1;j++) if(Math.random() < .12){ sent[j] += ","; break; }
+    res.push(sent.join(" ") + ".");
+  }
+  return res.join(" ");
+}
+function cleanAI(t){
+  t = t.replace(/[‘’]/g,"'").replace(/[“”«»]/g,'"').replace(/[—–]/g,"-").replace(/…/g,"...");
+  t = t.replace(/[*#_`>\[\]{}|~\\\/]/g," ").replace(/\s+/g," ").trim();
+  t = t.replace(/[^\p{L}\p{N} .,;:¿?¡!()"'-]/gu,"");
+  return t.replace(/\s+/g," ").trim();
+}
+async function aiText(){
+  const base = S.ollamaUrl.replace(/\/$/,"");
+  let model = S.model;
+  if(!model){
+    const r = await fetch(base+"/api/tags"); const j = await r.json();
+    model = j.models && j.models[0] && j.models[0].name;
+    if(!model) throw new Error("No hay modelos instalados en Ollama");
+  }
+  const letters = weakList().slice(0,5).map(x=>x.k).filter(k=>/\p{L}/u.test(k));
+  const focus = letters.length ? ` Usa muchas palabras que contengan las letras: ${letters.join(", ")}.` : "";
+  const prompt = `Escribe un texto corrido en español de unas 70 palabras, natural y variado, sobre un tema cotidiano, tecnología o naturaleza.${focus} Sin títulos, sin listas, sin markdown, sin comillas, sin saltos de línea. Devuelve solo el texto.`;
+  const r = await fetch(base+"/api/generate", {method:"POST", headers:{"Content-Type":"application/json"},
+    body: JSON.stringify({model, prompt, stream:false, options:{temperature:.8}})});
+  if(!r.ok) throw new Error("Ollama respondió " + r.status);
+  const j = await r.json();
+  const t = cleanAI(j.response || "");
+  if(t.length < 40) throw new Error("Texto demasiado corto");
+  return t;
+}
+
+/* ---------- motor de escritura ---------- */
+const ta = $("#ta"), box = $("#text");
+let E = null; // estado del test
+function newState(text){
+  return {target:text, spans:[], started:false, finished:false, startTs:0, lastTs:0, prevOk:false,
+    prevCh:"", ks:0, errors:0, intervals:[], keys:{}, bigrams:{}, timer:null, left:S.dur, fixed:S.mode==="ai"};
+}
+function buildText(){
+  box.textContent = "";
+  E.spans = [...E.target].map(c => { const s = document.createElement("span"); s.textContent = c; box.appendChild(s); return s; });
+}
+async function startTest(){
+  clearInterval(E && E.timer);
+  $("#result").classList.add("hidden");
+  $("#status").textContent = "";
+  let text;
+  if(S.mode === "ai"){
+    $("#status").textContent = "Pidiendo texto al modelo local…";
+    try{ text = await aiText(); $("#status").textContent = ""; }
+    catch(err){
+      $("#status").textContent = "IA no disponible (" + err.message + "). Uso texto de práctica.";
+      const m = S.mode; S.mode = "weak"; text = makeText(70); S.mode = m;
+    }
+  } else text = makeText(S.mode === "weak" ? 80 : 70);
+  E = newState(text);
+  ta.value = "";
+  buildText();
+  $("#hTime").textContent = S.dur; $("#hWpm").textContent = 0; $("#hAcc").textContent = "100%";
+  const wk = weakList().slice(0,5).map(x=>x.k);
+  $("#hintL").textContent = S.mode === "weak" ? (wk.length ? "Trabajando: " + wk.join(" ") : "Aún no hay suficientes datos de teclas; practica en modo libre.") : "Empieza a escribir para arrancar el cronómetro.";
+  paint(); focusInput();
+}
+function focusInput(){ ta.focus({preventScroll:true}); box.classList.remove("blur"); }
+box.addEventListener("click", focusInput);
+ta.addEventListener("blur", () => box.classList.add("blur"));
+ta.addEventListener("focus", () => box.classList.remove("blur"));
+
+function paint(){
+  const typed = ta.value, n = typed.length;
+  E.spans.forEach((s,i) => {
+    s.className = i < n ? (typed[i] === E.target[i] ? "ok" : "bad") : (i === n ? "cur" : "");
+  });
+  const cur = E.spans[Math.min(n, E.spans.length-1)];
+  if(cur){ const lh = parseFloat(getComputedStyle(box).lineHeight); box.scrollTop = Math.max(0, cur.offsetTop - lh); }
+}
+function bump(map, k){ return map[k] || (map[k] = {n:0, e:0, t:0, tn:0}); }
+function onKey(exp, got, now){
+  const k = exp === " " ? "␣" : exp.toLowerCase();
+  const ok = exp === got;
+  const st = bump(E.keys, k); st.n++; E.ks++;
+  if(!ok){ st.e++; E.errors++; }
+  const gap = E.lastTs ? now - E.lastTs : 0;
+  if(ok && gap > 0 && gap < 2000){
+    st.t += gap; st.tn++; E.intervals.push(gap);
+    if(E.prevOk && E.prevCh){
+      const bg = (E.prevCh + k).replace("␣"," ");
+      const b = E.bigrams[bg] || (E.bigrams[bg] = {n:0, t:0}); b.n++; b.t += gap;
+    }
+  }
+  E.prevOk = ok; E.prevCh = k === "␣" ? " " : k; E.lastTs = now;
+  return ok;
+}
+function process(){
+  if(!E || E.finished) return;
+  const now = performance.now();
+  let val = ta.value;
+  const prev = E.typedLen || 0;
+  if(val.length > prev){
+    if(!E.started){ E.started = true; E.startTs = now; E.timer = setInterval(tick, 100); }
+    for(let i = prev; i < val.length; i++){
+      const ok = onKey(E.target[i] || "", val[i], now);
+      if(!ok && S.strict){
+        val = val.slice(0, i); ta.value = val;
+        box.animate([{transform:"translateX(-3px)"},{transform:"translateX(3px)"},{transform:"none"}],{duration:120});
+        break;
+      }
+    }
+  }
+  E.typedLen = val.length;
+  paint(); live();
+  if(val.length >= E.target.length) finish();
+  else if(!E.fixed && E.target.length - val.length < 90){
+    const extra = " " + makeText(30);
+    E.target += extra;
+    extra.split("").forEach(c => { const s = document.createElement("span"); s.textContent = c; box.appendChild(s); E.spans.push(s); });
+  }
+}
+ta.addEventListener("input", e => { if(!e.isComposing) process(); });
+ta.addEventListener("compositionend", process);
+function counts(){
+  const typed = ta.value; let good = 0;
+  for(let i=0;i<typed.length;i++) if(typed[i] === E.target[i]) good++;
+  return {good, typed: typed.length};
+}
+function elapsed(){ return E.started ? (performance.now() - E.startTs)/1000 : 0; }
+function live(){
+  if(!E.started) return;
+  const el = Math.max(elapsed(), 1), c = counts();
+  $("#hWpm").textContent = Math.round(c.good/5/(el/60));
+  $("#hAcc").textContent = (E.ks ? Math.round((1 - E.errors/E.ks)*100) : 100) + "%";
+}
+function tick(){
+  const left = Math.max(0, S.dur - elapsed());
+  $("#hTime").textContent = Math.ceil(left);
+  live();
+  if(left <= 0) finish();
+}
+function finish(){
+  if(!E || E.finished) return;
+  E.finished = true; clearInterval(E.timer);
+  const el = Math.min(Math.max(elapsed(), 1), S.dur);
+  const c = counts();
+  const wpm = c.good/5/(el/60), raw = c.typed/5/(el/60);
+  const acc = E.ks ? (1 - E.errors/E.ks)*100 : 100;
+  const m = avg(E.intervals), sd = Math.sqrt(avg(E.intervals.map(x=>(x-m)**2)));
+  const cons = m ? Math.max(0, Math.min(100, 100*(1 - (sd/m)/1.6))) : 0;
+  const prevS = db.sessions.slice(-10);
+  const prevW = avg(prevS.map(s=>s.wpm)), prevA = avg(prevS.map(s=>s.acc));
+  if(E.ks < 8) { $("#status").textContent = "Test demasiado corto: no se guarda."; return; }
+  db.sessions.push({ts:Date.now(), mode:S.mode, dur:Math.round(el), wpm:+wpm.toFixed(1), raw:+raw.toFixed(1), acc:+acc.toFixed(1), cons:+cons.toFixed(0), err:E.errors, ks:E.ks});
+  for(const k in E.keys){ const a = bump(db.keys,k), b = E.keys[k]; a.n+=b.n; a.e+=b.e; a.t+=b.t; a.tn+=b.tn; }
+  for(const k in E.bigrams){ const a = db.bigrams[k] || (db.bigrams[k] = {n:0,t:0}), b = E.bigrams[k]; a.n+=b.n; a.t+=b.t; }
+  save();
+  const bad = Object.entries(E.keys).filter(([,v])=>v.e>0).sort((a,b)=>b[1].e-a[1].e).slice(0,6);
+  const dW = prevS.length ? wpm - prevW : null, dA = prevS.length ? acc - prevA : null;
+  const delta = (d,u) => d == null ? "" : `<em class="${d>=0?"up":"down"}">${d>=0?"+":""}${fmt(d,1)}${u} vs últimos 10</em>`;
+  const r = $("#result"); r.classList.remove("hidden");
+  r.innerHTML = `<h2>Resultado</h2><div class="grid">
+    <div class="stat"><small>PPM netas</small><b>${fmt(wpm,1)}</b><br>${delta(dW,"")}</div>
+    <div class="stat"><small>Precisión</small><b>${fmt(acc,1)}%</b><br>${delta(dA,"%")}</div>
+    <div class="stat"><small>PPM brutas</small><b>${fmt(raw,1)}</b></div>
+    <div class="stat"><small>Ritmo constante</small><b>${fmt(cons)}%</b></div>
+    <div class="stat"><small>Errores</small><b>${E.errors}</b></div></div>
+    <h3>Teclas con más fallos en este test</h3>
+    <div class="chips">${bad.length ? bad.map(([k,v])=>`<span class="chip">${k} ×${v.e}</span>`).join("") : "<span style='color:var(--mute)'>Ninguna. Test limpio.</span>"}</div>
+    <div class="row"><button class="btn pri" id="nextBtn">Siguiente test (Enter)</button></div>`;
+  $("#nextBtn").onclick = startTest;
+  ta.blur(); renderToday();
+}
+
+/* ---------- panel de hoy ---------- */
+function renderToday(){
+  const today = dayKey(Date.now());
+  const ts = db.sessions.filter(s => dayKey(s.ts) === today);
+  const dots = Array.from({length:Math.max(S.goal, ts.length)}, (_,i)=>`<i class="${i<ts.length?"f":""}"></i>`).join("");
+  $("#todayCard").innerHTML = `<h2>Hoy</h2><div>${ts.length} de ${S.goal} tests${ts.length ? " · media " + fmt(avg(ts.map(s=>s.wpm)),1) + " ppm · " + fmt(avg(ts.map(s=>s.acc)),1) + "% precisión" : ""}</div><div class="dots">${dots}</div>`;
+}
+
+/* ---------- estadísticas ---------- */
+function drawLine(canvas, vals, color, fixedMin, fixedMax){
+  const dpr = window.devicePixelRatio || 1, w = canvas.clientWidth, h = canvas.clientHeight;
+  canvas.width = w*dpr; canvas.height = h*dpr;
+  const c = canvas.getContext("2d"); c.scale(dpr,dpr); c.clearRect(0,0,w,h);
+  const cs = getComputedStyle(document.documentElement);
+  const line = cs.getPropertyValue("--line"), mute = cs.getPropertyValue("--mute");
+  if(vals.length < 2){ c.fillStyle = mute; c.font = "13px system-ui"; c.fillText("Haz al menos 2 tests para ver la gráfica.", 10, h/2); return; }
+  let min = fixedMin ?? Math.floor(Math.min(...vals)-2), max = fixedMax ?? Math.ceil(Math.max(...vals)+2);
+  if(max === min) max = min+1;
+  const L = 34, R = 8, T = 8, B = 8;
+  const X = i => L + (w-L-R) * i/(vals.length-1), Y = v => T + (h-T-B) * (1 - (v-min)/(max-min));
+  c.strokeStyle = line; c.fillStyle = mute; c.font = "11px system-ui"; c.lineWidth = 1;
+  for(let g=0; g<=3; g++){ const v = min + (max-min)*g/3, y = Y(v); c.beginPath(); c.moveTo(L,y); c.lineTo(w-R,y); c.stroke(); c.fillText(Math.round(v), 2, y+4); }
+  c.strokeStyle = color; c.globalAlpha = .35; c.lineWidth = 1.5; c.beginPath();
+  vals.forEach((v,i)=> i ? c.lineTo(X(i),Y(v)) : c.moveTo(X(i),Y(v))); c.stroke();
+  vals.forEach((v,i)=>{ c.beginPath(); c.arc(X(i),Y(v),2.5,0,7); c.fillStyle = color; c.fill(); });
+  c.globalAlpha = 1; c.lineWidth = 2.5; c.beginPath();
+  vals.forEach((_,i)=>{ const a = vals.slice(Math.max(0,i-4), i+1), v = avg(a); i ? c.lineTo(X(i),Y(v)) : c.moveTo(X(i),Y(v)); });
+  c.stroke();
+}
+function streak(){
+  const days = new Set(db.sessions.map(s=>dayKey(s.ts)));
+  let d = new Date(), n = 0;
+  if(!days.has(dayKey(d))) d.setDate(d.getDate()-1);
+  while(days.has(dayKey(d))){ n++; d.setDate(d.getDate()-1); }
+  return n;
+}
+function renderStats(){
+  const ss = db.sessions, last = ss.slice(-60);
+  const week = ss.filter(s => Date.now()-s.ts < 7*864e5);
+  const best = ss.length ? Math.max(...ss.map(s=>s.wpm)) : 0;
+  const rows = [];
+  const byDay = {}; ss.forEach(s => (byDay[dayKey(s.ts)] ||= []).push(s));
+  Object.keys(byDay).sort().reverse().slice(0,14).forEach(d => {
+    const a = byDay[d];
+    rows.push(`<tr><td>${d}</td><td>${a.length}</td><td>${fmt(avg(a.map(s=>s.wpm)),1)}</td><td>${fmt(Math.max(...a.map(s=>s.wpm)),1)}</td><td>${fmt(avg(a.map(s=>s.acc)),1)}%</td></tr>`);
+  });
+  const wl = weakList().slice(0,10);
+  const bg = slowBigrams(10);
+  const gl = globalLatency();
+  $("#v-stats").innerHTML = `
+  <div class="card"><div class="grid">
+    <div class="stat"><small>Tests totales</small><b>${ss.length}</b></div>
+    <div class="stat"><small>Racha (días)</small><b>${streak()}</b></div>
+    <div class="stat"><small>Mejor PPM</small><b>${fmt(best,1)}</b></div>
+    <div class="stat"><small>Media 7 días</small><b>${fmt(avg(week.map(s=>s.wpm)),1)}</b><br><em>${fmt(avg(week.map(s=>s.acc)),1)}% precisión</em></div>
+  </div></div>
+  <div class="two">
+    <div class="card"><h2>Velocidad (ppm netas)</h2><canvas id="cW"></canvas></div>
+    <div class="card"><h2>Precisión (%)</h2><canvas id="cA"></canvas></div>
+  </div>
+  <div class="card"><h2>Mapa del teclado</h2>
+    <div style="color:var(--mute);font-size:13px">Rojo = más errores o más lento. Gris = pocos datos.</div>
+    <div class="kb" id="kb"></div></div>
+  <div class="two">
+    <div class="card"><h2>Teclas a trabajar</h2>
+      ${wl.length ? `<table><tr><th>Tecla</th><th>Fallos</th><th>Tiempo medio</th></tr>${wl.map(x=>`<tr><td><span class="chip">${x.k}</span></td><td>${fmt(100*x.st.e/x.st.n,1)}%</td><td>${x.st.tn ? Math.round(x.st.t/x.st.tn) : "-"} ms</td></tr>`).join("")}</table>` : "<span style='color:var(--mute)'>Aún no hay datos suficientes. Haz unos cuantos tests.</span>"}
+    </div>
+    <div class="card"><h2>Pares de letras lentos</h2>
+      ${bg.length ? `<table><tr><th>Par</th><th>Tiempo</th><th>Veces</th></tr>${bg.map(x=>`<tr><td><span class="chip">${x.bg.replace(" ","␣")}</span></td><td>${Math.round(x.ms)} ms</td><td>${x.n}</td></tr>`).join("")}</table><div style="color:var(--mute);font-size:12px;margin-top:6px">Media global: ${Math.round(gl)} ms por tecla.</div>` : "<span style='color:var(--mute)'>Aún no hay datos suficientes.</span>"}
+    </div>
+  </div>
+  <div class="card"><h2>Últimos 14 días</h2>
+    ${rows.length ? `<table><tr><th>Día</th><th>Tests</th><th>Media ppm</th><th>Mejor ppm</th><th>Precisión</th></tr>${rows.join("")}</table>` : "<span style='color:var(--mute)'>Sin tests todavía.</span>"}</div>`;
+  drawLine($("#cW"), last.map(s=>s.wpm), getComputedStyle(document.documentElement).getPropertyValue("--accent").trim());
+  drawLine($("#cA"), last.map(s=>s.acc), getComputedStyle(document.documentElement).getPropertyValue("--ok").trim(), 80, 100);
+  const kb = $("#kb");
+  ["qwertyuiop","asdfghjklñ","zxcvbnm,."].forEach(row => {
+    const d = document.createElement("div");
+    [...row].forEach(ch => d.appendChild(keyEl(ch)));
+    kb.appendChild(d);
+  });
+  const sp = document.createElement("div"); const se = keyEl("␣"); se.classList.add("sp"); sp.appendChild(se); kb.appendChild(sp);
+}
+function keyEl(ch){
+  const el = document.createElement("div"); el.className = "k"; el.textContent = ch;
+  const st = db.keys[ch];
+  if(st && st.n >= 5){
+    const sc = Math.min(keyScore(st)/3, 1);
+    el.style.background = `hsl(${Math.round(140 - sc*140)} 55% 42%)`; el.style.color = "#fff";
+    el.title = `${ch}: ${st.n} pulsaciones, ${fmt(100*st.e/st.n,1)}% fallos, ${st.tn ? Math.round(st.t/st.tn) : "-"} ms`;
+  } else el.title = "Pocos datos";
+  return el;
+}
+
+/* ---------- ajustes ---------- */
+function syncUI(){
+  $$("#modeSeg button").forEach(b => b.classList.toggle("on", b.dataset.m === S.mode));
+  $$("#durSeg button").forEach(b => b.classList.toggle("on", +b.dataset.d === S.dur));
+  $("#strict").checked = S.strict; $("#punct").checked = S.punct;
+  $("#goal").value = S.goal; $("#oUrl").value = S.ollamaUrl;
+  const sel = $("#oModel"); if(S.model && !sel.options.length) sel.innerHTML = `<option>${S.model}</option>`;
+}
+$("#modeSeg").addEventListener("click", e => { const b = e.target.closest("button"); if(!b) return; S.mode = b.dataset.m; saveSettings(); syncUI(); startTest(); });
+$("#durSeg").addEventListener("click", e => { const b = e.target.closest("button"); if(!b) return; S.dur = +b.dataset.d; saveSettings(); syncUI(); startTest(); });
+$("#strict").onchange = e => { S.strict = e.target.checked; saveSettings(); startTest(); };
+$("#punct").onchange = e => { S.punct = e.target.checked; saveSettings(); startTest(); };
+$("#goal").onchange = e => { S.goal = Math.max(1, +e.target.value || 4); saveSettings(); renderToday(); };
+$("#oUrl").onchange = e => { S.ollamaUrl = e.target.value.trim() || "http://localhost:11434"; saveSettings(); };
+$("#oModel").onchange = e => { S.model = e.target.value; saveSettings(); };
+$("#oDetect").onclick = async () => {
+  const msg = $("#oMsg"); msg.textContent = "Buscando…";
+  try{
+    const j = await (await fetch(S.ollamaUrl.replace(/\/$/,"") + "/api/tags")).json();
+    const names = (j.models||[]).map(m=>m.name);
+    $("#oModel").innerHTML = names.map(n=>`<option ${n===S.model?"selected":""}>${n}</option>`).join("");
+    if(names.length && !names.includes(S.model)){ S.model = names[0]; saveSettings(); }
+    msg.textContent = names.length + " modelos encontrados.";
+  }catch(err){ msg.textContent = "No se pudo conectar. Revisa la URL y OLLAMA_ORIGINS."; }
+};
+$("#exp").onclick = () => {
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([JSON.stringify(db)], {type:"application/json"}));
+  a.download = "txispa-type-" + dayKey(Date.now()) + ".json"; a.click();
+};
+$("#imp").onclick = () => $("#impFile").click();
+$("#impFile").onchange = async e => {
+  try{ const d = JSON.parse(await e.target.files[0].text()); if(!d.sessions) throw 0; db = d; Object.assign(S, db.settings||{}); save(); syncUI(); renderToday(); alert("Datos importados."); }
+  catch(err){ alert("Archivo no válido."); }
+};
+$("#reset").onclick = () => { if(confirm("¿Borrar todos los tests y estadísticas?")){ db = {sessions:[],keys:{},bigrams:{},settings:S}; save(); renderToday(); } };
+
+/* ---------- navegación y atajos ---------- */
+function show(v){
+  $$("#nav button").forEach(b => b.classList.toggle("on", b.dataset.v === v));
+  ["practice","stats","settings"].forEach(x => $("#v-"+x).classList.toggle("hidden", x !== v));
+  if(v === "stats") renderStats();
+  if(v === "practice") focusInput();
+}
+$("#nav").addEventListener("click", e => { const b = e.target.closest("button"); if(b) show(b.dataset.v); });
+document.addEventListener("keydown", e => {
+  if($("#v-practice").classList.contains("hidden")) return;
+  if(e.key === "Escape"){ e.preventDefault(); startTest(); }
+  else if(e.key === "Enter" && E && E.finished){ e.preventDefault(); startTest(); }
+  else if(e.key === "Tab"){ e.preventDefault(); startTest(); }
+  else if(document.activeElement === document.body && e.key.length === 1 && !e.ctrlKey && !e.metaKey) focusInput();
+});
+
+syncUI(); renderToday(); startTest();
+</script>
+</body>
+</html>
