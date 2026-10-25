@@ -7,7 +7,7 @@ import { useIntentos } from "./hooks/useIntentos";
 import Hoy from "./components/Hoy";
 import Calentar from "./components/Calentar";
 import Test from "./components/Test";
-import Entrenar from "./components/Entrenar";
+import Entrenar, { type FuenteEntrenar, type PedidoEntreno } from "./components/Entrenar";
 import Estadisticas from "./components/Estadisticas";
 import AjustesPantalla from "./components/AjustesPantalla";
 
@@ -28,6 +28,11 @@ export default function App() {
   const tecladoFisico = useTecladoFisico();
   const almacen = useMemo(() => crearAlmacenIndexedDB(), []);
   const { intentos } = useIntentos(almacen);
+  const [pedido, setPedido] = useState<PedidoEntreno | null>(null);
+  const practicar = useCallback((fuente: FuenteEntrenar) => {
+    setPedido((p) => ({ fuente, n: (p?.n ?? 0) + 1 }));
+    setPestana("entrenar");
+  }, []);
   const guardar = useCallback((i: Intento) => almacen.add(i), [almacen]);
 
   return (
@@ -60,8 +65,8 @@ export default function App() {
         {pestana === "hoy" && <Hoy ajustes={ajustes} intentos={intentos} onIr={setPestana} />}
         {pestana === "calentar" && <Calentar ajustes={ajustes} intentos={intentos} onCambiarAjustes={cambiarAjustes} onIr={setPestana} />}
         {pestana === "test" && <Test ajustes={ajustes} intentos={intentos} onGuardar={guardar} onCambiarAjustes={cambiarAjustes} />}
-        {pestana === "entrenar" && <Entrenar />}
-        {pestana === "estadisticas" && <Estadisticas intentos={intentos} ajustes={ajustes} />}
+        {pestana === "entrenar" && <Entrenar ajustes={ajustes} intentos={intentos} onGuardar={guardar} pedido={pedido} />}
+        {pestana === "estadisticas" && <Estadisticas intentos={intentos} ajustes={ajustes} onPracticar={practicar} />}
         {pestana === "ajustes" && (
           <AjustesPantalla ajustes={ajustes} onCambiar={cambiarAjustes} almacen={almacen} intentos={intentos} />
         )}

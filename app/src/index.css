@@ -703,3 +703,46 @@ kbd {
 .ficha.baja-precision {
   color: var(--danger);
 }
+
+/* ---------- Entrenar ---------- */
+
+.entreno-hoy {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  background: var(--bg3);
+  border-radius: var(--r);
+  padding: 14px 16px;
+  margin: 12px 0;
+}
+
+.fuentes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.fuente {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  text-align: left;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 10px 12px;
+  cursor: pointer;
+}
+
+.fuente.on {
+  border-color: var(--accent);
+  box-shadow: var(--ring);
+}
+
+.fuente:focus-visible {
+  outline: none;
+  box-shadow: var(--ring);
+}
