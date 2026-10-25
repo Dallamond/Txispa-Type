@@ -477,8 +477,8 @@ button {
 }
 
 .texto-caja {
-  /* Sin recuadro ni fondo: solo las letras. */
-  margin: 18px 0 22px;
+  /* Sin recuadro ni fondo: solo las letras, algo separadas del temporizador. */
+  margin: 44px 0 26px;
 }
 
 .texto-viewport {
@@ -486,7 +486,7 @@ button {
   font-family: var(--mono);
   font-size: 1.8rem;
   line-height: var(--linea);
-  height: calc(var(--linea) * 3);
+  height: calc(var(--linea) * 4);
   /* Ancho acotado en caracteres: unas 6 palabras por fila. */
   max-width: 40ch;
   margin: 0 auto;
