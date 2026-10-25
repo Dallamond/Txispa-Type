@@ -6,20 +6,26 @@ Marca las tareas con `- [x]` al terminarlas. Detalle técnico en `ESPECIFICACION
 
 ## Estado
 
-Sin empezar. Último cambio: 25 de octubre de 2026 (paquete de documentación creado, sin código).
+**Fase 1 hecha (25 de octubre de 2026), pendiente de la puerta 1 de Lucas.** Repo en https://github.com/Dallamond/Txispa-Type. `npm run check` en verde (47 tests). Verificado en navegador (Chrome, dev server): seis pestañas, teclado virtual con guía de dedos y tecla muerta para tildes, IndexedDB guarda/lee/borra (botón "Probar almacenamiento" en Ajustes, que se quitará en la fase 2), sin errores de consola.
+
+Notas de la fase 1:
+- `CHARMAP` de Shellpath no contemplaba las vocales con tilde ni la diéresis; se han añadido (tecla muerta `´`). El teclado marca primero `´` y luego la vocal.
+- `grafica.ts`: la métrica `"ppm"` pasa a `"wpm"`.
+- No se ha copiado `DailyGoal`, `HistorialTests` ni `StatsView` todavía (fase 2).
+- Siguiente: fase 2, tarea `medidas.ts`.
 
 ## Fase 1: Cimientos
 
 Dejar un proyecto que compila, con las piezas reutilizables de Shellpath y sus pruebas funcionando.
 
-- [ ] Iniciar el repositorio git en `Txispa Type/` y crear `app/` con Vite, React 19 y TypeScript (mismas versiones que Shellpath). Añadir Vitest y oxlint.
-- [ ] Script `npm run check` que encadene `tsc -b`, lint, tests y build.
-- [ ] Copiar y renombrar (`cpm` y `wpm`) `typing.ts`, `rng.ts`, `data/keyboard.ts`, `data/textos.ts`, `lib/grafica.ts`, `hooks/usePressedKey.ts`, `hooks/useTecladoFisico.ts` con sus tests.
-- [ ] Extraer de `index.css` de Shellpath solo los tokens, el tema claro y oscuro, y los estilos del teclado.
-- [ ] Copiar `VirtualKeyboard` y comprobar que pinta la tecla siguiente y el nombre del dedo.
-- [ ] Interfaz `RunStore` con implementación en memoria (para tests) y en IndexedDB.
-- [ ] Ajustes en localStorage con valores por defecto.
-- [ ] Estructura de pestañas vacía: Hoy, Calentar, Test, Entrenar, Estadísticas, Ajustes.
+- [x] Iniciar el repositorio git en `Txispa Type/` y crear `app/` con Vite, React 19 y TypeScript (mismas versiones que Shellpath). Añadir Vitest y oxlint.
+- [x] Script `npm run check` que encadene `tsc -b`, lint, tests y build.
+- [x] Copiar y renombrar (`cpm` y `wpm`) `typing.ts`, `rng.ts`, `data/keyboard.ts`, `data/textos.ts`, `lib/grafica.ts`, `hooks/usePressedKey.ts`, `hooks/useTecladoFisico.ts` con sus tests.
+- [x] Extraer de `index.css` de Shellpath solo los tokens, el tema claro y oscuro, y los estilos del teclado.
+- [x] Copiar `VirtualKeyboard` y comprobar que pinta la tecla siguiente y el nombre del dedo.
+- [x] Interfaz `RunStore` con implementación en memoria (para tests) y en IndexedDB.
+- [x] Ajustes en localStorage con valores por defecto.
+- [x] Estructura de pestañas vacía: Hoy, Calentar, Test, Entrenar, Estadísticas, Ajustes.
 
 **Hecho cuando:** `npm run check` pasa en verde, la app abre con las seis pestañas, el teclado virtual se ve y los tests de lo copiado pasan.
 

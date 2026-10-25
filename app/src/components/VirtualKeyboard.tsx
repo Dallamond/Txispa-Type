@@ -35,7 +35,7 @@ export default function VirtualKeyboard({ nextChar = null, pressedKey = null, gu
     const keyDef = KEY_BY_ID[m.key];
     if (!keyDef) return "";
     const parts: string[] = [];
-    if (m.dead) parts.push(m.deadShift ? "primero ¨ (shift + tecla ´)," : "primero la tecla ´,");
+    if (m.dead) parts.push(m.deadShift ? "primero shift + ´ (meñique derecho), después" : "primero ´ (meñique derecho), después");
     parts.push(FINGER_NAMES[keyDef.finger]);
     if (m.shift) {
       const shiftId = keyDef.finger <= 3 ? "ShiftR" : "ShiftL";
