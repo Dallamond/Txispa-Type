@@ -10,6 +10,7 @@ import {
   formatoVariacion,
   mediaMovil,
   ordenarHistorial,
+  posicionEnHistorial,
   precisionBaja,
   serieParaGrafica,
   ticksRedondos,
@@ -99,5 +100,33 @@ describe("formatoTiempo", () => {
     expect(formatoTiempo(750)).toBe("12 min 30 s");
     expect(formatoTiempo(3900)).toBe("1 h 05 min");
     expect(formatoTiempo(-3)).toBe("0 s");
+  });
+});
+
+describe("posicionEnHistorial", () => {
+  const mk = (id: string, dia: string, wpm: number, acc = 97): Intento => intentoDePrueba(id, `${dia}T10:00:00.000Z`, { wpm, acc });
+  const base = [mk("a", "2026-10-01", 40), mk("b", "2026-10-02", 50), mk("c", "2026-10-03", 45)];
+
+  it("coloca el test entre los demás aunque aún no esté guardado", () => {
+    const actual = mk("d", "2026-10-04", 48);
+    const p = posicionEnHistorial(base, actual);
+    expect(p.total).toBe(4);
+    expect(p.puesto).toBe(2);
+    expect(p.indice).toBe(3);
+    expect(p.esRecord).toBe(false);
+  });
+  it("no duplica el test si ya está guardado y detecta el récord", () => {
+    const actual = mk("d", "2026-10-04", 55);
+    const p = posicionEnHistorial([...base, actual], actual);
+    expect(p.total).toBe(4);
+    expect(p.puesto).toBe(1);
+    expect(p.esRecord).toBe(true);
+  });
+  it("con precisión baja no es récord", () => {
+    expect(posicionEnHistorial(base, mk("d", "2026-10-04", 90, 80)).esRecord).toBe(false);
+  });
+  it("ignora los entrenos", () => {
+    const e = intentoDePrueba("e", "2026-10-02T10:00:00.000Z", { modo: "entreno", wpm: 99 });
+    expect(posicionEnHistorial([...base, e], mk("d", "2026-10-04", 48)).total).toBe(4);
   });
 });

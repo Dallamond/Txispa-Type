@@ -12,13 +12,15 @@ interface Props {
   unidad: string;
   /** Los puntos por debajo de este valor se pintan con el color de aviso. */
   umbralBajo?: number;
+  /** Índice del punto a resaltar (p. ej. el test que acabas de hacer). */
+  destacar?: number;
 }
 
 const W = 640;
 const H = 220;
 const M = { t: 12, r: 14, b: 26, l: 40 };
 
-export default function GraficaLinea({ valores, etiquetas, metrica, titulo, unidad, umbralBajo }: Props) {
+export default function GraficaLinea({ valores, etiquetas, metrica, titulo, unidad, umbralBajo, destacar }: Props) {
   const n = valores.length;
   if (n === 0) return <p className="tenue">Sin datos para esta gráfica.</p>;
 
@@ -56,6 +58,12 @@ export default function GraficaLinea({ valores, etiquetas, metrica, titulo, unid
       ))}
       {n > 1 && <path d={linea(valores)} className="grafica-serie" />}
       {n > 1 && <path d={linea(movil)} className="grafica-movil" />}
+      {destacar !== undefined && destacar >= 0 && destacar < n && (
+        <g aria-hidden="true">
+          <line x1={x(destacar)} x2={x(destacar)} y1={M.t} y2={H - M.b} className="grafica-guia" />
+          <circle cx={x(destacar)} cy={y(valores[destacar])} r={7} className="grafica-actual" />
+        </g>
+      )}
       {valores.map((v, i) => (
         <circle
           key={i}

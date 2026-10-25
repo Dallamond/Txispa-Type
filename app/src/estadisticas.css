@@ -239,3 +239,16 @@
   line-height: 1;
   color: var(--ok);
 }
+
+.grafica-actual {
+  fill: var(--accent);
+  stroke: var(--bg);
+  stroke-width: 2;
+}
+
+.grafica-guia {
+  stroke: var(--accent);
+  stroke-width: 1;
+  stroke-dasharray: 3 4;
+  opacity: 0.6;
+}

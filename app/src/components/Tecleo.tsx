@@ -15,6 +15,8 @@ import { mediaUltimos } from "../lib/estadisticas";
 import { PRECISION_MINIMA, precision, wpmNeta } from "../lib/medidas";
 import { posicionFantasma } from "../lib/calentamientos";
 import AreaTexto from "./AreaTexto";
+import GraficaLinea from "./GraficaLinea";
+import { formatoDiaCorto, posicionEnHistorial } from "../lib/historial";
 import VirtualKeyboard from "./VirtualKeyboard";
 
 interface Props {
@@ -231,6 +233,7 @@ function Resultado({
   const dA = previos ? intento.acc - previos.acc : null;
   const falladas = teclasMasFalladas(intento.teclas);
   const confusiones = confusionesMasRepetidas(intento.confusiones, 3);
+  const posicion = comparar ? posicionEnHistorial(intentos, intento) : null;
   const vacio = intento.correct + intento.errors === 0;
 
   return (
@@ -261,6 +264,24 @@ function Resultado({
             <p className="tenue">Comparado con la media de tus últimos {previos.n} tests ({fmt(previos.wpm)} ppm, {fmt(previos.acc)}%).</p>
           ) : (
             comparar && <p className="tenue">Es tu primer test: aún no hay con qué comparar.</p>
+          )}
+
+          {posicion && posicion.total > 1 && (
+            <>
+              <h2>Dónde queda entre tus {posicion.total} tests</h2>
+              <p className="tenue">
+                {posicion.esRecord ? "¡Récord! El más rápido con precisión suficiente. " : ""}
+                Puesto {posicion.puesto} de {posicion.total} por velocidad (el punto grande es este test).
+              </p>
+              <GraficaLinea
+                valores={posicion.serie.map((t) => t.wpm)}
+                etiquetas={posicion.serie.map((t) => formatoDiaCorto(t.localDate))}
+                metrica="wpm"
+                titulo="Velocidad neta de todos los tests"
+                unidad="ppm"
+                destacar={posicion.indice}
+              />
+            </>
           )}
 
           <h2>Teclas con más fallos en este test</h2>

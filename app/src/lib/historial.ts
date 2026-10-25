@@ -101,3 +101,26 @@ export function formatoTiempo(segundos: number): string {
   const r = s % 60;
   return r === 0 ? `${m} min` : `${m} min ${r} s`;
 }
+
+export interface PosicionEnHistorial {
+  /** Últimos tests (incluido `actual`), de más antiguo a más reciente. */
+  serie: Intento[];
+  /** Posición de `actual` dentro de `serie`. */
+  indice: number;
+  /** 1 = el más rápido de todos los tests. */
+  puesto: number;
+  total: number;
+  /** Récord entre los tests con precisión suficiente. */
+  esRecord: boolean;
+}
+
+/** Dónde queda un test entre todos los tests guardados. `actual` entra aunque aún no esté en `intentos`. */
+export function posicionEnHistorial(intentos: readonly Intento[], actual: Intento, n = 60): PosicionEnHistorial {
+  const tests = intentos.filter((i) => i.modo === "test" && i.id !== actual.id);
+  tests.push(actual);
+  tests.sort(porFecha);
+  const puesto = 1 + tests.filter((t) => t.wpm > actual.wpm).length;
+  const esRecord = !precisionBaja(actual.acc) && !tests.some((t) => t.id !== actual.id && !precisionBaja(t.acc) && t.wpm >= actual.wpm);
+  const serie = tests.slice(-n);
+  return { serie, indice: serie.findIndex((t) => t.id === actual.id), puesto, total: tests.length, esRecord };
+}
