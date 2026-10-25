@@ -13,6 +13,8 @@ Cambios de esta sesión, tras probar la app Lucas:
 - Meta de tiempo diario (`objetivoMinutos`, 20 min por defecto): barra en Hoy y ajuste. Cuentan tests y entrenos, no los calentamientos (no se guardan).
 - Pulsaciones totales (aciertos más errores) y tiempo de hoy en Estadísticas.
 - El resultado de un test muestra la gráfica de todos los tests con el actual resaltado, su puesto y si es récord (`posicionEnHistorial`).
+- Calentar pasa a ser una sola sesión tecleada de duración elegible (se quitan los ejercicios de manos y las rutinas; ajuste `calentamientoMin`, 5 por defecto). Temporizador m:ss arriba en todas las pantallas de tecleo.
+- Cabecera fija con el contador global de pulsaciones, que sube en vivo (intentos guardados + calentamientos en `txispatype.calentamiento.v1` + sesión en curso).
 - Fase 4: `lib/ia.ts` (listado de modelos, generación con 30 s, validación, un reintento, caché de 20 textos), fuente **IA** en Entrenar y en el entreno del jueves, ajustes de Ollama con "Detectar modelos", y `iaHashes` en el intento.
 
 Decisión que conviene que revises: un entreno largo necesita unas 1300 palabras y cada llamada da unas 65, así que se generan como mucho 6 textos seguidos y el resto se completa con el banco, con aviso en pantalla. Si falla la primera, se usa el banco entero y se avisa.
@@ -30,13 +32,17 @@ Decisión que conviene que revises: un entreno largo necesita unas 1300 palabras
 - [ ] Resultado: la gráfica muestra todos los tests, el punto grande es el actual y el puesto tiene sentido.
 - [ ] Ritmo constante y teclas falladas del resultado tienen sentido.
 
+**Contador y cabecera**
+- [ ] La cabecera se queda fija al hacer scroll y el contador sube con cada pulsación, también en el calentamiento.
+- [ ] Al terminar un test o entreno el contador no se duplica ni baja; tras Esc conserva lo tecleado en un calentamiento y descarta el test cancelado.
+
 **Hoy**
 - [ ] Barra de tiempo diario sube al terminar tests y entrenos, y se pone verde al llegar a la meta.
 - [ ] Propone el entreno correcto cada día de la semana y da el motivo si baja el ritmo.
 
 **Calentar**
-- [ ] Calentamiento completo (8 min): los nueve ejercicios encadenan con pausa de 3 s.
-- [ ] Cursor fantasma: ¿ayuda o molesta?
+- [ ] Calentar es tecleo: eliges 2, 3, 5, 8 o 10 min y el texto va de fila base a alternancia, pares lentos y texto corrido, sin pausas ni ejercicios de manos.
+- [ ] El temporizador está arriba y el cursor fantasma marca un ritmo tranquilo: ¿ayuda o molesta?
 
 **Entrenar**
 - [ ] Teclas débiles: muchas V, X, U e Y al empezar (semillas de typing.com), que pasan poco a poco a tus datos.
