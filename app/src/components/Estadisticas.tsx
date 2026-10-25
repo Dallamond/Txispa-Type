@@ -7,9 +7,11 @@ import {
   mediasSemanales,
   mediaSemanal,
   peorDelDia,
+  pulsacionesTotales,
   racha,
   resumenPorDia,
   soloTests,
+  tiempoDelDia,
   tendencia,
   variacionSemanal,
 } from "../lib/estadisticas";
@@ -23,6 +25,7 @@ import {
   formatoDiaCorto,
   formatoHora,
   formatoNumero,
+  formatoTiempo,
   formatoVariacion,
   ordenarHistorial,
   precisionBaja,
@@ -91,6 +94,8 @@ export default function Estadisticas({ intentos, ajustes, onPracticar }: Props) 
   const confusiones = useMemo(() => confusionesAgregadas(lista), [lista]);
   const cumplidos = useMemo(() => diasCumplidos(lista, ajustes.objetivoTests), [lista, ajustes.objetivoTests]);
   const tendenciaSemanal = useMemo(() => tendencia(mediasSemanales(lista, hoy, 8)), [lista, hoy]);
+  const pulsaciones = useMemo(() => pulsacionesTotales(lista), [lista]);
+  const tiempoHoy = useMemo(() => tiempoDelDia(lista, hoy, ajustes.objetivoMinutos), [lista, hoy, ajustes.objetivoMinutos]);
   const medianaHoy = useMemo(() => medianaDelDia(lista, hoy), [lista, hoy]);
   const peorHoy = useMemo(() => peorDelDia(lista, hoy), [lista, hoy]);
 
@@ -126,6 +131,16 @@ export default function Estadisticas({ intentos, ajustes, onPracticar }: Props) 
           <div className="cifra">
             <div className="cifra-valor">{tests.length}</div>
             <div className="cifra-etiqueta">Tests totales</div>
+          </div>
+          <div className="cifra">
+            <div className="cifra-valor">{formatoEntero(pulsaciones)}</div>
+            <div className="cifra-etiqueta">Pulsaciones totales</div>
+            <div className="est-cifra-sub">aciertos y errores, tests y entrenos</div>
+          </div>
+          <div className="cifra">
+            <div className="cifra-valor">{formatoTiempo(tiempoHoy.segundos)}</div>
+            <div className="cifra-etiqueta">Tiempo hoy</div>
+            <div className="est-cifra-sub">meta: {ajustes.objetivoMinutos} min al día</div>
           </div>
           <div className="cifra">
             <div className="cifra-valor">{resumen.racha}</div>

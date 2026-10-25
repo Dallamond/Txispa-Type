@@ -179,6 +179,34 @@ export function racha(intentos: Intento[], hoy: string, objetivoTests: number): 
   return cuenta;
 }
 
+// ---------- Tiempo y pulsaciones ----------
+
+export interface TiempoDia {
+  segundos: number;
+  /** Minutos objetivo del día. */
+  objetivoMin: number;
+  cumplido: boolean;
+  /** 0..1, tope en 1. */
+  fraccion: number;
+}
+
+/** Segundos de práctica de un día: tests y entrenos (los calentamientos no se guardan). */
+export function segundosDelDia(intentos: Intento[], dia: string): number {
+  return intentos.filter((i) => i.localDate === dia).reduce((s, i) => s + i.elapsedSec, 0);
+}
+
+/** Progreso del tiempo de práctica de hoy frente a la meta en minutos. */
+export function tiempoDelDia(intentos: Intento[], hoy: string, objetivoMin: number): TiempoDia {
+  const segundos = segundosDelDia(intentos, hoy);
+  const fraccion = objetivoMin <= 0 ? 1 : Math.min(1, segundos / (objetivoMin * 60));
+  return { segundos, objetivoMin, cumplido: fraccion >= 1, fraccion };
+}
+
+/** Pulsaciones totales (aciertos más errores) de todos los intentos, tests y entrenos. */
+export function pulsacionesTotales(intentos: Intento[]): number {
+  return intentos.reduce((s, i) => s + i.correct + i.errors, 0);
+}
+
 // ---------- Tabla por día ----------
 
 /** Resumen de los últimos `dias` días (hoy incluido) con al menos un test, el más reciente primero. */

@@ -90,3 +90,14 @@ export function ticksRedondos(lo: number, hi: number): number[] {
   for (let k = Math.ceil(lo / paso - 1e-9); k * paso <= hi + paso * 1e-9; k++) out.push(Math.round(k * paso * 1e6) / 1e6 + 0);
   return out;
 }
+
+/** Segundos como "12 min 30 s", "45 s" o "1 h 05 min". */
+export function formatoTiempo(segundos: number): string {
+  const s = Math.max(0, Math.round(segundos));
+  if (s < 60) return `${s} s`;
+  const h = Math.floor(s / 3600);
+  const m = Math.floor((s % 3600) / 60);
+  if (h > 0) return `${h} h ${String(m).padStart(2, "0")} min`;
+  const r = s % 60;
+  return r === 0 ? `${m} min` : `${m} min ${r} s`;
+}

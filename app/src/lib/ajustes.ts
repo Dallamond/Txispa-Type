@@ -15,6 +15,7 @@ export const AJUSTES_POR_DEFECTO: Ajustes = {
   tecladoVisible: true,
   guiaDedos: true,
   objetivoTests: 3,
+  objetivoMinutos: 20,
   estrictoPorDefecto: false,
   puntuacionYMayusculas: true,
   duracionPorDefecto: 60,
@@ -53,6 +54,7 @@ export function normalizarAjustes(crudo: unknown): Ajustes {
     tecladoVisible: bool(o.tecladoVisible, d.tecladoVisible),
     guiaDedos: bool(o.guiaDedos, d.guiaDedos),
     objetivoTests: Math.round(numero(o.objetivoTests, d.objetivoTests, 1, 20)),
+    objetivoMinutos: Math.round(numero(o.objetivoMinutos, d.objetivoMinutos, 1, 240)),
     estrictoPorDefecto: bool(o.estrictoPorDefecto, d.estrictoPorDefecto),
     puntuacionYMayusculas: bool(o.puntuacionYMayusculas, d.puntuacionYMayusculas),
     duracionPorDefecto: DURACIONES.includes(o.duracionPorDefecto as Duracion)

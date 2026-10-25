@@ -45,6 +45,7 @@ describe("ajustes", () => {
       tema: "azul",
       zoom: 99,
       objetivoTests: -4,
+      objetivoMinutos: 9999,
       duracionPorDefecto: 45,
       rutinaCalentamiento: "completa",
       ollamaUrl: "   ",
@@ -53,6 +54,7 @@ describe("ajustes", () => {
     expect(n.tema).toBe("oscuro");
     expect(n.zoom).toBe(1.6);
     expect(n.objetivoTests).toBe(1);
+    expect(n.objetivoMinutos).toBe(240);
     expect(n.duracionPorDefecto).toBe(60);
     expect(n.rutinaCalentamiento).toBe("completa");
     expect(n.ollamaUrl).toBe(AJUSTES_POR_DEFECTO.ollamaUrl);

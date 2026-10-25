@@ -65,6 +65,17 @@ export default function AjustesPantalla({ ajustes, onCambiar, almacen, intentos 
           className="entrada-num"
         />
       </label>
+      <label className="fila">
+        <span>Minutos de práctica al día (tests y entrenos)</span>
+        <input
+          type="number"
+          min={1}
+          max={240}
+          value={ajustes.objetivoMinutos}
+          onChange={(e) => onCambiar({ objetivoMinutos: Math.min(240, Math.max(1, Math.round(Number(e.target.value)) || 1)) })}
+          className="entrada-num"
+        />
+      </label>
       <div className="fila">
         <span>Duración por defecto del test</span>
         <div className="seg" role="group" aria-label="Duración por defecto">

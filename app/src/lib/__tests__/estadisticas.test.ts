@@ -8,12 +8,15 @@ import {
   mediaUltimos,
   objetivoDelDia,
   peorDelDia,
+  pulsacionesTotales,
   racha,
   resumenPorDia,
+  segundosDelDia,
   soloTests,
   sumarDias,
   tendencia,
   testsDelDia,
+  tiempoDelDia,
   variacionSemanal,
 } from "../estadisticas";
 import type { Intento } from "../../types";
@@ -212,5 +215,27 @@ describe("resumenPorDia", () => {
   it("el último día del rango entra y el siguiente no", () => {
     const lista = [t(sumarDias(HOY, -13), 50), t(sumarDias(HOY, -14), 50)];
     expect(resumenPorDia(lista, 14, HOY)).toHaveLength(1);
+  });
+});
+
+describe("tiempo y pulsaciones", () => {
+  const lista = [
+    t(HOY, 50, { elapsedSec: 60 }),
+    t(HOY, 50, { elapsedSec: 90, modo: "entreno" }),
+    t("2026-10-24", 50, { elapsedSec: 300 }),
+  ];
+  it("suma tests y entrenos del día", () => {
+    expect(segundosDelDia(lista, HOY)).toBe(150);
+    expect(segundosDelDia(lista, "2026-10-01")).toBe(0);
+  });
+  it("tiempoDelDia calcula la fracción con tope en 1", () => {
+    expect(tiempoDelDia(lista, HOY, 5)).toMatchObject({ segundos: 150, fraccion: 0.5, cumplido: false });
+    expect(tiempoDelDia(lista, HOY, 2).cumplido).toBe(true);
+    expect(tiempoDelDia(lista, HOY, 2).fraccion).toBe(1);
+  });
+  it("pulsacionesTotales suma aciertos y errores de todos los intentos", () => {
+    const a = [t(HOY, 50, { correct: 100, errors: 5 }), t(HOY, 50, { correct: 40, errors: 0, modo: "entreno" })];
+    expect(pulsacionesTotales(a)).toBe(145);
+    expect(pulsacionesTotales([])).toBe(0);
   });
 });

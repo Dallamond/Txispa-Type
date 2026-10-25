@@ -74,6 +74,8 @@ export interface Ajustes {
   guiaDedos: boolean;
   /** Tests por día para dar el objetivo por cumplido. */
   objetivoTests: number;
+  /** Minutos de práctica al día (tests y entrenos) para dar la meta de tiempo por cumplida. */
+  objetivoMinutos: number;
   estrictoPorDefecto: boolean;
   puntuacionYMayusculas: boolean;
   duracionPorDefecto: Duracion;

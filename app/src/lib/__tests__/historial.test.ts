@@ -6,6 +6,7 @@ import {
   formatoDia,
   formatoHora,
   formatoNumero,
+  formatoTiempo,
   formatoVariacion,
   mediaMovil,
   ordenarHistorial,
@@ -88,5 +89,15 @@ describe("ticksRedondos", () => {
 
   it("un rango vacío devuelve solo el valor", () => {
     expect(ticksRedondos(5, 5)).toEqual([5]);
+  });
+});
+
+describe("formatoTiempo", () => {
+  it("formatea segundos, minutos y horas", () => {
+    expect(formatoTiempo(45)).toBe("45 s");
+    expect(formatoTiempo(60)).toBe("1 min");
+    expect(formatoTiempo(750)).toBe("12 min 30 s");
+    expect(formatoTiempo(3900)).toBe("1 h 05 min");
+    expect(formatoTiempo(-3)).toBe("0 s");
   });
 });

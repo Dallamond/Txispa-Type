@@ -6,10 +6,11 @@ import {
   objetivoDelDia,
   racha,
   testsDelDia,
+  tiempoDelDia,
   variacionSemanal,
 } from "../lib/estadisticas";
 
-import { formatoNumero, formatoVariacion, precisionBaja } from "../lib/historial";
+import { formatoNumero, formatoTiempo, formatoVariacion, precisionBaja } from "../lib/historial";
 import { useHoy } from "../hooks/useHoy";
 import { calcularAjustes, focoDelDia, pasosDelDia, type PasoPlan } from "../lib/plan";
 
@@ -42,6 +43,7 @@ export default function Hoy({ ajustes, intentos, onIr }: Props) {
     const semana = mediaSemanal(lista, hoy);
     return {
       objetivo: objetivoDelDia(lista, hoy, ajustes.objetivoTests),
+      tiempo: tiempoDelDia(lista, hoy, ajustes.objetivoMinutos),
       racha: racha(lista, hoy, ajustes.objetivoTests),
       semana,
       variacion: variacionSemanal(mediasSemanales(lista, hoy, 2)),
@@ -50,7 +52,7 @@ export default function Hoy({ ajustes, intentos, onIr }: Props) {
       ajustes: calcularAjustes(lista, hoy, ajustes.reglasDeAjuste),
       pasos: pasosDelDia(hoy, hoy, lista, ajustes.objetivoTests),
     };
-  }, [intentos, hoy, ajustes.objetivoTests, ajustes.reglasDeAjuste]);
+  }, [intentos, hoy, ajustes.objetivoTests, ajustes.objetivoMinutos, ajustes.reglasDeAjuste]);
 
   const { objetivo, semana } = datos;
 
@@ -79,6 +81,26 @@ export default function Hoy({ ajustes, intentos, onIr }: Props) {
             )}
           </div>
         </div>
+      </section>
+
+      <section className="tarjeta">
+        <div className="tiempo-cabecera">
+          <h2>Tiempo de práctica hoy</h2>
+          <span className="mono">
+            {formatoTiempo(datos.tiempo.segundos)} / {datos.tiempo.objetivoMin} min
+          </span>
+        </div>
+        <div
+          className="cronometro-barra"
+          role="progressbar"
+          aria-valuemin={0}
+          aria-valuemax={datos.tiempo.objetivoMin * 60}
+          aria-valuenow={Math.min(datos.tiempo.segundos, datos.tiempo.objetivoMin * 60)}
+          aria-label="Tiempo de práctica de hoy"
+        >
+          <div className="cronometro-relleno" style={{ width: `${datos.tiempo.fraccion * 100}%`, background: datos.tiempo.cumplido ? "var(--ok)" : undefined }} />
+        </div>
+        <p className="tenue">{datos.tiempo.cumplido ? "Meta de tiempo cumplida." : "Cuentan tests y entrenos; los calentamientos no."}</p>
       </section>
 
       <section className="tarjeta">
