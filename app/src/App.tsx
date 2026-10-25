@@ -63,7 +63,7 @@ export default function App() {
         {pestana === "entrenar" && <Entrenar />}
         {pestana === "estadisticas" && <Estadisticas />}
         {pestana === "ajustes" && (
-          <AjustesPantalla ajustes={ajustes} onCambiar={cambiarAjustes} almacen={almacen} />
+          <AjustesPantalla ajustes={ajustes} onCambiar={cambiarAjustes} almacen={almacen} intentos={intentos} />
         )}
       </main>
     </div>

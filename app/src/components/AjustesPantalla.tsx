@@ -1,59 +1,103 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import type { Ajustes, Intento } from "../types";
 import type { RunStore } from "../lib/almacen";
+import { DURACIONES, RUTINAS } from "../lib/ajustes";
+import { crearExportacion, leerImportacion, nombreArchivo } from "../lib/exportar";
+import { diaLocal } from "../lib/estadisticas";
 
 interface Props {
   ajustes: Ajustes;
   onCambiar: (parcial: Partial<Ajustes>) => void;
   almacen: RunStore;
+  intentos: readonly Intento[];
 }
 
-/** Fase 1: solo lo básico y una prueba de que IndexedDB guarda y lee. */
-export default function AjustesPantalla({ ajustes, onCambiar, almacen }: Props) {
-  const [diagnostico, setDiagnostico] = useState("");
+const NOMBRE_RUTINA = { rapida: "Rápida (3 min)", estandar: "Estándar (6 min)", completa: "Completa (8 min)" } as const;
 
-  async function probarAlmacen() {
-    setDiagnostico("Probando…");
-    try {
-      const id = `prueba-${crypto.randomUUID()}`;
-      const ahora = new Date();
-      const prueba: Intento = {
-        id,
-        date: ahora.toISOString(),
-        localDate: ahora.toLocaleDateString("sv", { timeZone: "Europe/Madrid" }),
-        modo: "test",
-        fuente: "banco",
-        durationSec: 60,
-        elapsedSec: 60,
-        seed: 0,
-        estricto: false,
-        correct: 0,
-        errors: 0,
-        wpm: 0,
-        rawWpm: 0,
-        acc: 100,
-        consistency: null,
-        teclas: {},
-        pares: {},
-        confusiones: {},
-      };
-      await almacen.add(prueba);
-      const leidos = await almacen.list();
-      const esta = leidos.some((i) => i.id === id);
-      await almacen.clear();
-      setDiagnostico(esta ? "IndexedDB correcto: se guardó, se leyó y se borró." : "Fallo: no se encontró el intento guardado.");
-    } catch (e) {
-      setDiagnostico(`Fallo: ${e instanceof Error ? e.message : String(e)}`);
+export default function AjustesPantalla({ ajustes, onCambiar, almacen, intentos }: Props) {
+  const [mensaje, setMensaje] = useState("");
+  const [confirmaBorrar, setConfirmaBorrar] = useState(false);
+  const archivoRef = useRef<HTMLInputElement | null>(null);
+
+  function exportar() {
+    const ahora = new Date();
+    const datos = crearExportacion(intentos, ajustes, ahora);
+    const url = URL.createObjectURL(new Blob([JSON.stringify(datos)], { type: "application/json" }));
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = nombreArchivo(diaLocal(ahora));
+    a.click();
+    URL.revokeObjectURL(url);
+    setMensaje(`Exportados ${intentos.length} intentos.`);
+  }
+
+  async function importar(archivo: File) {
+    const r = leerImportacion(await archivo.text());
+    if (!r.ok) {
+      setMensaje(r.error);
+      return;
     }
+    const nuevos = await almacen.importMany(r.intentos);
+    if (r.ajustes) onCambiar(r.ajustes);
+    const descartados = r.descartados > 0 ? ` ${r.descartados} con formato roto se han descartado.` : "";
+    setMensaje(`Importados ${nuevos} intentos nuevos (${r.intentos.length - nuevos} ya existían).${descartados}`);
+  }
+
+  async function borrarTodo() {
+    await almacen.clear();
+    setConfirmaBorrar(false);
+    setMensaje("Todos los intentos se han borrado.");
   }
 
   return (
     <section className="tarjeta">
       <h1>Ajustes</h1>
 
+      <h2>Práctica</h2>
+      <label className="fila">
+        <span>Tests al día para cumplir el objetivo</span>
+        <input
+          type="number"
+          min={1}
+          max={20}
+          value={ajustes.objetivoTests}
+          onChange={(e) => onCambiar({ objetivoTests: Math.min(20, Math.max(1, Math.round(Number(e.target.value)) || 1)) })}
+          className="entrada-num"
+        />
+      </label>
+      <div className="fila">
+        <span>Duración por defecto del test</span>
+        <div className="seg" role="group" aria-label="Duración por defecto">
+          {DURACIONES.map((d) => (
+            <button key={d} type="button" className={ajustes.duracionPorDefecto === d ? "on" : ""} onClick={() => onCambiar({ duracionPorDefecto: d })}>
+              {d < 60 ? `${d} s` : `${d / 60} min`}
+            </button>
+          ))}
+        </div>
+      </div>
+      <div className="fila">
+        <span>Rutina de calentamiento</span>
+        <div className="seg" role="group" aria-label="Rutina de calentamiento">
+          {RUTINAS.map((r) => (
+            <button key={r} type="button" className={ajustes.rutinaCalentamiento === r ? "on" : ""} onClick={() => onCambiar({ rutinaCalentamiento: r })}>
+              {NOMBRE_RUTINA[r]}
+            </button>
+          ))}
+        </div>
+      </div>
+      <label className="fila">
+        <span>Modo estricto por defecto</span>
+        <input type="checkbox" checked={ajustes.estrictoPorDefecto} onChange={(e) => onCambiar({ estrictoPorDefecto: e.target.checked })} />
+      </label>
+      <label className="fila">
+        <span>Puntuación y mayúsculas</span>
+        <input type="checkbox" checked={ajustes.puntuacionYMayusculas} onChange={(e) => onCambiar({ puntuacionYMayusculas: e.target.checked })} />
+      </label>
+
+      <h2>Pantalla</h2>
       <div className="fila">
         <span>Tema</span>
-        <div className="seg">
+        <div className="seg" role="group" aria-label="Tema">
           {(["oscuro", "claro"] as const).map((t) => (
             <button key={t} type="button" className={ajustes.tema === t ? "on" : ""} onClick={() => onCambiar({ tema: t })}>
               {t === "oscuro" ? "Oscuro" : "Claro"}
@@ -61,27 +105,64 @@ export default function AjustesPantalla({ ajustes, onCambiar, almacen }: Props) 
           ))}
         </div>
       </div>
-
+      <label className="fila">
+        <span>Tamaño del texto ({Math.round(ajustes.zoom * 100)}%)</span>
+        <input
+          type="range"
+          min={0.8}
+          max={1.6}
+          step={0.1}
+          value={ajustes.zoom}
+          onChange={(e) => onCambiar({ zoom: Number(e.target.value) })}
+        />
+      </label>
       <label className="fila">
         <span>Teclado visible</span>
         <input type="checkbox" checked={ajustes.tecladoVisible} onChange={(e) => onCambiar({ tecladoVisible: e.target.checked })} />
       </label>
-
       <label className="fila">
         <span>Guía de dedos</span>
         <input type="checkbox" checked={ajustes.guiaDedos} onChange={(e) => onCambiar({ guiaDedos: e.target.checked })} />
       </label>
 
       <h2>Datos</h2>
-      <p className="tenue">Todo se guarda en este navegador (IndexedDB).</p>
-      <div className="fila">
-        <button type="button" className="btn" onClick={probarAlmacen}>
-          Probar almacenamiento
+      <p className="tenue">Todo se guarda en este navegador (IndexedDB). Exporta una copia de vez en cuando: {intentos.length} intentos guardados.</p>
+      <div className="acciones">
+        <button type="button" className="btn" onClick={exportar}>
+          Exportar JSON
         </button>
-        <span className="tenue" role="status">
-          {diagnostico}
-        </span>
+        <button type="button" className="btn" onClick={() => archivoRef.current?.click()}>
+          Importar JSON
+        </button>
+        <input
+          ref={archivoRef}
+          type="file"
+          accept=".json,application/json"
+          className="sr-only"
+          onChange={(e) => {
+            const f = e.target.files?.[0];
+            if (f) void importar(f);
+            e.target.value = "";
+          }}
+        />
+        {confirmaBorrar ? (
+          <>
+            <button type="button" className="btn peligro" onClick={() => void borrarTodo()}>
+              Sí, borrar todo
+            </button>
+            <button type="button" className="btn" onClick={() => setConfirmaBorrar(false)}>
+              Cancelar
+            </button>
+          </>
+        ) : (
+          <button type="button" className="btn peligro" onClick={() => setConfirmaBorrar(true)}>
+            Borrar todos los intentos
+          </button>
+        )}
       </div>
+      <p className="tenue" role="status">
+        {mensaje}
+      </p>
     </section>
   );
 }

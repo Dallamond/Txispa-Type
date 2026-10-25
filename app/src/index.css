@@ -598,3 +598,21 @@ kbd {
   border-color: currentColor;
   opacity: 0.7;
 }
+
+.entrada-num {
+  width: 70px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 5px 8px;
+  color: var(--text);
+}
+
+.btn.peligro {
+  color: var(--danger);
+  border-color: color-mix(in srgb, var(--danger) 50%, var(--border));
+}
+
+.acciones {
+  flex-wrap: wrap;
+}
