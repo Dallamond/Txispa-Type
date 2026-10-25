@@ -6,7 +6,13 @@ Marca las tareas con `- [x]` al terminarlas. Detalle técnico en `ESPECIFICACION
 
 ## Estado
 
-**Fase 4 codificada (25 de octubre de 2026); fases 2 y 3 pendientes de las puertas de Lucas.** Repo: https://github.com/Dallamond/Txispa-Type. `npm run check` en verde (263 tests).
+**Cierre de sesión del 25 de octubre de 2026: las fases 1 a 4 están codificadas; las puertas 2, 3 y 4 dependen del uso real de Lucas.** Repo: https://github.com/Dallamond/Txispa-Type. `npm run check` en verde (257 tests). Todo está en commits locales; el último push no se ha hecho en esta sesión.
+
+**Por dónde seguir mañana:**
+1. Arrancar con `npm run dev` en `app/` y pasar la checklist por secciones de más abajo (empezar por Test y Calentar con el teclado real: tildes, ñ, AltGr).
+2. Si algo del aspecto no convence, ajustar tamaños en `index.css` (`.texto-viewport`, `.texto-caja`) o la paleta en los tokens del principio.
+3. Probar la IA solo si se instala Ollama (`OLLAMA_ORIGINS=http://localhost:5173`); si no, se deja apagada.
+4. Dar las puertas 2 (una semana con tres tests al día) y 3 (dos semanas con la media estable o subiendo). La fase 5 solo con petición expresa de Lucas.
 
 Cambios de esta sesión, tras probar la app Lucas:
 - Texto de prueba sin recuadro, 1,8 rem y columna de 40 caracteres (unas 6 palabras por fila).
@@ -20,7 +26,9 @@ Cambios de esta sesión, tras probar la app Lucas:
 
 Decisión que conviene que revises: un entreno largo necesita unas 1300 palabras y cada llamada da unas 65, así que se generan como mucho 6 textos seguidos y el resto se completa con el banco, con aviso en pantalla. Si falla la primera, se usa el banco entero y se avisa.
 
-**No verificado:** nada de esto en navegador ni con un Ollama real (no había Ollama en el equipo de desarrollo; solo tests con `fetch` simulado). Tampoco el tecleo real (tildes, AltGr, cursor fantasma, metrónomo).
+**Verificado en navegador (Chrome, con datos de prueba aparte de los reales):** cabecera fija con tiempo y pulsaciones en vivo, un test completo con su resultado y gráfica, Estadísticas en sus tres vistas, Ajustes, Entrenar y el tema claro en ventana estrecha.
+
+**No verificado:** un Ollama real (no había en el equipo; solo tests con `fetch` simulado), el calentamiento completo hasta su pantalla final, y el tecleo real: con la automatización las tildes y la ñ dieron fallos que pueden ser de la herramienta o de la app, así que Lucas debe probarlas con su teclado. Tampoco el cursor fantasma, el metrónomo ni el tema claro en todas las pantallas.
 
 ### Checklist manual por secciones
 
