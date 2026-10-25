@@ -85,7 +85,7 @@ export default function GraficaLinea({ valores, etiquetas, metrica, titulo, unid
       {n > 1 && <path d={linea(valores)} className="grafica-serie" />}
       {n > 1 && <path d={linea(movil)} className="grafica-movil" />}
       {destacar === undefined && n > 1 && (
-        <text x={x(n - 1)} y={y(ultimo) - 10} textAnchor="end" className="grafica-etiqueta-final" aria-hidden="true">
+        <text x={x(n - 1)} y={y(ultimo) - 10 < M.t + 6 ? y(ultimo) + 18 : y(ultimo) - 10} textAnchor="end" className="grafica-etiqueta-final" aria-hidden="true">
           {formatoNumero(ultimo)}
         </text>
       )}

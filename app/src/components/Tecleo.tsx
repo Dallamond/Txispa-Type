@@ -284,7 +284,7 @@ function Resultado({
             </p>
           )}
           {previos ? (
-            <p className="tenue">Comparado con la media de tus últimos {previos.n} tests ({fmt(previos.wpm)} ppm, {fmt(previos.acc)}%).</p>
+            <p className="tenue">{previos.n === 1 ? "Comparado con tu test anterior" : `Comparado con la media de tus últimos ${previos.n} tests`} ({fmt(previos.wpm)} ppm, {fmt(previos.acc)}%).</p>
           ) : (
             comparar && <p className="tenue">Es tu primer test: aún no hay con qué comparar.</p>
           )}
@@ -293,8 +293,8 @@ function Resultado({
             <>
               <h2>Dónde queda entre tus {posicion.total} tests</h2>
               <p className="tenue">
-                {posicion.esRecord ? "¡Récord! El más rápido con precisión suficiente. " : ""}
-                Puesto {posicion.puesto} de {posicion.total} por velocidad (el punto grande es este test).
+                {posicion.esRecord ? `Es tu test más rápido con precisión de ${PRECISION_MINIMA}% o más. ` : ""}
+                Puesto {posicion.puesto} de {posicion.total} por velocidad, contando también los de poca precisión (el punto grande es este test).
               </p>
               <GraficaLinea
                 valores={posicion.serie.map((t) => t.wpm)}
