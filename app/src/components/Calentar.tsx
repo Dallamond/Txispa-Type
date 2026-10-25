@@ -7,11 +7,15 @@ import {
   duracionDisponible,
   ejerciciosDeRutina,
   pasoGuiado,
+  pulsoInicial,
   textoEjercicio,
   wpmFantasma,
   type Ejercicio,
 } from "../lib/calentamientos";
-import { diaLocal, mediaSemanal } from "../lib/estadisticas";
+import { analizar } from "../lib/debiles";
+import { mediaSemanal } from "../lib/estadisticas";
+import { calcularAjustes } from "../lib/plan";
+import { useHoy } from "../hooks/useHoy";
 import { newSeed } from "../lib/rng";
 import Tecleo from "./Tecleo";
 
@@ -281,13 +285,20 @@ function EjercicioTexto({
   onSalir: () => void;
 }) {
   const seed = useMemo(() => newSeed(), []);
-  const palabras = useMemo(() => textoEjercicio(ejercicio.id, seed, { puntuacion: ajustes.puntuacionYMayusculas }), [ejercicio.id, seed, ajustes.puntuacionYMayusculas]);
+  const hoy = useHoy();
+  const analisis = useMemo(() => analizar(intentos), [intentos]);
+  const palabras = useMemo(
+    () => textoEjercicio(ejercicio.id, seed, { puntuacion: ajustes.puntuacionYMayusculas, analisis }),
+    [ejercicio.id, seed, ajustes.puntuacionYMayusculas, analisis]
+  );
   const config = useMemo(
     () => ({ modo: "entreno" as const, fuente: "ejercicio" as const, ejercicioId: ejercicio.id, durationSec: ejercicio.segundos, seed, estricto: false }),
     [ejercicio.id, ejercicio.segundos, seed]
   );
-  const wpmMedio = useMemo(() => mediaSemanal([...intentos], diaLocal(new Date()))?.wpm ?? null, [intentos]);
-  const fantasma = wpmFantasma(ejercicio.id, wpmMedio);
+  const wpmMedio = useMemo(() => mediaSemanal([...intentos], hoy)?.wpm ?? null, [intentos, hoy]);
+  const ajuste = useMemo(() => calcularAjustes([...intentos], hoy, ajustes.reglasDeAjuste), [intentos, hoy, ajustes.reglasDeAjuste]);
+  const fantasma = wpmFantasma(ejercicio.id, wpmMedio, ajuste);
+  const pulso = ejercicio.id === "metronomo" ? pulsoInicial(wpmMedio) : null;
   const sinGuardar = useCallback(() => undefined, []);
 
   return (
@@ -301,6 +312,7 @@ function EjercicioTexto({
         guardar={false}
         etiqueta={`${cabecera} · ${ejercicio.nombre}`}
         fantasmaWpm={fantasma}
+        pulsoWpm={pulso}
         onGuardar={sinGuardar}
         onSalir={onSalir}
         onRepetir={onSalir}

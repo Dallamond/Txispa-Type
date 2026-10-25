@@ -264,10 +264,21 @@ export function escalera(seed: number): string[] {
 }
 
 /** wpm al que avanza el cursor fantasma: el wpm medio × el porcentaje del ejercicio. */
-export function wpmFantasma(id: IdEjercicio, wpmMedio: number | null): number | null {
-  const porcentaje = EJERCICIOS[id].fantasma;
+export function wpmFantasma(
+  id: IdEjercicio,
+  wpmMedio: number | null,
+  /** Porcentajes ajustados por las reglas de `plan.ts` (si no se dan, los de la tabla). */
+  ajuste?: { porcentajeLento: number; porcentajeFilaBase: number }
+): number | null {
+  const porcentaje =
+    id === "lento" && ajuste ? ajuste.porcentajeLento : id === "fila-base" && ajuste ? ajuste.porcentajeFilaBase : EJERCICIOS[id].fantasma;
   if (porcentaje === undefined) return null;
   return (wpmMedio ?? WPM_INICIAL) * porcentaje;
+}
+
+/** Pulso inicial del metrónomo (wpm): el 70% de tu media, o de 46 si aún no hay datos. */
+export function pulsoInicial(wpmMedio: number | null): number {
+  return Math.round((wpmMedio ?? WPM_INICIAL) * 0.7);
 }
 
 /** Posición (índice de carácter en el texto con espacios) del cursor fantasma. */

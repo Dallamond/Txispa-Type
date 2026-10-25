@@ -6,6 +6,7 @@ import {
   duracionRutina,
   ejerciciosDeRutina,
   pasoGuiado,
+  pulsoInicial,
   posicionFantasma,
   textoEjercicio,
   ubicarEnPalabras,
@@ -134,6 +135,18 @@ describe("cursor fantasma", () => {
     expect(wpmFantasma("lento", 50)).toBeCloseTo(40);
     expect(wpmFantasma("fila-base", null)).toBeCloseTo(46 * 0.6);
     expect(wpmFantasma("escala", 50)).toBeNull();
+  });
+
+  it("los ajustes del plan cambian el porcentaje del texto lento y de la fila base", () => {
+    const ajuste = { porcentajeLento: 0.72, porcentajeFilaBase: 0.54 };
+    expect(wpmFantasma("lento", 50, ajuste)).toBeCloseTo(36);
+    expect(wpmFantasma("fila-base", 50, ajuste)).toBeCloseTo(27);
+    expect(wpmFantasma("escala", 50, ajuste)).toBeNull();
+  });
+
+  it("el pulso inicial del metrónomo es el 70% de la media", () => {
+    expect(pulsoInicial(50)).toBe(35);
+    expect(pulsoInicial(null)).toBe(32);
   });
 
   it("60 ppm son 5 caracteres por segundo", () => {

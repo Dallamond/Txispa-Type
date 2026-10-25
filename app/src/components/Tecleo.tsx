@@ -3,6 +3,8 @@ import type { Ajustes, Intento } from "../types";
 import { MotorTecleo } from "../lib/motor";
 import { esAtajo, isModifier, modifierLabel, pressedKeyFor } from "../lib/typing";
 import { usePressedKey } from "../hooks/usePressedKey";
+import { usePulso } from "../hooks/usePulso";
+import { desviacionAlPulso, desviacionMedia, limitarPulso } from "../lib/metronomo";
 import {
   confusionesMasRepetidas,
   crearIntento,
@@ -30,19 +32,25 @@ interface Props {
   /** Wpm al que avanza el cursor fantasma (calentamientos). */
   fantasmaWpm?: number | null;
   /** Si se da, al terminar se avisa por aquí y no se muestra la pantalla de resultado. */
-  onTerminar?: (intento: Intento) => void;
+  onTerminar?: (intento: Intento, extra: { desviacionMs: number | null }) => void;
+  /** Pulso inicial (wpm) del metrónomo; si se da, suena y se mide la desviación. */
+  pulsoWpm?: number | null;
 }
 
 const fmt = (n: number, d = 1) => n.toFixed(d).replace(".", ",");
 
 /** Una prueba completa: texto, cronómetro, métricas en vivo y resultado.
  * El padre la remonta (con `key`) para repetir con otro texto. */
-export default function Tecleo({ palabras, config, ajustes, intentos, guardar, etiqueta, onGuardar, onSalir, onRepetir, fantasmaWpm, onTerminar }: Props) {
+export default function Tecleo({ palabras, config, ajustes, intentos, guardar, etiqueta, onGuardar, onSalir, onRepetir, fantasmaWpm, onTerminar, pulsoWpm }: Props) {
   const [motor] = useState(() => new MotorTecleo(palabras, config.estricto));
   const [, repinta] = useReducer((n: number) => n + 1, 0);
   const [resultado, setResultado] = useState<Intento | null>(null);
   const [pressedKey, setPressedKey] = usePressedKey();
   const terminadoRef = useRef(false);
+  const [pulso, setPulso] = useState<number | null>(pulsoWpm ?? null);
+  const { destello, rejilla } = usePulso(pulso, !resultado);
+  const desviosRef = useRef<number[]>([]);
+  const [desviacionFinal, setDesviacionFinal] = useState<number | null>(null);
   const alGuardarRef = useRef(onGuardar);
   alGuardarRef.current = onGuardar;
   const alTerminarRef = useRef(onTerminar);
@@ -54,7 +62,9 @@ export default function Tecleo({ palabras, config, ajustes, intentos, guardar, e
       terminadoRef.current = true;
       const intento = crearIntento({ motor, ts, config, id: crypto.randomUUID(), fecha: new Date() });
       setResultado(intento);
-      alTerminarRef.current?.(intento);
+      const desviacionMs = desviacionMedia(desviosRef.current);
+      setDesviacionFinal(desviacionMs);
+      alTerminarRef.current?.(intento, { desviacionMs });
       if (guardar && motor.correct + motor.errors > 0) void alGuardarRef.current(intento);
     },
     [motor, config, guardar]
@@ -74,6 +84,7 @@ export default function Tecleo({ palabras, config, ajustes, intentos, guardar, e
 
   useEffect(() => {
     if (resultado) return;
+    const conPulso = pulso !== null;
     const alPulsar = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         e.preventDefault();
@@ -94,13 +105,16 @@ export default function Tecleo({ palabras, config, ajustes, intentos, guardar, e
       if (e.key !== "Backspace" && e.key.length !== 1) return;
       const r = motor.tecla(e.key, e.timeStamp);
       if (r === "ignorada") return;
+      if (conPulso && (r === "ok" || r === "cierra" || r === "cierraConFaltas")) {
+        desviosRef.current.push(desviacionAlPulso(e.timeStamp, rejilla.current.t0, rejilla.current.periodo));
+      }
       setPressedKey(e.key === "Backspace" ? "Backspace" : pressedKeyFor(e.key));
       repinta();
       if (motor.agotado) terminar(e.timeStamp);
     };
     window.addEventListener("keydown", alPulsar);
     return () => window.removeEventListener("keydown", alPulsar);
-  }, [motor, resultado, terminar, onSalir, setPressedKey]);
+  }, [motor, resultado, terminar, onSalir, setPressedKey, pulso, rejilla]);
 
   // Enter repite una vez mostrado el resultado.
   useEffect(() => {
@@ -123,6 +137,7 @@ export default function Tecleo({ palabras, config, ajustes, intentos, guardar, e
         etiqueta={etiqueta}
         intentos={intentos}
         comparar={guardar && resultado.modo === "test"}
+        desviacionMs={pulso !== null ? desviacionFinal : undefined}
         onRepetir={onRepetir}
         onSalir={onSalir}
       />
@@ -134,6 +149,7 @@ export default function Tecleo({ palabras, config, ajustes, intentos, guardar, e
   const restante = Math.max(0, config.durationSec - el);
   const wpmVivo = el > 1 ? wpmNeta(motor.correct, el) : 0;
   const accViva = precision(motor.correct, motor.errors);
+  const desvioVivo = pulso !== null ? desviacionMedia(desviosRef.current) : null;
 
   return (
     <section>
@@ -146,6 +162,11 @@ export default function Tecleo({ palabras, config, ajustes, intentos, guardar, e
           <span>
             precisión <b>{Math.round(accViva)}%</b>
           </span>
+          {pulso !== null && (
+            <span>
+              desviación <b>{desvioVivo === null ? "—" : `${Math.round(desvioVivo)} ms`}</b>
+            </span>
+          )}
         </div>
       </div>
 
@@ -156,6 +177,19 @@ export default function Tecleo({ palabras, config, ajustes, intentos, guardar, e
         </div>
         {motor.inicio === null && <div className="tenue">Empieza a teclear para arrancar el reloj</div>}
       </div>
+
+      {pulso !== null && (
+        <div className="pulso-control" role="group" aria-label="Pulso del metrónomo">
+          <span className={`pulso-luz${destello ? " on" : ""}`} aria-hidden="true" />
+          <button type="button" className="btn" onClick={() => setPulso((p) => limitarPulso((p ?? 40) - 2))} aria-label="Bajar el pulso">
+            −
+          </button>
+          <span className="mono">{pulso} ppm</span>
+          <button type="button" className="btn" onClick={() => setPulso((p) => limitarPulso((p ?? 40) + 2))} aria-label="Subir el pulso">
+            +
+          </button>
+        </div>
+      )}
 
       <AreaTexto
         palabras={motor.palabras}
@@ -179,6 +213,7 @@ function Resultado({
   etiqueta,
   intentos,
   comparar,
+  desviacionMs,
   onRepetir,
   onSalir,
 }: {
@@ -186,6 +221,8 @@ function Resultado({
   etiqueta: string;
   intentos: readonly Intento[];
   comparar: boolean;
+  /** Desviación media al pulso del metrónomo (ms); undefined si no hubo metrónomo. */
+  desviacionMs?: number | null;
   onRepetir: () => void;
   onSalir: () => void;
 }) {
@@ -210,6 +247,9 @@ function Resultado({
             <Cifra valor={fmt(intento.rawWpm)} etiqueta="ppm brutas" />
             <Cifra valor={intento.consistency === null ? "—" : `${Math.round(intento.consistency)}%`} etiqueta="ritmo constante" />
             <Cifra valor={String(intento.errors)} etiqueta="errores" />
+            {desviacionMs !== undefined && (
+              <Cifra valor={desviacionMs === null ? "—" : `${Math.round(desviacionMs)} ms`} etiqueta="desviación al pulso" />
+            )}
           </div>
 
           {intento.acc < PRECISION_MINIMA && (
