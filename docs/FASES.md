@@ -6,6 +6,26 @@ Marca las tareas con `- [x]` al terminarlas. Detalle técnico en `ESPECIFICACION
 
 ## Estado
 
+**Fase 3 codificada (25 de octubre de 2026); fase 2 pendiente de la puerta 2 de Lucas.** Repo: https://github.com/Dallamond/Txispa-Type. `npm run check` en verde (240 tests).
+
+Fase 3, qué hay:
+- `lib/debiles.ts` (ventana de 30 intentos, normalización por intento, semillas de typing.com), fuentes de texto `debiles` y `alternancia` por semilla, `data/palabras.ts` (1566 palabras), `lib/plan.ts` (foco semanal y reglas de ajuste).
+- Pantallas: **Entrenar** (entreno del día, fuentes dirigidas, metrónomo), **Calentar** con los nueve ejercicios y las tres rutinas, **Hoy** con plan y reglas de ajuste, **Estadísticas** con mapa de calor, teclas y pares débiles con botones "Practicar", confusiones, tendencia, mediana y peor test del día, y calendario.
+- Revisión de código de la fase 2 aplicada (ver historial de commits).
+
+**Qué NO está verificado en navegador** (solo tests unitarios y render de servidor sin errores): Entrenar, metrónomo (sonido y desviación), mapa de calor y calendario. Al intentar la comprobación el navegador de automatización se colgó (ni un SVG estático se podía capturar), así que es un fallo del navegador y no de la app; hay que repetirla. Los datos sintéticos de prueba se han borrado de IndexedDB.
+
+Pendiente de la fase 3: comprobar en navegador lo anterior, checklist manual con tu teclado, y la puerta 3 (dos semanas con la media estable o subiendo). Siguiente: fase 4 (IA local, `lib/ia.ts`).
+
+Checklist manual de la fase 3:
+- [ ] Entrenar > Teclas débiles: el texto lleva muchas V, X, U, Y al empezar (son semillas de typing.com) y poco a poco pasa a tus datos reales.
+- [ ] Metrónomo: suena y parpadea a un ritmo cómodo; los botones − y + cambian el pulso; la desviación en ms tiene sentido.
+- [ ] Calentamiento completo (8 min): todos los ejercicios encadenan con pausa de 3 s.
+- [ ] Estadísticas tras unos días: el mapa de calor marca tus teclas flojas; "Practicar teclas problemáticas" abre un entreno al momento.
+- [ ] Hoy propone el entreno correcto cada día de la semana y muestra el motivo si baja el ritmo.
+
+### Estado de la fase 2 (anterior)
+
 **Fase 2 codificada (25 de octubre de 2026), pendiente de la puerta 2 de Lucas.** Repo: https://github.com/Dallamond/Txispa-Type. `npm run check` en verde (157 tests). La puerta 1 se verificó en navegador; falta que Lucas la dé por buena con el teclado real.
 
 Qué hay:
@@ -35,7 +55,7 @@ Checklist manual de la fase 2:
 - [ ] Tema claro y tamaño de texto en Ajustes; ventana de portátil (~1280x720): el texto y el teclado caben sin scroll.
 - [ ] Puerta 2: una semana con tres tests al día sin perder datos.
 
-Siguiente: fase 3, tarea `debiles.ts`.
+
 
 ## Fase 1: Cimientos
 
@@ -80,15 +100,15 @@ Checklist manual de la fase: teclear con acentos y ñ; AltGr y símbolos; cerrar
 
 Que la app decida qué practicar.
 
-- [ ] `debiles.ts`: puntuación de teclas y pares con ventana de 30 intentos y normalización por intento, con tests.
-- [ ] `data/palabras.ts` con unas 1500 palabras comunes del español.
-- [ ] Fuentes de texto `debiles` y `alternancia` deterministas por semilla.
-- [ ] Pantalla Entrenar con duraciones y fuentes; guarda como `entreno`.
-- [ ] Calentamientos completos: los nueve ejercicios y las tres rutinas con pausas entre ejercicios.
-- [ ] Metrónomo con desviación media en ms.
-- [ ] Plan semanal y reglas de ajuste visibles en Hoy (`plan.ts`).
-- [ ] Estadísticas completas: mapa de calor, teclas y pares débiles con botón "Practicar", confusiones, mediana y peor test del día, tendencia, calendario.
-- [ ] Botón "Practicar teclas problemáticas" que lanza un entreno con un clic.
+- [x] `debiles.ts`: puntuación de teclas y pares con ventana de 30 intentos y normalización por intento, con tests.
+- [x] `data/palabras.ts` con unas 1500 palabras comunes del español.
+- [x] Fuentes de texto `debiles` y `alternancia` deterministas por semilla.
+- [x] Pantalla Entrenar con duraciones y fuentes; guarda como `entreno`.
+- [x] Calentamientos completos: los nueve ejercicios y las tres rutinas con pausas entre ejercicios.
+- [x] Metrónomo con desviación media en ms.
+- [x] Plan semanal y reglas de ajuste visibles en Hoy (`plan.ts`).
+- [x] Estadísticas completas: mapa de calor, teclas y pares débiles con botón "Practicar", confusiones, mediana y peor test del día, tendencia, calendario.
+- [x] Botón "Practicar teclas problemáticas" que lanza un entreno con un clic.
 
 **Hecho cuando:** la pantalla Hoy propone cada día el entrenamiento correcto, los ejercicios usan datos reales de Lucas y todas las métricas de la sección 6 de la especificación se calculan con tests.
 
