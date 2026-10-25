@@ -91,6 +91,15 @@ export function ticksRedondos(lo: number, hi: number): number[] {
   return out;
 }
 
+/** Segundos como reloj: "7:05" o "1:02:03". */
+export function formatoReloj(segundos: number): string {
+  const s = Math.max(0, Math.floor(segundos));
+  const h = Math.floor(s / 3600);
+  const m = Math.floor((s % 3600) / 60);
+  const r = String(s % 60).padStart(2, "0");
+  return h > 0 ? `${h}:${String(m).padStart(2, "0")}:${r}` : `${m}:${r}`;
+}
+
 /** Segundos como "12 min 30 s", "45 s" o "1 h 05 min". */
 export function formatoTiempo(segundos: number): string {
   const s = Math.max(0, Math.round(segundos));

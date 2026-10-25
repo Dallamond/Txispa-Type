@@ -840,3 +840,51 @@ kbd {
   align-items: center;
   flex-wrap: wrap;
 }
+
+.contadores {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.contador-tiempo {
+  min-width: 150px;
+  font-variant-numeric: tabular-nums;
+}
+
+.contador-linea {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.contador-linea b {
+  font-size: 20px;
+  color: var(--accent);
+}
+
+.contador-linea span {
+  color: var(--dim);
+  font-size: 12px;
+}
+
+.contador-tiempo.cumplido .contador-linea b {
+  color: var(--ok);
+}
+
+.contador-barra {
+  height: 3px;
+  border-radius: 3px;
+  background: var(--bg3);
+  overflow: hidden;
+  margin-top: 3px;
+}
+
+.contador-barra > div {
+  height: 100%;
+  background: var(--accent);
+}
+
+.contador-tiempo.cumplido .contador-barra > div {
+  background: var(--ok);
+}

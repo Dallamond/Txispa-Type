@@ -4,6 +4,7 @@ import { useAjustes } from "./hooks/useAjustes";
 import { useTecladoFisico } from "./hooks/useTecladoFisico";
 import { crearAlmacenIndexedDB } from "./lib/almacen";
 import { useIntentos } from "./hooks/useIntentos";
+import { formatoReloj } from "./lib/historial";
 import { ProveedorContador, useTotalPulsaciones } from "./hooks/ContadorTecleo";
 import Hoy from "./components/Hoy";
 import Calentar from "./components/Calentar";
@@ -29,7 +30,8 @@ export default function App() {
   const tecladoFisico = useTecladoFisico();
   const almacen = useMemo(() => crearAlmacenIndexedDB(), []);
   const { intentos } = useIntentos(almacen);
-  const { total: pulsaciones, api: contador } = useTotalPulsaciones(intentos);
+  const { total: pulsaciones, segundosHoy, api: contador } = useTotalPulsaciones(intentos);
+  const metaSeg = ajustes.objetivoMinutos * 60;
   const [pedido, setPedido] = useState<PedidoEntreno | null>(null);
   const practicar = useCallback((fuente: FuenteEntrenar) => {
     setPedido((p) => ({ fuente, n: (p?.n ?? 0) + 1 }));
@@ -57,9 +59,20 @@ export default function App() {
             </button>
           ))}
         </nav>
-        <div className="contador-pulsaciones" role="status" aria-label="Pulsaciones totales">
-          <b>{pulsaciones.toLocaleString("es-ES")}</b>
-          <span>pulsaciones</span>
+        <div className="contadores">
+          <div className={`contador-tiempo${segundosHoy >= metaSeg ? " cumplido" : ""}`} role="status" aria-label="Tiempo de práctica de hoy">
+            <div className="contador-linea">
+              <b>{formatoReloj(segundosHoy)}</b>
+              <span>/ {ajustes.objetivoMinutos} min hoy</span>
+            </div>
+            <div className="contador-barra">
+              <div style={{ width: `${Math.min(100, (segundosHoy / metaSeg) * 100)}%` }} />
+            </div>
+          </div>
+          <div className="contador-pulsaciones" role="status" aria-label="Pulsaciones totales">
+            <b>{pulsaciones.toLocaleString("es-ES")}</b>
+            <span>pulsaciones</span>
+          </div>
         </div>
       </header>
 

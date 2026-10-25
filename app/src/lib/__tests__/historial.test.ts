@@ -6,6 +6,7 @@ import {
   formatoDia,
   formatoHora,
   formatoNumero,
+  formatoReloj,
   formatoTiempo,
   formatoVariacion,
   mediaMovil,
@@ -128,5 +129,14 @@ describe("posicionEnHistorial", () => {
   it("ignora los entrenos", () => {
     const e = intentoDePrueba("e", "2026-10-02T10:00:00.000Z", { modo: "entreno", wpm: 99 });
     expect(posicionEnHistorial([...base, e], mk("d", "2026-10-04", 48)).total).toBe(4);
+  });
+});
+
+describe("formatoReloj", () => {
+  it("da m:ss y h:mm:ss", () => {
+    expect(formatoReloj(0)).toBe("0:00");
+    expect(formatoReloj(425)).toBe("7:05");
+    expect(formatoReloj(3723)).toBe("1:02:03");
+    expect(formatoReloj(-4)).toBe("0:00");
   });
 });

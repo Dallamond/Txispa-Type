@@ -89,10 +89,13 @@ export default function Tecleo({ palabras, config, ajustes, intentos, guardar, e
       if (motor.inicio === null) return;
       const ahora = performance.now();
       if ((ahora - motor.inicio) / 1000 >= config.durationSec) terminar(motor.inicio + config.durationSec * 1000);
-      else repinta();
+      else {
+        repinta();
+        if (guardar) contador.reportarTiempo((ahora - motor.inicio) / 1000);
+      }
     }, 100);
     return () => clearInterval(id);
-  }, [motor, config.durationSec, resultado, terminar]);
+  }, [motor, config.durationSec, resultado, terminar, guardar, contador]);
 
   useEffect(() => {
     if (resultado) return;

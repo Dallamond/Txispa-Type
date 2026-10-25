@@ -14,7 +14,7 @@ Cambios de esta sesión, tras probar la app Lucas:
 - Pulsaciones totales (aciertos más errores) y tiempo de hoy en Estadísticas.
 - El resultado de un test muestra la gráfica de todos los tests con el actual resaltado, su puesto y si es récord (`posicionEnHistorial`).
 - Calentar pasa a ser una sola sesión tecleada de duración elegible (se quitan los ejercicios de manos y las rutinas; ajuste `calentamientoMin`, 5 por defecto). Temporizador m:ss arriba en todas las pantallas de tecleo.
-- Cabecera fija con el contador global de pulsaciones, que sube en vivo (intentos guardados + calentamientos en `txispatype.calentamiento.v1` + sesión en curso).
+- Cabecera fija con el tiempo de práctica de hoy (reloj, meta y barra, en vivo; solo tests y entrenos) y el contador global de pulsaciones, que sube en vivo (intentos guardados + calentamientos en `txispatype.calentamiento.v1` + sesión en curso).
 - Fase 4: `lib/ia.ts` (listado de modelos, generación con 30 s, validación, un reintento, caché de 20 textos), fuente **IA** en Entrenar y en el entreno del jueves, ajustes de Ollama con "Detectar modelos", y `iaHashes` en el intento.
 
 Decisión que conviene que revises: un entreno largo necesita unas 1300 palabras y cada llamada da unas 65, así que se generan como mucho 6 textos seguidos y el resto se completa con el banco, con aviso en pantalla. Si falla la primera, se usa el banco entero y se avisa.
@@ -34,6 +34,7 @@ Decisión que conviene que revises: un entreno largo necesita unas 1300 palabras
 
 **Contador y cabecera**
 - [ ] La cabecera se queda fija al hacer scroll y el contador sube con cada pulsación, también en el calentamiento.
+- [ ] El tiempo de hoy de la cabecera avanza mientras haces un test o entreno (no en el calentamiento), se pone verde al llegar a la meta y no pega saltos al terminar.
 - [ ] Al terminar un test o entreno el contador no se duplica ni baja; tras Esc conserva lo tecleado en un calentamiento y descarta el test cancelado.
 
 **Hoy**
