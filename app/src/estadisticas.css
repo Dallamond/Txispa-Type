@@ -1,0 +1,118 @@
+/* Pantalla Estadísticas: solo estilos propios; los tokens vienen de index.css. */
+.est-cifras {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 10px;
+}
+
+.est-filtros {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  margin: 0 0 8px;
+}
+
+.est-filtros h1 {
+  margin: 0;
+}
+
+.est-cifra-sub {
+  color: var(--dim);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.grafica {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.grafica-rejilla {
+  stroke: var(--border-soft);
+  stroke-width: 1;
+}
+
+.grafica-texto {
+  fill: var(--dim);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+
+.grafica-serie {
+  fill: none;
+  stroke: var(--faint);
+  stroke-width: 1;
+}
+
+.grafica-movil {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 2.5;
+  stroke-linejoin: round;
+}
+
+.grafica-punto {
+  fill: var(--text);
+  opacity: 0.75;
+}
+
+.grafica-punto.bajo {
+  fill: var(--danger);
+  opacity: 1;
+}
+
+.est-tabla-caja {
+  overflow-x: auto;
+}
+
+.est-tabla {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+}
+
+.est-tabla th,
+.est-tabla td {
+  padding: 6px 10px;
+  text-align: right;
+  border-bottom: 1px solid var(--border-soft);
+  white-space: nowrap;
+}
+
+.est-tabla th:first-child,
+.est-tabla td:first-child {
+  text-align: left;
+}
+
+.est-tabla th {
+  color: var(--dim);
+  font-weight: 600;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.est-tabla th button {
+  all: unset;
+  cursor: pointer;
+  text-transform: inherit;
+  letter-spacing: inherit;
+}
+
+.est-tabla th button:focus-visible {
+  box-shadow: var(--ring);
+  border-radius: 4px;
+}
+
+.est-tabla tr.baja td {
+  background: color-mix(in srgb, var(--danger) 12%, transparent);
+}
+
+.est-tabla td.baja {
+  color: var(--danger);
+  font-weight: 600;
+}
