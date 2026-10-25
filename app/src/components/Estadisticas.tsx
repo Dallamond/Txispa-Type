@@ -7,7 +7,6 @@ import {
   mediasSemanales,
   mediaSemanal,
   peorDelDia,
-  pulsacionesTotales,
   racha,
   resumenPorDia,
   soloTests,
@@ -45,6 +44,8 @@ import "../estadisticas.css";
 interface Props {
   intentos: readonly Intento[];
   ajustes: Ajustes;
+  /** Pulsaciones totales de la app (la cuenta el contador fijo de arriba). */
+  pulsaciones: number;
   onPracticar: (fuente: "debiles" | "pares") => void;
 }
 
@@ -69,7 +70,7 @@ function formatoSigno(n: number): string {
   return `${n > 0 ? "+" : n < 0 ? "−" : ""}${s}`;
 }
 
-export default function Estadisticas({ intentos, ajustes, onPracticar }: Props) {
+export default function Estadisticas({ intentos, ajustes, pulsaciones, onPracticar }: Props) {
   const [duracion, setDuracion] = useState<FiltroDuracion>("todas");
   const [modo, setModo] = useState<FiltroModo>("test");
   const [orden, setOrden] = useState<{ campo: CampoOrden; dir: Direccion }>({ campo: "fecha", dir: "desc" });
@@ -94,7 +95,6 @@ export default function Estadisticas({ intentos, ajustes, onPracticar }: Props) 
   const confusiones = useMemo(() => confusionesAgregadas(lista), [lista]);
   const cumplidos = useMemo(() => diasCumplidos(lista, ajustes.objetivoTests), [lista, ajustes.objetivoTests]);
   const tendenciaSemanal = useMemo(() => tendencia(mediasSemanales(lista, hoy, 8)), [lista, hoy]);
-  const pulsaciones = useMemo(() => pulsacionesTotales(lista), [lista]);
   const tiempoHoy = useMemo(() => tiempoDelDia(lista, hoy, ajustes.objetivoMinutos), [lista, hoy, ajustes.objetivoMinutos]);
   const medianaHoy = useMemo(() => medianaDelDia(lista, hoy), [lista, hoy]);
   const peorHoy = useMemo(() => peorDelDia(lista, hoy), [lista, hoy]);
@@ -135,7 +135,7 @@ export default function Estadisticas({ intentos, ajustes, onPracticar }: Props) 
           <div className="cifra">
             <div className="cifra-valor">{formatoEntero(pulsaciones)}</div>
             <div className="cifra-etiqueta">Pulsaciones totales</div>
-            <div className="est-cifra-sub">aciertos y errores, tests y entrenos</div>
+            <div className="est-cifra-sub">aciertos y errores; tests, entrenos y calentamientos</div>
           </div>
           <div className="cifra">
             <div className="cifra-valor">{formatoTiempo(tiempoHoy.segundos)}</div>

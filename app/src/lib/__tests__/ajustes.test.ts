@@ -47,7 +47,7 @@ describe("ajustes", () => {
       objetivoTests: -4,
       objetivoMinutos: 9999,
       duracionPorDefecto: 45,
-      rutinaCalentamiento: "completa",
+      calentamientoMin: 8,
       ollamaUrl: "   ",
       guiaDedos: "sí",
     });
@@ -56,7 +56,8 @@ describe("ajustes", () => {
     expect(n.objetivoTests).toBe(1);
     expect(n.objetivoMinutos).toBe(240);
     expect(n.duracionPorDefecto).toBe(60);
-    expect(n.rutinaCalentamiento).toBe("completa");
+    expect(n.calentamientoMin).toBe(8);
+    expect(normalizarAjustes({ calentamientoMin: 7 }).calentamientoMin).toBe(5);
     expect(n.ollamaUrl).toBe(AJUSTES_POR_DEFECTO.ollamaUrl);
     expect(n.guiaDedos).toBe(true);
   });

@@ -280,6 +280,11 @@ button {
 /* ---------- estructura de la app ---------- */
 
 .app-cabecera {
+  /* Fija arriba: el contador de pulsaciones se ve siempre. */
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: var(--bg);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -287,7 +292,25 @@ button {
   flex-wrap: wrap;
   max-width: 1000px;
   margin: 0 auto;
-  padding: 14px 16px;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.contador-pulsaciones {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  font-variant-numeric: tabular-nums;
+}
+
+.contador-pulsaciones b {
+  font-size: 20px;
+  color: var(--accent);
+}
+
+.contador-pulsaciones span {
+  color: var(--dim);
+  font-size: 12px;
 }
 
 .logo {
@@ -400,10 +423,20 @@ button {
 /* ---------- pantalla de tecleo ---------- */
 
 .tecleo-cabecera {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 12px;
   margin-bottom: 6px;
+}
+
+.tecleo-cabecera .metricas-vivo {
+  justify-self: end;
+}
+
+.cronometro-pista {
+  text-align: center;
+  font-size: 13px;
 }
 
 .metricas-vivo {

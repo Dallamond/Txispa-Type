@@ -67,7 +67,6 @@ export interface Intento {
 }
 
 export type Duracion = 30 | 60 | 120 | 180 | 300;
-export type Rutina = "rapida" | "estandar" | "completa";
 
 export interface Ajustes {
   tema: "oscuro" | "claro";
@@ -81,7 +80,8 @@ export interface Ajustes {
   estrictoPorDefecto: boolean;
   puntuacionYMayusculas: boolean;
   duracionPorDefecto: Duracion;
-  rutinaCalentamiento: Rutina;
+  /** Duración del calentamiento tecleado, en minutos. */
+  calentamientoMin: number;
   reglasDeAjuste: boolean;
   sonidos: boolean;
   ollamaUrl: string;

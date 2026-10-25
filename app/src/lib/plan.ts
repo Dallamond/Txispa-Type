@@ -258,7 +258,7 @@ export function pasosDelDia(dia: string, hoy: string, intentos: Intento[], objet
     : `${objetivoTests} tests de 1 min, con descanso entre ellos (${testsHoy}/${objetivoTests})`;
 
   return [
-    { id: "calentamiento", titulo: "Calentamiento", detalle: "Rutina estándar, unos 6 min", hecho: false, manual: true },
+    { id: "calentamiento", titulo: "Calentamiento", detalle: "Tecleo suave de unos 5 min para soltar las manos", hecho: false, manual: true },
     { id: "entreno", titulo: e.minutos > 0 ? "Entrenamiento" : "Sin entrenamiento", detalle: detalleEntreno, hecho: entrenoHecho },
     { id: "tests", titulo: "Tests", detalle: detalleTests, hecho: testsHoy >= objetivoTests },
     { id: "revision", titulo: "Revisión de errores", detalle: "2 min con las confusiones y los pares lentos del día", hecho: false, manual: true },

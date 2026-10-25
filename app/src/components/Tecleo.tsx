@@ -14,6 +14,7 @@ import {
 import { mediaUltimos } from "../lib/estadisticas";
 import { PRECISION_MINIMA, precision, wpmNeta } from "../lib/medidas";
 import { posicionFantasma } from "../lib/calentamientos";
+import { useContadorTecleo } from "../hooks/ContadorTecleo";
 import AreaTexto from "./AreaTexto";
 import GraficaLinea from "./GraficaLinea";
 import { formatoDiaCorto, posicionEnHistorial } from "../lib/historial";
@@ -39,6 +40,12 @@ interface Props {
   pulsoWpm?: number | null;
 }
 
+/** Segundos restantes como m:ss. */
+const formatoReloj = (s: number) => {
+  const t = Math.ceil(s);
+  return `${Math.floor(t / 60)}:${String(t % 60).padStart(2, "0")}`;
+};
+
 const fmt = (n: number, d = 1) => n.toFixed(d).replace(".", ",");
 
 /** Una prueba completa: texto, cronómetro, métricas en vivo y resultado.
@@ -55,6 +62,7 @@ export default function Tecleo({ palabras, config, ajustes, intentos, guardar, e
   const [desviacionFinal, setDesviacionFinal] = useState<number | null>(null);
   const alGuardarRef = useRef(onGuardar);
   alGuardarRef.current = onGuardar;
+  const contador = useContadorTecleo();
   const alTerminarRef = useRef(onTerminar);
   alTerminarRef.current = onTerminar;
 
@@ -68,8 +76,10 @@ export default function Tecleo({ palabras, config, ajustes, intentos, guardar, e
       setDesviacionFinal(desviacionMs);
       alTerminarRef.current?.(intento, { desviacionMs });
       if (guardar && motor.correct + motor.errors > 0) void alGuardarRef.current(intento);
+      // Lo guardado entra en el total cuando aparece en el almacén; un calentamiento no se guarda y se suma aparte.
+      if (!guardar) contador.confirmar(motor.correct + motor.errors);
     },
-    [motor, config, guardar]
+    [motor, config, guardar, contador]
   );
 
   // Cuenta atrás: no corre hasta la primera pulsación, así leer el texto antes no penaliza.
@@ -91,6 +101,8 @@ export default function Tecleo({ palabras, config, ajustes, intentos, guardar, e
       if (e.key === "Escape") {
         e.preventDefault();
         terminadoRef.current = true;
+        if (guardar) contador.descartar();
+        else contador.confirmar(motor.correct + motor.errors);
         onSalir();
         return;
       }
@@ -112,11 +124,20 @@ export default function Tecleo({ palabras, config, ajustes, intentos, guardar, e
       }
       setPressedKey(e.key === "Backspace" ? "Backspace" : pressedKeyFor(e.key));
       repinta();
+      contador.reportar(motor.correct + motor.errors);
       if (motor.agotado) terminar(e.timeStamp);
     };
     window.addEventListener("keydown", alPulsar);
     return () => window.removeEventListener("keydown", alPulsar);
-  }, [motor, resultado, terminar, onSalir, setPressedKey, pulso, rejilla]);
+  }, [motor, resultado, terminar, onSalir, setPressedKey, pulso, rejilla, guardar, contador]);
+
+  // Si se cambia de pestaña a mitad de una prueba, lo tecleado sin guardar deja de contar en vivo.
+  useEffect(
+    () => () => {
+      if (!terminadoRef.current) contador.descartar();
+    },
+    [contador]
+  );
 
   // Enter repite una vez mostrado el resultado.
   useEffect(() => {
@@ -157,6 +178,9 @@ export default function Tecleo({ palabras, config, ajustes, intentos, guardar, e
     <section>
       <div className="tecleo-cabecera">
         <span className="tenue">{etiqueta}</span>
+        <div className="cronometro-num mono" role="timer" aria-label="Tiempo restante">
+          {formatoReloj(restante)}
+        </div>
         <div className="metricas-vivo" aria-live="off">
           <span>
             ppm <b>{Math.round(wpmVivo)}</b>
@@ -171,14 +195,10 @@ export default function Tecleo({ palabras, config, ajustes, intentos, guardar, e
           )}
         </div>
       </div>
-
-      <div className="cronometro">
-        <div className="cronometro-num mono">{Math.ceil(restante)}</div>
-        <div className="cronometro-barra">
-          <div className="cronometro-relleno" style={{ width: `${(el / config.durationSec) * 100}%` }} />
-        </div>
-        {motor.inicio === null && <div className="tenue">Empieza a teclear para arrancar el reloj</div>}
+      <div className="cronometro-barra">
+        <div className="cronometro-relleno" style={{ width: `${(el / config.durationSec) * 100}%` }} />
       </div>
+      {motor.inicio === null && <div className="tenue cronometro-pista">Empieza a teclear para arrancar el reloj</div>}
 
       {pulso !== null && (
         <div className="pulso-control" role="group" aria-label="Pulso del metrónomo">

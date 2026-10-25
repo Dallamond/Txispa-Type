@@ -1,7 +1,8 @@
 import { useRef, useState } from "react";
 import type { Ajustes, Intento } from "../types";
 import type { RunStore } from "../lib/almacen";
-import { DURACIONES, RUTINAS } from "../lib/ajustes";
+import { DURACIONES } from "../lib/ajustes";
+import { DURACIONES_CALENTAMIENTO } from "../lib/calentamientos";
 import { crearExportacion, leerImportacion, nombreArchivo } from "../lib/exportar";
 import { diaLocal } from "../lib/estadisticas";
 import { listarModelos } from "../lib/ia";
@@ -12,8 +13,6 @@ interface Props {
   almacen: RunStore;
   intentos: readonly Intento[];
 }
-
-const NOMBRE_RUTINA = { rapida: "Rápida (3 min)", estandar: "Estándar (6 min)", completa: "Completa (8 min)" } as const;
 
 export default function AjustesPantalla({ ajustes, onCambiar, almacen, intentos }: Props) {
   const [mensaje, setMensaje] = useState("");
@@ -106,11 +105,11 @@ export default function AjustesPantalla({ ajustes, onCambiar, almacen, intentos 
         </div>
       </div>
       <div className="fila">
-        <span>Rutina de calentamiento</span>
-        <div className="seg" role="group" aria-label="Rutina de calentamiento">
-          {RUTINAS.map((r) => (
-            <button key={r} type="button" className={ajustes.rutinaCalentamiento === r ? "on" : ""} onClick={() => onCambiar({ rutinaCalentamiento: r })}>
-              {NOMBRE_RUTINA[r]}
+        <span>Duración del calentamiento</span>
+        <div className="seg" role="group" aria-label="Duración del calentamiento">
+          {DURACIONES_CALENTAMIENTO.map((m) => (
+            <button key={m} type="button" className={ajustes.calentamientoMin === m ? "on" : ""} onClick={() => onCambiar({ calentamientoMin: m })}>
+              {m} min
             </button>
           ))}
         </div>

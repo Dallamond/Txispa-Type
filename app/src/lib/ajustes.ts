@@ -2,12 +2,12 @@
 // Los valores guardados se validan al leer: un campo roto vuelve a su valor
 // por defecto en vez de romper la app.
 
-import type { Ajustes, Duracion, Rutina } from "../types";
+import type { Ajustes, Duracion } from "../types";
+import { DURACIONES_CALENTAMIENTO } from "./calentamientos";
 
 export const CLAVE_AJUSTES = "txispatype.settings.v1";
 
 export const DURACIONES: readonly Duracion[] = [30, 60, 120, 180, 300];
-export const RUTINAS: readonly Rutina[] = ["rapida", "estandar", "completa"];
 
 export const AJUSTES_POR_DEFECTO: Ajustes = {
   tema: "oscuro",
@@ -19,7 +19,7 @@ export const AJUSTES_POR_DEFECTO: Ajustes = {
   estrictoPorDefecto: false,
   puntuacionYMayusculas: true,
   duracionPorDefecto: 60,
-  rutinaCalentamiento: "estandar",
+  calentamientoMin: 5,
   reglasDeAjuste: true,
   sonidos: false,
   ollamaUrl: "http://localhost:11434",
@@ -60,9 +60,9 @@ export function normalizarAjustes(crudo: unknown): Ajustes {
     duracionPorDefecto: DURACIONES.includes(o.duracionPorDefecto as Duracion)
       ? (o.duracionPorDefecto as Duracion)
       : d.duracionPorDefecto,
-    rutinaCalentamiento: RUTINAS.includes(o.rutinaCalentamiento as Rutina)
-      ? (o.rutinaCalentamiento as Rutina)
-      : d.rutinaCalentamiento,
+    calentamientoMin: (DURACIONES_CALENTAMIENTO as readonly number[]).includes(o.calentamientoMin as number)
+      ? (o.calentamientoMin as number)
+      : d.calentamientoMin,
     reglasDeAjuste: bool(o.reglasDeAjuste, d.reglasDeAjuste),
     sonidos: bool(o.sonidos, d.sonidos),
     ollamaUrl: texto(o.ollamaUrl, d.ollamaUrl).trim() || d.ollamaUrl,
