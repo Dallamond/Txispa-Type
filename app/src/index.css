@@ -444,19 +444,19 @@ button {
 }
 
 .texto-caja {
-  background: var(--bg2);
-  border: 1px solid var(--border);
-  border-radius: var(--r);
-  padding: 14px 20px;
-  margin-bottom: 14px;
+  /* Sin recuadro ni fondo: solo las letras. */
+  margin: 18px 0 22px;
 }
 
 .texto-viewport {
-  --linea: 2.1em;
+  --linea: 1.9em;
   font-family: var(--mono);
-  font-size: 1.4rem;
+  font-size: 2.3rem;
   line-height: var(--linea);
   height: calc(var(--linea) * 3);
+  /* Ancho acotado en caracteres: unas 4 palabras por fila. */
+  max-width: 24ch;
+  margin: 0 auto;
   overflow: hidden;
 }
 
@@ -782,4 +782,11 @@ kbd {
 
 .plan li.hecho {
   opacity: 0.75;
+}
+
+.tiempo-cabecera {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
 }
