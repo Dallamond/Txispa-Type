@@ -57,7 +57,7 @@ export default function App() {
             No se detecta teclado físico. Txispa Type se practica con un teclado de verdad.
           </p>
         )}
-        {pestana === "hoy" && <Hoy />}
+        {pestana === "hoy" && <Hoy ajustes={ajustes} intentos={intentos} onIr={setPestana} />}
         {pestana === "calentar" && <Calentar ajustes={ajustes} intentos={intentos} onCambiarAjustes={cambiarAjustes} onIr={setPestana} />}
         {pestana === "test" && <Test ajustes={ajustes} intentos={intentos} onGuardar={guardar} onCambiarAjustes={cambiarAjustes} />}
         {pestana === "entrenar" && <Entrenar />}
