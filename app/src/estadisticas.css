@@ -116,3 +116,126 @@
   color: var(--danger);
   font-weight: 600;
 }
+
+/* ---- Teclas y pares débiles, confusiones ---- */
+.deb-teclado {
+  margin: 8px 0;
+  overflow-x: auto;
+}
+.deb-leyenda {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  color: var(--dim);
+  font-size: 12px;
+  margin: 4px 0 12px;
+}
+.deb-leyenda-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.deb-muestra {
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  border: 1px solid var(--border);
+}
+.deb-muestra.sin-datos {
+  background: var(--bg3);
+}
+.deb-muestra.rojo {
+  background: var(--danger);
+}
+.deb-tecla {
+  font-family: inherit;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0 6px;
+  min-width: 1.4em;
+  display: inline-block;
+  text-align: center;
+}
+.deb-semilla {
+  color: var(--warn);
+  font-size: 12px;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  padding: 0 6px;
+  cursor: help;
+}
+.deb-acciones {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 14px;
+}
+.conf-lista {
+  margin: 8px 0 0;
+  padding-left: 22px;
+  display: grid;
+  gap: 6px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---- Calendario ---- */
+.cal-cabecera {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.cal-titulo {
+  margin: 0;
+  text-transform: capitalize;
+}
+.cal-rejilla {
+  display: grid;
+  gap: 4px 0;
+  max-width: 420px;
+}
+.cal-fila {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+}
+.cal-dia-semana {
+  text-align: center;
+  color: var(--dim);
+  font-size: 12px;
+  padding: 2px 0;
+}
+.cal-celda {
+  position: relative;
+  height: 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  border: 2px solid transparent;
+  border-radius: 8px;
+}
+.cal-celda.cumplido {
+  background: color-mix(in srgb, var(--ok) 22%, transparent);
+  color: var(--text);
+}
+.cal-celda.cumplido.une {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+.cal-celda.cumplido:has(+ .cal-celda.cumplido.une) {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+.cal-celda.hoy {
+  border-color: var(--accent);
+  font-weight: 700;
+}
+.cal-marca {
+  font-size: 10px;
+  line-height: 1;
+  color: var(--ok);
+}

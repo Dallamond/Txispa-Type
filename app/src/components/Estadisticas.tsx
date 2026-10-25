@@ -1,7 +1,20 @@
 import { useMemo, useState } from "react";
 import type { Ajustes, Intento } from "../types";
 import { DURACIONES } from "../lib/ajustes";
-import { diaLocal, mediasSemanales, mediaSemanal, racha, resumenPorDia, soloTests, variacionSemanal } from "../lib/estadisticas";
+import {
+  diasCumplidos,
+  medianaDelDia,
+  mediasSemanales,
+  mediaSemanal,
+  peorDelDia,
+  racha,
+  resumenPorDia,
+  soloTests,
+  tendencia,
+  variacionSemanal,
+} from "../lib/estadisticas";
+import { analizar, calorDeTeclas } from "../lib/debiles";
+import { confusionesAgregadas } from "../lib/confusiones";
 import {
   etiquetaDuracion,
   filtrarPorDuracion,
@@ -13,19 +26,23 @@ import {
   formatoVariacion,
   ordenarHistorial,
   precisionBaja,
-  PRECISION_MINIMA,
   serieParaGrafica,
   type CampoOrden,
   type Direccion,
   type FiltroDuracion,
   type FiltroModo,
 } from "../lib/historial";
+import { PRECISION_MINIMA } from "../lib/medidas";
+import { useHoy } from "../hooks/useHoy";
 import GraficaLinea from "./GraficaLinea";
+import VirtualKeyboard from "./VirtualKeyboard";
+import Calendario from "./Calendario";
 import "../estadisticas.css";
 
 interface Props {
   intentos: readonly Intento[];
   ajustes: Ajustes;
+  onPracticar: (fuente: "debiles" | "pares") => void;
 }
 
 const MODOS: Array<{ id: FiltroModo; texto: string }> = [
@@ -40,30 +57,50 @@ const COLUMNAS: Array<{ campo: CampoOrden; texto: string }> = [
   { campo: "precision", texto: "Precisión" },
 ];
 
-export default function Estadisticas({ intentos, ajustes }: Props) {
+function formatoEntero(n: number): string {
+  return n.toLocaleString("es-ES", { maximumFractionDigits: 0 });
+}
+
+function formatoSigno(n: number): string {
+  const s = formatoNumero(Math.abs(n), 1);
+  return `${n > 0 ? "+" : n < 0 ? "−" : ""}${s}`;
+}
+
+export default function Estadisticas({ intentos, ajustes, onPracticar }: Props) {
   const [duracion, setDuracion] = useState<FiltroDuracion>("todas");
   const [modo, setModo] = useState<FiltroModo>("test");
   const [orden, setOrden] = useState<{ campo: CampoOrden; dir: Direccion }>({ campo: "fecha", dir: "desc" });
 
-  const hoy = diaLocal(new Date());
+  const hoy = useHoy();
   const lista = useMemo(() => [...intentos], [intentos]);
   const tests = useMemo(() => soloTests(lista), [lista]);
 
   const resumen = useMemo(
     () => ({
       racha: racha(lista, hoy, ajustes.objetivoTests),
-      mejor: tests.length ? tests.reduce((m, t) => (t.wpm > m.wpm ? t : m), tests[0]) : null,
+      // La velocidad con precisión por debajo del mínimo no cuenta como progreso.
+      mejor: tests.filter((t) => t.acc >= PRECISION_MINIMA).reduce<Intento | null>((m, t) => (m === null || t.wpm > m.wpm ? t : m), null),
       semana: mediaSemanal(lista, hoy),
       variacion: variacionSemanal(mediasSemanales(lista, hoy, 2)),
     }),
     [lista, tests, hoy, ajustes.objetivoTests]
   );
 
+  const analisis = useMemo(() => analizar(lista), [lista]);
+  const calor = useMemo(() => calorDeTeclas(analisis), [analisis]);
+  const confusiones = useMemo(() => confusionesAgregadas(lista), [lista]);
+  const cumplidos = useMemo(() => diasCumplidos(lista, ajustes.objetivoTests), [lista, ajustes.objetivoTests]);
+  const tendenciaSemanal = useMemo(() => tendencia(mediasSemanales(lista, hoy, 8)), [lista, hoy]);
+  const medianaHoy = useMemo(() => medianaDelDia(lista, hoy), [lista, hoy]);
+  const peorHoy = useMemo(() => peorDelDia(lista, hoy), [lista, hoy]);
+
   const serie = useMemo(() => serieParaGrafica(lista, duracion, 60), [lista, duracion]);
   const dias = useMemo(() => resumenPorDia(lista, 14, hoy), [lista, hoy]);
   const historial = useMemo(() => {
     const filtrados = filtrarPorDuracion(filtrarPorModo(lista, modo), duracion);
-    return ordenarHistorial(filtrados, orden.campo, orden.dir).slice(0, 30);
+    // Primero los 30 más recientes y después se ordenan: ordenar antes recortaría otra cosa.
+    const recientes = ordenarHistorial(filtrados, "fecha", "desc").slice(0, 30);
+    return ordenarHistorial(recientes, orden.campo, orden.dir);
   }, [lista, modo, duracion, orden]);
 
   if (tests.length === 0) {
@@ -242,6 +279,155 @@ export default function Estadisticas({ intentos, ajustes }: Props) {
             </table>
           </div>
         )}
+      </section>
+
+      <section className="tarjeta">
+        <h1>Tendencia</h1>
+        <div className="est-cifras">
+          <div className="cifra">
+            <div className="cifra-valor">{tendenciaSemanal !== null ? formatoSigno(tendenciaSemanal) : "–"}</div>
+            <div className="cifra-etiqueta">ppm por semana</div>
+            <div className="est-cifra-sub">
+              {tendenciaSemanal !== null ? `Tendencia: ${formatoSigno(tendenciaSemanal)} ppm por semana` : "Tendencia: sin datos suficientes"}
+            </div>
+          </div>
+          <div className="cifra">
+            <div className="cifra-valor">{medianaHoy !== null ? formatoNumero(medianaHoy) : "–"}</div>
+            <div className="cifra-etiqueta">Mediana de hoy (ppm)</div>
+            {medianaHoy === null && <div className="est-cifra-sub">sin tests hoy</div>}
+          </div>
+          <div className="cifra">
+            <div className="cifra-valor">{peorHoy !== null ? formatoNumero(peorHoy) : "–"}</div>
+            <div className="cifra-etiqueta">Peor test de hoy (ppm)</div>
+            {peorHoy === null && <div className="est-cifra-sub">sin tests hoy</div>}
+          </div>
+        </div>
+        <p className="tenue">La tendencia es la pendiente de las medias semanales de las últimas 8 semanas.</p>
+      </section>
+
+      <section className="tarjeta">
+        <h1>Teclas y pares débiles</h1>
+        <p className="tenue">Calculado con tus últimos {analisis.intentosUsados} intentos (máximo 30).</p>
+        <div className="deb-teclado">
+          <VirtualKeyboard guide={false} calor={calor} />
+        </div>
+        <div className="deb-leyenda" aria-label="Leyenda del mapa de calor">
+          <span className="deb-leyenda-item">
+            <span className="deb-muestra sin-datos" aria-hidden="true" /> gris = pocos datos
+          </span>
+          <span className="deb-leyenda-item">
+            <span className="deb-muestra rojo" aria-hidden="true" /> rojo = más problemas
+          </span>
+        </div>
+
+        {analisis.debiles.length === 0 ? (
+          <p className="tenue">
+            Todavía no hay teclas débiles claras. Sigue haciendo tests y entrenos: cuando haya datos suficientes aparecerán aquí las teclas que más fallas o
+            que tecleas más despacio.
+          </p>
+        ) : (
+          <>
+            <h2>Teclas débiles</h2>
+            <div className="est-tabla-caja">
+              <table className="est-tabla">
+                <thead>
+                  <tr>
+                    <th scope="col">Tecla</th>
+                    <th scope="col">Fallos</th>
+                    <th scope="col">Latencia</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {analisis.debiles.map((t) => (
+                    <tr key={t.tecla}>
+                      <td>
+                        <kbd className="deb-tecla">{t.tecla}</kbd>
+                        {t.semilla && (
+                          <>
+                            {" "}
+                            <span className="deb-semilla" title="dato inicial de typing.com, aún sin datos propios suficientes">
+                              semilla
+                            </span>
+                          </>
+                        )}
+                      </td>
+                      <td>{formatoNumero(t.errRate * 100)} %</td>
+                      <td>{t.latRel !== null ? `×${formatoNumero(t.latRel)} de lo normal` : "—"}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            {analisis.debiles.some((t) => t.semilla) && (
+              <p className="tenue">
+                <span className="deb-semilla">semilla</span>: dato inicial de typing.com, aún sin datos propios suficientes.
+              </p>
+            )}
+          </>
+        )}
+
+        <h2>Pares lentos</h2>
+        {analisis.pares.length === 0 ? (
+          <p className="tenue">Aún no hay pares claramente lentos.</p>
+        ) : (
+          <div className="est-tabla-caja">
+            <table className="est-tabla">
+              <thead>
+                <tr>
+                  <th scope="col">Par</th>
+                  <th scope="col">Tiempo medio</th>
+                  <th scope="col">Veces</th>
+                  <th scope="col">Latencia</th>
+                </tr>
+              </thead>
+              <tbody>
+                {analisis.pares.map((p) => (
+                  <tr key={p.par}>
+                    <td>
+                      <kbd className="deb-tecla">{p.par}</kbd>
+                    </td>
+                    <td>{formatoEntero(p.ms)} ms</td>
+                    <td>{formatoEntero(p.n)}</td>
+                    <td>×{formatoNumero(p.latRel)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+
+        <div className="deb-acciones">
+          <button type="button" className="btn primario" disabled={analisis.debiles.length === 0} onClick={() => onPracticar("debiles")}>
+            Practicar teclas problemáticas
+          </button>
+          <button type="button" className="btn" disabled={analisis.pares.length === 0} onClick={() => onPracticar("pares")}>
+            Practicar pares lentos
+          </button>
+        </div>
+      </section>
+
+      <section className="tarjeta">
+        <h1>Confusiones</h1>
+        {confusiones.length === 0 ? (
+          <p className="tenue">Sin confusiones registradas en tus últimos intentos. Buena señal.</p>
+        ) : (
+          <>
+            <p className="tenue">Las más repetidas en tus últimos {analisis.intentosUsados} intentos: lo que debías teclear → lo que tecleaste.</p>
+            <ol className="conf-lista">
+              {confusiones.map((c) => (
+                <li key={`${c.esperada}>${c.escrita}`}>
+                  <kbd className="deb-tecla">{c.esperada}</kbd> → <kbd className="deb-tecla">{c.escrita}</kbd> · {c.veces} {c.veces === 1 ? "vez" : "veces"} ·{" "}
+                  {formatoEntero(c.porcentaje)} %
+                </li>
+              ))}
+            </ol>
+          </>
+        )}
+      </section>
+
+      <section className="tarjeta">
+        <h1>Calendario</h1>
+        <Calendario hoy={hoy} cumplidos={cumplidos} />
       </section>
     </>
   );
