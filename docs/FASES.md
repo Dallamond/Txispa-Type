@@ -6,13 +6,36 @@ Marca las tareas con `- [x]` al terminarlas. Detalle técnico en `ESPECIFICACION
 
 ## Estado
 
-**Fase 1 hecha (25 de octubre de 2026), pendiente de la puerta 1 de Lucas.** Repo en https://github.com/Dallamond/Txispa-Type. `npm run check` en verde (47 tests). Verificado en navegador (Chrome, dev server): seis pestañas, teclado virtual con guía de dedos y tecla muerta para tildes, IndexedDB guarda/lee/borra (botón "Probar almacenamiento" en Ajustes, que se quitará en la fase 2), sin errores de consola.
+**Fase 2 codificada (25 de octubre de 2026), pendiente de la puerta 2 de Lucas.** Repo: https://github.com/Dallamond/Txispa-Type. `npm run check` en verde (157 tests). La puerta 1 se verificó en navegador; falta que Lucas la dé por buena con el teclado real.
 
-Notas de la fase 1:
-- `CHARMAP` de Shellpath no contemplaba las vocales con tilde ni la diéresis; se han añadido (tecla muerta `´`). El teclado marca primero `´` y luego la vocal.
-- `grafica.ts`: la métrica `"ppm"` pasa a `"wpm"`.
-- No se ha copiado `DailyGoal`, `HistorialTests` ni `StatsView` todavía (fase 2).
-- Siguiente: fase 2, tarea `medidas.ts`.
+Qué hay:
+- **Test** (30, 60, 120, 180 y 300 s) con motor por palabras (`lib/motor.ts`), modo estricto, puntuación y mayúsculas opcionales, resultado con comparación contra los últimos 10 y teclas y confusiones del test. Se guarda en IndexedDB.
+- **Hoy** (anillo del objetivo, racha, media de 7 días con variación), **Estadísticas** (gráficas con media móvil, tabla de 14 días, historial ordenable y filtrable), **Calentar** (rutinas con los ejercicios disponibles, cursor fantasma, pausa de 3 s) y **Ajustes** (objetivo diario, exportar, importar y borrar).
+- Verificado en navegador (Chrome, dev server, con datos sintéticos que ya se han borrado): tecleo y guardado de un test, ejercicios guiados y de texto con cursor fantasma, gráficas y tablas, sin errores de consola.
+
+Qué NO se ha podido probar (lo pruebas tú, ver checklist): vocales con tilde con la tecla muerta (`´` + vocal), AltGr, la sensación del cursor fantasma y el tiempo real entre pulsaciones. La automatización del navegador teclea de golpe, así que ritmo constante y pares de letras solo están probados con tests unitarios.
+
+Decisiones y notas:
+- `CHARMAP` de Shellpath no contemplaba tildes ni diéresis; se añadieron con tecla muerta. El motor ignora la tecla `Dead` sin bloquearla para que el sistema componga la vocal; si en tu teclado no compone, avísame y paso a un campo de texto oculto.
+- Modo estricto (la especificación no lo detallaba): la letra equivocada cuenta como fallo pero no entra, y el espacio no cierra una palabra incompleta.
+- Los pares de letras usan `␣` para el espacio (p. ej. `e␣`).
+- Las semillas de typing.com están en `data/semillas.ts` pero se usarán en la fase 3 (`debiles.ts`).
+- Los calentamientos `alternancia`, `pares`, `escalera` y `metronomo` están definidos pero marcados como no disponibles hasta la fase 3; las rutinas estándar y completa los saltan.
+
+Checklist manual de la fase 2:
+- [ ] Teclear con acentos y ñ: á é í ó ú ü, mayúsculas con tilde y ñ. Comprobar que no cuenta fallo.
+- [ ] AltGr y símbolos (el banco apenas los usa, pero no debe romperse nada).
+- [ ] Cerrar la pestaña a mitad de un test y volver: no debe quedar nada guardado a medias.
+- [ ] Recargar con Ctrl+R durante un test: no cuenta como fallo.
+- [ ] Un test de 60 s a tu ritmo normal: ppm y precisión parecidas a las de typing.com con un texto parecido.
+- [ ] Ver si "ritmo constante" y las teclas falladas del resultado tienen sentido.
+- [ ] Exportar, borrar todo e importar: los intentos vuelven y no se duplican al importar dos veces.
+- [ ] Calentamiento: estiramiento, escala y fila base con el cursor fantasma. ¿El fantasma ayuda o molesta?
+- [ ] Estadísticas con 0 tests (estado vacío) y con varios días; cambiar el filtro de duración; ordenar el historial.
+- [ ] Tema claro y tamaño de texto en Ajustes; ventana de portátil (~1280x720): el texto y el teclado caben sin scroll.
+- [ ] Puerta 2: una semana con tres tests al día sin perder datos.
+
+Siguiente: fase 3, tarea `debiles.ts`.
 
 ## Fase 1: Cimientos
 
@@ -35,17 +58,17 @@ Dejar un proyecto que compila, con las piezas reutilizables de Shellpath y sus p
 
 Que Lucas pueda dejar typing.com.
 
-- [ ] Pantalla Test con duraciones 30, 60, 120, 180 y 300 s, avance por palabras y conteo de errores como en Shellpath.
-- [ ] Captura por intento de tiempo por tecla, por par de letras y confusiones (`agregados.ts`) con tests.
-- [ ] `medidas.ts`: wpm neta y bruta, precisión, consistencia, con tests.
-- [ ] Pantalla de resultados: wpm, precisión, ritmo constante, comparación con la media de los últimos 10 y teclas más falladas del test.
-- [ ] Modo estricto opcional y opción de puntuación y mayúsculas.
-- [ ] Historial filtrable por duración y gráfica de ppm y precisión (con `grafica.ts`).
-- [ ] Pantalla Hoy con objetivo diario de tests, racha y media semanal.
-- [ ] Calentamiento rápido (`manos`, `escala`, `fila-base`, `lento`) con el motor de cursor fantasma.
-- [ ] Exportar e importar JSON.
-- [ ] Cargar las semillas de typing.com (V, X, U, Y).
-- [ ] Texto de respaldo suficiente: ampliar `data/textos.ts` hasta unos 60 párrafos.
+- [x] Pantalla Test con duraciones 30, 60, 120, 180 y 300 s, avance por palabras y conteo de errores como en Shellpath.
+- [x] Captura por intento de tiempo por tecla, por par de letras y confusiones (`agregados.ts`) con tests.
+- [x] `medidas.ts`: wpm neta y bruta, precisión, consistencia, con tests.
+- [x] Pantalla de resultados: wpm, precisión, ritmo constante, comparación con la media de los últimos 10 y teclas más falladas del test.
+- [x] Modo estricto opcional y opción de puntuación y mayúsculas.
+- [x] Historial filtrable por duración y gráfica de ppm y precisión (con `grafica.ts`).
+- [x] Pantalla Hoy con objetivo diario de tests, racha y media semanal.
+- [x] Calentamiento rápido (`manos`, `escala`, `fila-base`, `lento`) con el motor de cursor fantasma.
+- [x] Exportar e importar JSON.
+- [x] Cargar las semillas de typing.com (V, X, U, Y).
+- [x] Texto de respaldo suficiente: ampliar `data/textos.ts` hasta unos 60 párrafos.
 
 **Hecho cuando:** Lucas completa tres tests al día durante una semana en Txispa Type, sin perder datos, y las cifras son comparables con las de typing.com (mismo orden de magnitud en un mismo texto).
 

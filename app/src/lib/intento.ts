@@ -73,6 +73,3 @@ export function confusionesMasRepetidas(
     .sort((a, b) => b.veces - a.veces)
     .slice(0, max);
 }
-
-/** Un test solo cuenta como progreso de velocidad si la precisión no baja del 95%. */
-export const PRECISION_MINIMA = 95;

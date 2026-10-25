@@ -1,13 +1,13 @@
 // Filtrado, ordenación y formato del historial (pantalla Estadísticas). Funciones puras.
 import type { Intento } from "../types";
+import { PRECISION_MINIMA } from "./medidas";
 
 export type FiltroDuracion = "todas" | number;
 export type FiltroModo = "test" | "entreno" | "todos";
 export type CampoOrden = "fecha" | "velocidad" | "precision";
 export type Direccion = "asc" | "desc";
 
-/** Por debajo de este porcentaje de precisión un test se marca como descuidado. */
-export const PRECISION_MINIMA = 95;
+export { PRECISION_MINIMA };
 
 export function filtrarPorDuracion<T extends Intento>(intentos: readonly T[], duracion: FiltroDuracion): T[] {
   return duracion === "todas" ? [...intentos] : intentos.filter((i) => i.durationSec === duracion);

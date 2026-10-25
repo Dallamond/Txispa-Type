@@ -11,6 +11,9 @@ export const INTERVALOS_MIN_CONSISTENCIA = 20;
 /** CV a partir del cual la consistencia llega a 0 (valor inicial heurístico). */
 export const CV_CERO = 1.6;
 
+/** Un test solo cuenta como progreso de velocidad si la precisión no baja de esto (%). */
+export const PRECISION_MINIMA = 95;
+
 export function redondear(n: number, decimales = 1): number {
   const f = 10 ** decimales;
   return Math.round(n * f) / f;

@@ -4,14 +4,13 @@ import { MotorTecleo } from "../lib/motor";
 import { esAtajo, isModifier, modifierLabel, pressedKeyFor } from "../lib/typing";
 import { usePressedKey } from "../hooks/usePressedKey";
 import {
-  PRECISION_MINIMA,
   confusionesMasRepetidas,
   crearIntento,
   teclasMasFalladas,
   type ConfigIntento,
 } from "../lib/intento";
 import { mediaUltimos } from "../lib/estadisticas";
-import { precision, wpmNeta } from "../lib/medidas";
+import { PRECISION_MINIMA, precision, wpmNeta } from "../lib/medidas";
 import { posicionFantasma } from "../lib/calentamientos";
 import AreaTexto from "./AreaTexto";
 import VirtualKeyboard from "./VirtualKeyboard";
