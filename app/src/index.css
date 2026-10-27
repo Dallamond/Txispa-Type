@@ -536,11 +536,11 @@ button {
 .texto-viewport {
   --linea: 1.9em;
   font-family: var(--mono);
-  font-size: 1.8rem;
+  font-size: 2.1rem;
   line-height: var(--linea);
   height: calc(var(--linea) * 4);
-  /* Ancho acotado en caracteres: unas 6 palabras por fila. */
-  max-width: 40ch;
+  /* Ancho acotado en caracteres: el texto grande abraza la columna, unas 8 palabras por fila. */
+  max-width: 46ch;
   margin: 0 auto;
   overflow: hidden;
 }
