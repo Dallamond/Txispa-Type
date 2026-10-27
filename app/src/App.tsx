@@ -64,22 +64,24 @@ function ContadorTiempo({
       </button>
       {abierto && (
         <div className="meta-pop" role="listbox" aria-label="Meta de minutos diarios">
-          <p className="tenue">Meta diaria</p>
-          {METAS_MINUTOS.map((m) => (
-            <button
-              key={m}
-              type="button"
-              className={m === objetivoMinutos ? "on" : ""}
-              role="option"
-              aria-selected={m === objetivoMinutos}
-              onClick={() => {
-                onCambiarObjetivo(m);
-                setAbierto(false);
-              }}
-            >
-              {m} min
-            </button>
-          ))}
+          <div className="meta-pop-caja">
+            <p className="tenue">Meta diaria</p>
+            {METAS_MINUTOS.map((m) => (
+              <button
+                key={m}
+                type="button"
+                className={m === objetivoMinutos ? "on" : ""}
+                role="option"
+                aria-selected={m === objetivoMinutos}
+                onClick={() => {
+                  onCambiarObjetivo(m);
+                  setAbierto(false);
+                }}
+              >
+                {m} min
+              </button>
+            ))}
+          </div>
         </div>
       )}
     </div>
