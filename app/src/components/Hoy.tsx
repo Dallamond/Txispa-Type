@@ -11,6 +11,7 @@ import {
 } from "../lib/estadisticas";
 
 import { formatoNumero, formatoTiempo, formatoVariacion, precisionBaja } from "../lib/historial";
+import { PRECISION_MINIMA } from "../lib/medidas";
 import { useHoy } from "../hooks/useHoy";
 import { calcularAjustes, focoDelDia, pasosDelDia, type PasoPlan } from "../lib/plan";
 
@@ -35,6 +36,22 @@ interface Props {
   onIr: (destino: Destino) => void;
 }
 
+/** Mejor test con precisión digna en los últimos 7 días. */
+function mejorDeLaSemana(intentos: readonly Intento[], hoy: string): number | null {
+  const corte = new Date(new Date(`${hoy}T12:00:00`).getTime() - 6 * 86400000).toISOString().slice(0, 10);
+  let mejor: number | null = null;
+  for (const i of intentos) {
+    if (i.modo !== "test" || i.localDate < corte || i.localDate > hoy || i.acc < PRECISION_MINIMA) continue;
+    if (mejor === null || i.wpm > mejor) mejor = i.wpm;
+  }
+  return mejor;
+}
+
+/** Pulsaciones (aciertos más errores) de hoy, tests y entrenos. */
+function pulsaDeHoy(intentos: readonly Intento[], hoy: string): number {
+  return intentos.filter((i) => i.localDate === hoy).reduce((n, i) => n + i.correct + i.errors, 0);
+}
+
 
 export default function Hoy({ ajustes, intentos, onIr }: Props) {
   const hoy = useHoy();
@@ -51,6 +68,8 @@ export default function Hoy({ ajustes, intentos, onIr }: Props) {
       foco: focoDelDia(hoy),
       ajustes: calcularAjustes(lista, hoy, ajustes.reglasDeAjuste),
       pasos: pasosDelDia(hoy, hoy, lista, ajustes.objetivoTests),
+      mejor: mejorDeLaSemana(lista, hoy),
+      pulsaHoy: pulsaDeHoy(lista, hoy),
     };
   }, [intentos, hoy, ajustes.objetivoTests, ajustes.objetivoMinutos, ajustes.reglasDeAjuste]);
 
@@ -59,7 +78,12 @@ export default function Hoy({ ajustes, intentos, onIr }: Props) {
   return (
     <div>
       <section className="tarjeta hoy-resumen">
-        <Anillo fraccion={objetivo.fraccion} hechos={objetivo.hechos} objetivo={objetivo.objetivo} />
+        <div className="hoy-anillo-caja">
+          <Anillo fraccion={objetivo.fraccion} hechos={objetivo.hechos} objetivo={objetivo.objetivo} />
+          <p className="anillo-leyenda tenue">
+            {objetivo.hechos === 1 ? "test de hoy" : "tests hoy"} / {objetivo.objetivo} meta
+          </p>
+        </div>
         <div className="hoy-cifras">
           <div className="cifra">
             <div className="cifra-valor">{datos.racha}</div>
@@ -80,27 +104,35 @@ export default function Hoy({ ajustes, intentos, onIr }: Props) {
               </div>
             )}
           </div>
+          <div className="cifra">
+            <div className="cifra-valor">{datos.mejor === null ? "—" : formatoNumero(datos.mejor)}</div>
+            <div className="cifra-etiqueta">mejor test · 7 días</div>
+            {datos.mejor !== null && <div className="tenue"> desde {PRECISION_MINIMA}% de precisión</div>}
+          </div>
+          <div className="cifra">
+            <div className="cifra-valor">{datos.pulsaHoy.toLocaleString("es-ES")}</div>
+            <div className="cifra-etiqueta">pulsaciones de hoy</div>
+          </div>
         </div>
-      </section>
-
-      <section className="tarjeta">
-        <div className="tiempo-cabecera">
-          <h2>Tiempo de práctica hoy</h2>
-          <span className="mono">
-            {formatoTiempo(datos.tiempo.segundos)} / {datos.tiempo.objetivoMin} min
-          </span>
+        <div className="hoy-tiempo">
+          <div className="tiempo-cabecera">
+            <h2>Tiempo de práctica hoy</h2>
+            <span className="mono">
+              {formatoTiempo(datos.tiempo.segundos)} / {datos.tiempo.objetivoMin} min
+            </span>
+          </div>
+          <div
+            className="cronometro-barra"
+            role="progressbar"
+            aria-valuemin={0}
+            aria-valuemax={datos.tiempo.objetivoMin * 60}
+            aria-valuenow={Math.min(datos.tiempo.segundos, datos.tiempo.objetivoMin * 60)}
+            aria-label="Tiempo de práctica de hoy"
+          >
+            <div className="cronometro-relleno" style={{ width: `${datos.tiempo.fraccion * 100}%`, background: datos.tiempo.cumplido ? "var(--ok)" : undefined }} />
+          </div>
+          <p className="tenue">{datos.tiempo.cumplido ? "Meta de tiempo cumplida." : "Cuentan tests y entrenos; los calentamientos no."}</p>
         </div>
-        <div
-          className="cronometro-barra"
-          role="progressbar"
-          aria-valuemin={0}
-          aria-valuemax={datos.tiempo.objetivoMin * 60}
-          aria-valuenow={Math.min(datos.tiempo.segundos, datos.tiempo.objetivoMin * 60)}
-          aria-label="Tiempo de práctica de hoy"
-        >
-          <div className="cronometro-relleno" style={{ width: `${datos.tiempo.fraccion * 100}%`, background: datos.tiempo.cumplido ? "var(--ok)" : undefined }} />
-        </div>
-        <p className="tenue">{datos.tiempo.cumplido ? "Meta de tiempo cumplida." : "Cuentan tests y entrenos; los calentamientos no."}</p>
       </section>
 
       <section className="tarjeta">

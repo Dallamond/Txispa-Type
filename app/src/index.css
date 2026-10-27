@@ -802,6 +802,37 @@ kbd {
   min-width: 150px;
 }
 
+/* Leyenda bajo el anillo y fila de tiempo a lo ancho de la tarjeta. */
+.hoy-anillo-caja {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.anillo-leyenda {
+  margin: 0;
+  font-size: 12px;
+  text-align: center;
+}
+
+.hoy-tiempo {
+  flex-basis: 100%;
+  margin-top: 6px;
+}
+
+.hoy-tiempo .tiempo-cabecera{
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.hoy-tiempo h2 {
+  margin: 0 0 6px;
+  font-size: 15px;
+}
+
 .anillo {
   position: relative;
   width: 110px;
