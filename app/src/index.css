@@ -945,6 +945,79 @@ kbd {
   background: var(--ok);
 }
 
+/* El contador de tiempo es un selector de meta: ratón encima o clic despliega las opciones. */
+.contador-tiempo {
+  position: relative;
+  cursor: pointer;
+  border-radius: 8px;
+}
+
+.contador-tiempo.meta-abierta {
+  background: color-mix(in srgb, var(--bg3) 55%, transparent);
+}
+
+.contador-alterna {
+  all: unset;
+  box-sizing: border-box;
+  display: block;
+  width: 100%;
+  cursor: pointer;
+}
+
+.contador-alterna:where(:focus-visible) {
+  outline: 2px solid var(--accent);
+  border-radius: 8px;
+}
+
+.contador-barra > span {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+}
+
+.contador-tiempo.cumplido .contador-barra > span {
+  background: var(--ok);
+}
+
+.meta-pop {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 6px);
+  z-index: 40;
+  min-width: 110px;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: 0 10px 28px rgb(0 0 0 / 0.35);
+  padding: 8px;
+  display: grid;
+  gap: 2px;
+}
+
+.meta-pop p {
+  margin: 0 4px 4px;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.meta-pop button {
+  all: unset;
+  cursor: pointer;
+  padding: 5px 8px;
+  border-radius: 6px;
+  font-size: 13px;
+}
+
+.meta-pop button:hover {
+  background: var(--bg3);
+}
+
+.meta-pop button.on {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+
 /* ---------- controles de formulario ---------- */
 
 input[type="checkbox"],

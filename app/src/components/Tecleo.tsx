@@ -104,8 +104,12 @@ export default function Tecleo({ palabras, config, ajustes, intentos, guardar, e
       if (e.key === "Escape") {
         e.preventDefault();
         terminadoRef.current = true;
-        if (guardar) contador.descartar();
-        else contador.confirmar(motor.correct + motor.errors);
+        if (guardar) {
+          // Test o entreno abandonado: lo tecleado no se guarda, pero el tiempo vivido sí cuenta.
+          contador.descartar(motor.inicio !== null ? (performance.now() - motor.inicio) / 1000 : 0);
+        } else {
+          contador.confirmar(motor.correct + motor.errors);
+        }
         onSalir();
         return;
       }
@@ -134,12 +138,14 @@ export default function Tecleo({ palabras, config, ajustes, intentos, guardar, e
     return () => window.removeEventListener("keydown", alPulsar);
   }, [motor, resultado, terminar, onSalir, setPressedKey, pulso, rejilla, guardar, contador]);
 
-  // Si se cambia de pestaña a mitad de una prueba, lo tecleado sin guardar deja de contar en vivo.
+  // Si se cambia de pestaña a mitad de una prueba, lo tecleado sin guardar deja de contar en vivo,
+  // pero el tiempo vivido de un test o entreno se guarda como tiempo del día.
   useEffect(
     () => () => {
-      if (!terminadoRef.current) contador.descartar();
+      if (!terminadoRef.current)
+        contador.descartar(guardar && motor.inicio !== null ? (performance.now() - motor.inicio) / 1000 : 0);
     },
-    [contador]
+    [contador, guardar, motor]
   );
 
   // Enter repite una vez mostrado el resultado.
