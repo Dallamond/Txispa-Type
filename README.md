@@ -40,6 +40,12 @@ La hoja de proyecto también está como documento editable en claude.ai: https:/
 - Teclas más falladas: V (17%), X (11%), U (9%), Y (8%). Marcadas para mejorar: T, D, G, C, B, M.
 - Metas propuestas: media de 55 ppm a 30 días y de 65 a 90 días, con 96% y 97% de precisión.
 
+## Versión publicada (GitHub Pages)
+
+Cada push a `main` pasa `npm run check` y publica la app en https://dallamond.github.io/Txispa-Type/ (`.github/workflows/pages.yml`). Hay que activarlo una vez: en GitHub, Settings > Pages > Source = **GitHub Actions**.
+
+Los datos viven en el navegador y van por dirección: lo que guardes en `localhost:5173` no aparece en la versión publicada ni al revés. Para pasarlos, Ajustes > Exportar en una e Importar en la otra.
+
 ## IA local (opcional, Ollama)
 
 Es la única llamada de red de la app y va a la dirección que pongas en Ajustes (por defecto `http://localhost:11434`). Sin Ollama, todo funciona igual y los entrenos con IA usan el banco con un aviso.
