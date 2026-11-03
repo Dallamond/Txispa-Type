@@ -6,6 +6,16 @@ Marca las tareas con `- [x]` al terminarlas. Detalle técnico en `ESPECIFICACION
 
 ## Estado
 
+**Sesión del 3 de noviembre de 2026:** mapa de actividad anual en Inicio, como el de contribuciones de GitHub (`lib/actividad.ts` con tests, `components/MapaActividad.tsx`). Una celda por día de las últimas 53 semanas (de lunes a domingo); el color sale de la meta diaria de minutos (tres tercios y la meta cumplida como color más fuerte); al pasar el ratón muestra el tiempo, las pulsaciones y los tests y entrenos del día. Cuentan solo intentos guardados: los calentamientos y el tiempo de sesiones abandonadas (`tiempoextra`) no salen.
+
+Verificado: tests unitarios y render de servidor con datos sintéticos (53 columnas, meses de noviembre a noviembre, resumen correcto). **No verificado en navegador** (la extensión de Chrome no estaba conectada): aspecto, tooltip y tema claro.
+
+Checklist manual del mapa de actividad:
+- [ ] Se ve en Inicio, cabe en la tarjeta a ~1280 px y en ventana estrecha se desplaza empezando por la semana actual.
+- [ ] El tooltip sale encima de la celda, no se corta en los bordes y desaparece al salir del mapa.
+- [ ] Colores legibles en tema oscuro y claro; hoy lleva un borde.
+- [ ] Las cifras del tooltip de hoy cuadran con "pulsaciones de hoy" y el tiempo de la tarjeta superior (salvo el tiempo de sesiones abandonadas).
+
 **Cierre de sesión del 25 de octubre de 2026: las fases 1 a 4 están codificadas; las puertas 2, 3 y 4 dependen del uso real de Lucas.** Repo: https://github.com/Dallamond/Txispa-Type. `npm run check` en verde (257 tests). Todo está en commits locales; el último push no se ha hecho en esta sesión.
 
 **Por dónde seguir mañana:**

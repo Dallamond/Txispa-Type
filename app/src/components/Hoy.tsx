@@ -13,6 +13,7 @@ import {
 import { formatoNumero, formatoTiempo, formatoVariacion, precisionBaja } from "../lib/historial";
 import { PRECISION_MINIMA } from "../lib/medidas";
 import { useHoy } from "../hooks/useHoy";
+import MapaActividad from "./MapaActividad";
 import { calcularAjustes, focoDelDia, pasosDelDia, type PasoPlan } from "../lib/plan";
 
 type Destino = "calentar" | "entrenar" | "test" | "estadisticas";
@@ -133,6 +134,11 @@ export default function Hoy({ ajustes, intentos, onIr }: Props) {
           </div>
           <p className="tenue">{datos.tiempo.cumplido ? "Meta de tiempo cumplida." : "Cuentan tests y entrenos; los calentamientos no."}</p>
         </div>
+      </section>
+
+      <section className="tarjeta">
+        <h1>Actividad</h1>
+        <MapaActividad intentos={intentos} hoy={hoy} objetivoMinutos={ajustes.objetivoMinutos} />
       </section>
 
       <section className="tarjeta">
