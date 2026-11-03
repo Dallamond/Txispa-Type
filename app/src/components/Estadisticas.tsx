@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { Fragment, useMemo, useState } from "react";
 import type { Ajustes, Intento } from "../types";
 import { DURACIONES } from "../lib/ajustes";
 import {
@@ -39,6 +39,7 @@ import { useHoy } from "../hooks/useHoy";
 import GraficaLinea from "./GraficaLinea";
 import VirtualKeyboard from "./VirtualKeyboard";
 import Calendario from "./Calendario";
+import DetalleIntento from "./DetalleIntento";
 import "../estadisticas.css";
 
 interface Props {
@@ -83,6 +84,7 @@ export default function Estadisticas({ intentos, ajustes, pulsaciones, onPractic
   const [modo, setModo] = useState<FiltroModo>("test");
   const [vista, setVista] = useState<Vista>("resumen");
   const [orden, setOrden] = useState<{ campo: CampoOrden; dir: Direccion }>({ campo: "fecha", dir: "desc" });
+  const [abierto, setAbierto] = useState<string | null>(null);
 
   const hoy = useHoy();
   const lista = useMemo(() => [...intentos], [intentos]);
@@ -435,7 +437,7 @@ export default function Estadisticas({ intentos, ajustes, pulsaciones, onPractic
           </div>
         </div>
         <p className="tenue">
-          Últimos 30{duracion === "todas" ? "" : ` de ${etiquetaDuracion(duracion)}`}. Pulsa una cabecera para ordenar. Los entrenos no cuentan para las
+          Últimos 30{duracion === "todas" ? "" : ` de ${etiquetaDuracion(duracion)}`}. Pulsa una cabecera para ordenar y una fila para ver su detalle. Los entrenos no cuentan para las
           estadísticas de velocidad.
         </p>
         {historial.length === 0 ? (
@@ -458,17 +460,44 @@ export default function Estadisticas({ intentos, ajustes, pulsaciones, onPractic
                 </tr>
               </thead>
               <tbody>
-                {historial.map((t) => (
-                  <tr key={t.id} className={precisionBaja(t.acc) ? "baja" : ""}>
-                    <td>
-                      {formatoDia(t.localDate)} {formatoHora(t.date)}
-                    </td>
-                    <td>{formatoNumero(t.wpm)} ppm</td>
-                    <td className={precisionBaja(t.acc) ? "baja" : ""}>{formatoNumero(t.acc)} %</td>
-                    <td>{etiquetaDuracion(t.durationSec)}</td>
-                    <td>{t.modo === "test" ? "Test" : "Entreno"}</td>
-                  </tr>
-                ))}
+                {historial.map((t) => {
+                  const esAbierto = abierto === t.id;
+                  const alternar = () => setAbierto(esAbierto ? null : t.id);
+                  return (
+                    <Fragment key={t.id}>
+                      <tr className={`fila-historial${precisionBaja(t.acc) ? " baja" : ""}${esAbierto ? " abierta" : ""}`} onClick={alternar}>
+                        <td>
+                          <button
+                            type="button"
+                            className="fila-alterna"
+                            aria-expanded={esAbierto}
+                            aria-controls={`detalle-${t.id}`}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              alternar();
+                            }}
+                          >
+                            <span className="fila-flecha" aria-hidden="true">
+                              {esAbierto ? "▾" : "▸"}
+                            </span>
+                            {formatoDia(t.localDate)} {formatoHora(t.date)}
+                          </button>
+                        </td>
+                        <td>{formatoNumero(t.wpm)} ppm</td>
+                        <td className={precisionBaja(t.acc) ? "baja" : ""}>{formatoNumero(t.acc)} %</td>
+                        <td>{etiquetaDuracion(t.durationSec)}</td>
+                        <td>{t.modo === "test" ? "Test" : "Entreno"}</td>
+                      </tr>
+                      {esAbierto && (
+                        <tr className="fila-detalle" id={`detalle-${t.id}`}>
+                          <td colSpan={5}>
+                            <DetalleIntento intento={t} intentos={lista} />
+                          </td>
+                        </tr>
+                      )}
+                    </Fragment>
+                  );
+                })}
               </tbody>
             </table>
           </div>

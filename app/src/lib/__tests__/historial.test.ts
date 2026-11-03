@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
+  etiquetaFuente,
+  mediaPrevia,
   etiquetaDuracion,
   etiquetasEje,
   filtrarPorDuracion,
@@ -149,5 +151,30 @@ describe("etiquetasEje", () => {
     expect(mismo[0]).toMatch(/^\d{1,2}:\d{2}$/);
     expect(etiquetasEje([mk("a", "2026-10-24", "08"), mk("b", "2026-10-25", "09")])).toEqual(["24/10", "25/10"]);
     expect(etiquetasEje([])).toEqual([]);
+  });
+});
+
+describe("mediaPrevia", () => {
+  const t = (id: string, date: string, wpm: number, extra: Partial<Intento> = {}) => intentoDePrueba(id, date, { wpm, acc: 95, ...extra });
+  const lista = [
+    t("a", "2026-11-01T10:00:00Z", 40),
+    t("b", "2026-11-02T10:00:00Z", 50),
+    t("e", "2026-11-02T11:00:00Z", 99, { modo: "entreno" }),
+    t("c", "2026-11-03T10:00:00Z", 60),
+  ];
+  it("media solo de los tests anteriores, sin entrenos ni el propio", () => {
+    expect(mediaPrevia(lista, lista[3])).toEqual({ wpm: 45, acc: 95, n: 2 });
+    expect(mediaPrevia(lista, lista[1])).toEqual({ wpm: 40, acc: 95, n: 1 });
+  });
+  it("null si es el primero y respeta n", () => {
+    expect(mediaPrevia(lista, lista[0])).toBeNull();
+    expect(mediaPrevia(lista, lista[3], 1)?.wpm).toBe(50);
+  });
+});
+
+describe("etiquetaFuente", () => {
+  it("nombra fuentes y el metrónomo", () => {
+    expect(etiquetaFuente("debiles")).toBe("Teclas débiles");
+    expect(etiquetaFuente("ejercicio", "metronomo")).toBe("Metrónomo");
   });
 });

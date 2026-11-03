@@ -16,6 +16,13 @@ Checklist manual del mapa de actividad:
 - [ ] Colores legibles en tema oscuro y claro; hoy lleva un borde.
 - [ ] Las cifras del tooltip de hoy cuadran con "pulsaciones de hoy" y el tiempo de la tarjeta superior (salvo el tiempo de sesiones abandonadas).
 
+Historial con detalle (misma sesión): al pulsar una fila del historial se despliega el detalle del intento (ppm netas y brutas, precisión con la diferencia frente a los 10 tests anteriores a ese, ritmo constante, errores, pulsaciones, fuente del texto, tiempo tecleando, teclas falladas y confusiones). Verificado con tests y render de servidor; no en navegador.
+
+Checklist manual del historial:
+- [ ] Pulsar una fila abre el detalle y pulsarla otra vez lo cierra; con Tab y Enter sobre la fecha también funciona.
+- [ ] Las cifras del detalle coinciden con las del resultado que viste al terminar ese test.
+- [ ] En ventana estrecha el detalle no rompe la tabla.
+
 **Cierre de sesión del 25 de octubre de 2026: las fases 1 a 4 están codificadas; las puertas 2, 3 y 4 dependen del uso real de Lucas.** Repo: https://github.com/Dallamond/Txispa-Type. `npm run check` en verde (257 tests). Todo está en commits locales; el último push no se ha hecho en esta sesión.
 
 **Por dónde seguir mañana:**

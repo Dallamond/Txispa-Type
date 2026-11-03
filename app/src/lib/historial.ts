@@ -1,5 +1,5 @@
 // Filtrado, ordenación y formato del historial (pantalla Estadísticas). Funciones puras.
-import type { Intento } from "../types";
+import type { Fuente, Intento } from "../types";
 import { PRECISION_MINIMA } from "./medidas";
 
 export type FiltroDuracion = "todas" | number;
@@ -138,4 +138,25 @@ export function posicionEnHistorial(intentos: readonly Intento[], actual: Intent
 export function etiquetasEje(serie: readonly Intento[]): string[] {
   const mismoDia = new Set(serie.map((t) => t.localDate)).size <= 1;
   return serie.map((t) => (mismoDia ? formatoHora(t.date) : formatoDiaCorto(t.localDate)));
+}
+
+/** Media de wpm y precisión de los `n` tests anteriores a `actual` (por fecha), o null si no hay. */
+export function mediaPrevia(intentos: readonly Intento[], actual: Intento, n = 10): { wpm: number; acc: number; n: number } | null {
+  const previos = intentos.filter((i) => i.modo === "test" && i.id !== actual.id && i.date < actual.date).sort(porFecha).slice(-n);
+  if (previos.length === 0) return null;
+  const suma = previos.reduce((s, i) => ({ wpm: s.wpm + i.wpm, acc: s.acc + i.acc }), { wpm: 0, acc: 0 });
+  return { wpm: suma.wpm / previos.length, acc: suma.acc / previos.length, n: previos.length };
+}
+
+const NOMBRE_FUENTE: Record<Fuente, string> = {
+  banco: "Texto corrido",
+  debiles: "Teclas débiles",
+  alternancia: "Alternancia de manos",
+  ia: "Texto con IA",
+  ejercicio: "Ejercicio",
+};
+
+/** Nombre legible del texto practicado. */
+export function etiquetaFuente(fuente: Fuente, ejercicioId?: string): string {
+  return fuente === "ejercicio" && ejercicioId === "metronomo" ? "Metrónomo" : NOMBRE_FUENTE[fuente];
 }

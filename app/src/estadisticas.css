@@ -365,3 +365,49 @@
 .deb-acciones {
   margin: 4px 0 8px;
 }
+
+/* Historial: fila desplegable con el detalle del intento. */
+.fila-historial {
+  cursor: pointer;
+}
+
+.fila-historial.abierta td {
+  background: var(--bg3);
+  border-bottom-color: transparent;
+}
+
+.fila-alterna {
+  all: unset;
+  cursor: pointer;
+}
+
+.fila-alterna:focus-visible {
+  box-shadow: var(--ring);
+  border-radius: 4px;
+}
+
+.fila-flecha {
+  display: inline-block;
+  width: 1.2em;
+  color: var(--faint);
+}
+
+.est-tabla tbody tr.fila-detalle:hover td,
+.est-tabla .fila-detalle td {
+  background: var(--bg3);
+  text-align: left;
+  white-space: normal;
+  padding: 4px 16px 18px;
+}
+
+.detalle-intento .resultado-cifras {
+  margin: 8px 0 10px;
+}
+
+.detalle-intento h2 {
+  margin-top: 16px;
+}
+
+.detalle-intento .cifra-valor {
+  font-size: 22px;
+}
