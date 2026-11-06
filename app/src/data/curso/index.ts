@@ -4,6 +4,7 @@ import { MODULOS_HTML } from "./html";
 import { MODULOS_CSS } from "./css";
 import type { Leccion, Modulo } from "./tipos";
 
+export { CURSOS } from "./tipos";
 export type { CursoId, Leccion, Modulo } from "./tipos";
 
 /** Todos los módulos en el orden del curso (M01, M02…). */

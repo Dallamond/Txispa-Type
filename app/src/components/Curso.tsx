@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useState } from "react";
 import type { Ajustes, Intento } from "../types";
-import { MODULOS, MODULOS_LIBRES, idLeccion, type Leccion, type Modulo } from "../data/curso";
+import { CURSOS, MODULOS, MODULOS_LIBRES, idLeccion, type Leccion, type Modulo } from "../data/curso";
 import {
   avanceDeModulo,
   progresoCurso,
@@ -24,7 +24,6 @@ interface Elegida {
   n: number;
 }
 
-const CURSO_NOMBRE = { html: "HTML", css: "CSS" } as const;
 
 const ICONO: Record<EstadoLeccion, { simbolo: string; texto: string }> = {
   bloqueada: { simbolo: "🔒", texto: "Bloqueada: supera antes la lección anterior" },
@@ -53,7 +52,7 @@ export default function Curso({ ajustes, intentos, onGuardar }: Props) {
       <div>
         <div className="tarjeta cur-leccion">
           <p className="tenue">
-            {CURSO_NOMBRE[modulo.curso]} · {modulo.titulo}
+            {CURSOS[modulo.curso]} · {modulo.titulo}
           </p>
           <h1>
             {leccion.id} · {leccion.titulo}

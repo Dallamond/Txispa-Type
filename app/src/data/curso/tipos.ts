@@ -1,7 +1,9 @@
 // Tipos del curso de HTML y CSS. El contenido se genera desde docs/curso/TEMARIO-HTML-CSS.md
 // (ver docs/curso/SPEC-FORMATO-LECCIONES.md §4).
 
-export type CursoId = "html" | "css";
+/** Cursos que existen y su nombre en pantalla. Para añadir uno: docs/curso/AÑADIR-CURSO.md. */
+export const CURSOS = { html: "HTML", css: "CSS" } as const;
+export type CursoId = keyof typeof CURSOS;
 
 export interface Leccion {
   /** "L01.01"; el repaso del módulo es "L01.R". Único en todo el curso. */

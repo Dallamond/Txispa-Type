@@ -20,6 +20,18 @@ describe("exportar e importar", () => {
     }
   });
 
+  it("el progreso del curso (fuente curso + leccionId) sobrevive al viaje y un id raro se descarta", () => {
+    const leccion = { ...intentoDePrueba("c", "2026-10-25T10:00:00Z"), fuente: "curso" as const, modo: "entreno" as const, leccionId: "html/L01.01" };
+    const rota = { ...leccion, id: "d", leccionId: "../etc" };
+    const texto = JSON.stringify({ ...crearExportacion([leccion], AJUSTES_POR_DEFECTO, fecha), intentos: [leccion, rota] });
+    const r = leerImportacion(texto);
+    expect(r.ok).toBe(true);
+    if (r.ok) {
+      expect(r.intentos).toEqual([leccion]);
+      expect(r.descartados).toBe(1);
+    }
+  });
+
   it("rechaza JSON roto y archivos de otra app", () => {
     expect(leerImportacion("{no").ok).toBe(false);
     expect(leerImportacion(JSON.stringify({ app: "otra", schema: 1, intentos: [] })).ok).toBe(false);

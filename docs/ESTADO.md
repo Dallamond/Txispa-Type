@@ -26,7 +26,7 @@
 - **Datos:** no hay almacén nuevo. Cada lección tecleada es un intento (`fuente "curso"`, `modo "entreno"`, `leccionId` como `html/L01.01`); el progreso se calcula a partir de ellos, así que exportar/importar lo conserva. Las lecciones suman al tiempo del día, pero no cuentan como entreno del plan ni para la media de ppm. Nuevo ajuste `desbloquearCurso` en `txispatype.settings.v1`.
 - **Calidad:** `npm run check` incluye que los datos generados estén al día con el temario y un test que valida las 71 lecciones (longitud, sangría, caracteres tecleables, etiquetas y llaves balanceadas, símbolos nuevos, explicaciones) y que todo lo usado tiene nota en el glosario.
 - **Sin verificar en navegador por Claude** (la extensión de Chrome no conecta): lo prueba Lucas. Pendiente de su revisión: los textos del glosario y del diccionario, y el temario M06-M12. Checklists en `docs/FASES.md`, Fase 6.
-- **Pendiente del curso:** tarjeta "Siguiente lección" en Inicio, filtro de estadísticas por curso, símbolos de programación como teclas débiles, vista previa renderizada (opcional), y más cursos (ver `docs/curso/AÑADIR-CURSO.md` cuando exista).
+- **Pendiente del curso:** filtro de estadísticas por curso, símbolos de programación como teclas débiles, vista previa renderizada (opcional), y más cursos (ver `docs/curso/AÑADIR-CURSO.md` cuando exista).
 - **Futuro:** Lucas quiere fusionar otro juego de mecanografía que ya creó; mantener motor, datos y pantalla desacoplados.
 
 ## Resumen
