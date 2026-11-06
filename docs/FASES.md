@@ -228,6 +228,29 @@ Cada uno por separado, solo si Lucas lo pide.
 - [ ] Modo de comandos Linux, enlazado a Shellpath.
 - [ ] Error por tecla vecina, salto de letra y letra añadida.
 
+## Fase 6: Curso de HTML y CSS
+
+Detalle en `docs/curso/` (`ROADMAP-CURSO.md`, `SPEC-FORMATO-LECCIONES.md` con las decisiones de §2b, `TEMARIO-HTML-CSS.md`). Se publica con push directo a `main` tras cada capítulo (despliega en GitHub Pages). Plan de push: P0 documentos, P1 contenido y validador, P2 motor, P3 primera lección, P4 módulo 1, P5 progreso, P6-P16 un módulo por push (M02-M12), P17 Hoy y estadísticas, P18 exportar/importar, P19 vista previa (opcional).
+
+- [x] P0: documentos del curso versionados y decisiones C0 anotadas (§2b).
+- [x] P1 / C1-2: `data/curso/tipos.ts` (y `index.ts` con `MODULOS`, `LECCIONES`, `buscarLeccion`).
+- [x] P1 / C1-3: `scripts/generar-curso.mjs` (Markdown a `html.ts` y `css.ts`; falla con nº de línea) y script `npm run curso:generar`.
+- [x] P1 / C1-4: `data/__tests__/curso.test.ts` con las validaciones de la §7 (191 pruebas).
+- [x] P1 / C1-5: `npm run check` comprueba que los datos generados están al día con el temario.
+- [ ] P2: tokenización y motor de código (`lib/curso.ts`, `lib/motorCodigo.ts`, tipos del intento).
+- [ ] P3: primera lección tecleable (pestaña Curso, `TecleoCodigo`).
+- [ ] P4: módulo 1 completo y pantalla de resultado.
+- [ ] P5: progreso, candados y ajuste "Desbloquear todo".
+- [ ] P6-P16: módulos M02 a M12, uno por push.
+- [ ] P17: Hoy y estadísticas. P18: exportar/importar. P19 (opcional): vista previa renderizada.
+
+**Hecho cuando:** se puede completar el curso entero con el teclado físico, el progreso sobrevive a recargar y a exportar/importar, y el plan del día no cambia.
+
+**P1, notas y checklist de Lucas:**
+- El validador encontró que L10.02 (media queries) tenía 15 líneas; con tu visto bueno el límite de las lecciones pasó de 14 a 15. El contenido del temario no se ha modificado.
+- La pestaña Curso aún no existe: P1 no cambia nada visible en la web. Solo hay que comprobar que el sitio desplegado sigue igual.
+- [ ] Revisar que el sitio de GitHub Pages sigue funcionando tras el despliegue (pestaña Actions del repositorio en verde).
+
 ## Registro de decisiones
 
 | Fecha | Decisión |

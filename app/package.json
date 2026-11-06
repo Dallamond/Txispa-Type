@@ -10,6 +10,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "check": "node scripts/run-checks.mjs",
+    "curso:generar": "node scripts/generar-curso.mjs",
     "preview": "vite preview"
   },
   "dependencies": {

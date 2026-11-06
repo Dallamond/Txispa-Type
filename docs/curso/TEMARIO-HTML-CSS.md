@@ -7,7 +7,7 @@ Fuente de verdad del contenido del curso. Formato parseable descrito en `docs/cu
 Convenciones del archivo:
 
 - Código con **sangría de 2 espacios**, sin tabuladores, sin líneas en blanco y sin espacios dobles. La sangría la pone la app; se teclea `Enter` al final de cada línea.
-- Lecciones de 6 a 14 líneas; repasos de 12 a 25 (las tablas, los formularios y las páginas con CSS no caben en menos).
+- Lecciones de 6 a 15 líneas; repasos de 12 a 25 (las tablas, los formularios y las páginas con CSS no caben en menos).
 - Desde M07 los fragmentos de CSS llevan un `<style>` suelto delante del HTML al que se aplican: es para practicar y ver el efecto. La página completa, con el `<style>` dentro de `<head>`, va en los repasos.
 - Para evitar fallos injustos, el código usa letras sin tilde (el texto de las explicaciones sí lleva tildes). Las lecciones con tildes se marcarán a propósito más adelante.
 - `nuevas` lista los símbolos que se estrenan en esa lección; `ninguna` si no hay.

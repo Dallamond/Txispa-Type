@@ -171,7 +171,7 @@ Criterios (valores **semilla**, ajustables; no son verdades sobre Lucas, ver `CL
 Cada lección debe cumplir, o el test falla con el id de la lección:
 
 1. `id` y `moduloId` coherentes; ids únicos; dificultad entre 1 y 5.
-2. Código de **6 a 25 líneas** (lecciones de 6 a 14, repasos de 12 a 25), sin líneas en blanco, sin tabuladores, sin espacios dobles dentro de una línea, sangría **múltiplo de 2**, sin espacios finales.
+2. Código de **6 a 25 líneas** (lecciones de 6 a 15, repasos de 12 a 25; el 15 se aprobó el 6-11-2026 por L10.02, que lleva dos media queries completas), sin líneas en blanco, sin tabuladores, sin espacios dobles dentro de una línea, sangría **múltiplo de 2**, sin espacios finales.
 3. **Todos los caracteres** existen en `CHARMAP` (o son `\n`). Esto garantiza que se puedan teclear con el teclado ISO español.
 4. HTML bien formado: etiquetas abiertas y cerradas en orden (salvo vacías: `br hr img meta link input`); CSS con llaves balanceadas y `;` al final de cada declaración.
 5. `nuevas` solo contiene símbolos que aparecen en el código y que no se estrenan antes en el curso (el test calcula el orden de estreno).

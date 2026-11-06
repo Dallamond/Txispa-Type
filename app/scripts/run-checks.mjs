@@ -10,6 +10,7 @@ const raiz = join(dirname(fileURLToPath(import.meta.url)), "..");
 const bin = (...ruta) => join(raiz, "node_modules", ...ruta);
 
 const pasos = [
+  ["datos del curso al día", join(raiz, "scripts", "generar-curso.mjs"), ["--comprobar"]],
   ["tsc -b", bin("typescript", "bin", "tsc"), ["-b"]],
   ["oxlint", bin("oxlint", "bin", "oxlint"), []],
   ["vitest run", bin("vitest", "vitest.mjs"), ["run"]],
