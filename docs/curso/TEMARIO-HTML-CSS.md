@@ -1425,6 +1425,181 @@ Descripción: Cómo organizar, nombrar y validar el código para que se pueda ma
 
 ---
 
+## M13 · Diccionario de etiquetas HTML
+Curso: html
+Descripción: Cada etiqueta abierta, cerrada y con su significado en un comentario, para memorizar cómo se teclea y qué hace.
+
+### L13.01 · Documento y cabecera
+- tipo: leccion
+- dificultad: 1
+- nuevas: ninguna
+> Cada línea abre y cierra una etiqueta y explica en un comentario para qué sirve. Las etiquetas vacías, como `<meta>` y `<link>`, no se cierran.
+
+```html
+<html></html> <!-- documento completo -->
+<head></head> <!-- cabecera sin contenido visible -->
+<body></body> <!-- todo lo que se ve -->
+<title></title> <!-- titulo de la pestana -->
+<meta> <!-- datos de la pagina -->
+<link> <!-- enlaza archivos externos -->
+<style></style> <!-- reglas de estilo CSS -->
+<script></script> <!-- codigo JavaScript -->
+```
+
+### L13.02 · Títulos y bloques de texto
+- tipo: leccion
+- dificultad: 1
+- nuevas: ninguna
+> Los títulos van de `h1`, el principal, a `h6`. `div` agrupa en bloque y `span` marca un trozo de texto dentro de una línea.
+
+```html
+<h1></h1> <!-- titulo principal -->
+<h2></h2> <!-- subtitulo de seccion -->
+<h3></h3> <!-- subtitulo menor -->
+<p></p> <!-- parrafo de texto -->
+<br> <!-- salto de linea -->
+<hr> <!-- linea horizontal -->
+<div></div> <!-- caja generica de bloque -->
+<span></span> <!-- trozo de texto en linea -->
+```
+
+### L13.03 · Énfasis y texto con significado
+- tipo: leccion
+- dificultad: 1
+- nuevas: ninguna
+> Estas etiquetas no solo cambian el aspecto: dicen qué significa el texto. Por eso se usa `strong` para lo importante y no solo para la negrita.
+
+```html
+<strong></strong> <!-- importante, en negrita -->
+<em></em> <!-- enfasis, en cursiva -->
+<mark></mark> <!-- texto resaltado -->
+<small></small> <!-- letra pequena o nota -->
+<code></code> <!-- fragmento de codigo -->
+<pre></pre> <!-- texto con formato fijo -->
+<blockquote></blockquote> <!-- cita larga -->
+<sub></sub> <!-- subindice -->
+<sup></sup> <!-- superindice -->
+```
+
+### L13.04 · Enlaces, imágenes y listas
+- tipo: leccion
+- dificultad: 1
+- nuevas: ninguna
+> Un enlace usa `a`, una imagen usa `img` y una lista se monta con `ul` u `ol` y sus elementos `li`. La lista de definiciones usa `dl`, `dt` y `dd`.
+
+```html
+<a></a> <!-- enlace a otra pagina -->
+<img> <!-- imagen -->
+<ul></ul> <!-- lista sin orden -->
+<ol></ol> <!-- lista numerada -->
+<li></li> <!-- elemento de lista -->
+<dl></dl> <!-- lista de definiciones -->
+<dt></dt> <!-- termino a definir -->
+<dd></dd> <!-- definicion del termino -->
+```
+
+### L13.05 · Tablas
+- tipo: leccion
+- dificultad: 1
+- nuevas: ninguna
+> Una tabla se organiza en filas, y cada fila en celdas. La cabecera, el cuerpo y el pie se separan con `thead`, `tbody` y `tfoot`.
+
+```html
+<table></table> <!-- tabla de datos -->
+<caption></caption> <!-- titulo de la tabla -->
+<thead></thead> <!-- cabecera de la tabla -->
+<tbody></tbody> <!-- cuerpo de la tabla -->
+<tfoot></tfoot> <!-- pie de la tabla -->
+<tr></tr> <!-- fila -->
+<th></th> <!-- celda de cabecera -->
+<td></td> <!-- celda de datos -->
+```
+
+### L13.06 · Formularios
+- tipo: leccion
+- dificultad: 1
+- nuevas: ninguna
+> Un formulario recoge datos del usuario con campos como `input`, `textarea` o `select`. Cada campo lleva su `label` para saber qué se pide.
+
+```html
+<form></form> <!-- formulario -->
+<label></label> <!-- texto de un campo -->
+<input> <!-- campo de entrada -->
+<textarea></textarea> <!-- texto de varias lineas -->
+<select></select> <!-- lista desplegable -->
+<option></option> <!-- opcion de la lista -->
+<button></button> <!-- boton -->
+<fieldset></fieldset> <!-- grupo de campos -->
+<legend></legend> <!-- titulo del grupo -->
+```
+
+### L13.07 · Estructura semántica
+- tipo: leccion
+- dificultad: 2
+- nuevas: ninguna
+> Las etiquetas semánticas describen la función de cada zona de la página, lo que ayuda a la accesibilidad y a los buscadores. `div` no dice nada; `header` o `footer` sí.
+
+```html
+<header></header> <!-- cabecera de pagina o seccion -->
+<nav></nav> <!-- menu de navegacion -->
+<main></main> <!-- contenido principal -->
+<section></section> <!-- seccion tematica -->
+<article></article> <!-- contenido independiente -->
+<aside></aside> <!-- contenido lateral -->
+<footer></footer> <!-- pie de pagina -->
+<figure></figure> <!-- ilustracion con pie -->
+<figcaption></figcaption> <!-- pie de la figura -->
+<details></details> <!-- bloque desplegable -->
+<summary></summary> <!-- titulo del desplegable -->
+```
+
+### L13.08 · Multimedia
+- tipo: leccion
+- dificultad: 2
+- nuevas: ninguna
+> El audio y el vídeo se incrustan con `audio` y `video`, y sus archivos se indican con `source`. `iframe` muestra otra página dentro de la tuya.
+
+```html
+<audio></audio> <!-- reproductor de audio -->
+<video></video> <!-- reproductor de video -->
+<source> <!-- archivo para audio o video -->
+<picture></picture> <!-- imagen segun pantalla -->
+<iframe></iframe> <!-- pagina dentro de otra -->
+<canvas></canvas> <!-- lienzo para dibujar -->
+<svg></svg> <!-- grafico vectorial -->
+<time></time> <!-- fecha u hora -->
+```
+
+### L13.R · Repaso: esqueleto con las etiquetas esenciales
+- tipo: repaso
+- dificultad: 2
+- nuevas: ninguna
+> Una página con las etiquetas más usadas, cada una con su significado. Es el esqueleto de casi cualquier web.
+
+```html
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <title>Diccionario</title>
+  </head>
+  <body>
+    <header></header> <!-- cabecera -->
+    <nav></nav> <!-- menu -->
+    <main></main> <!-- contenido principal -->
+    <h1></h1> <!-- titulo principal -->
+    <p></p> <!-- parrafo -->
+    <ul></ul> <!-- lista sin orden -->
+    <a></a> <!-- enlace -->
+    <img> <!-- imagen -->
+    <table></table> <!-- tabla -->
+    <form></form> <!-- formulario -->
+    <footer></footer> <!-- pie de pagina -->
+  </body>
+</html>
+```
+
+---
+
 ## Resumen del curso
 
 | Módulo | Curso | Lecciones | Repaso |
@@ -1441,8 +1616,9 @@ Descripción: Cómo organizar, nombrar y validar el código para que se pueda ma
 | M10 · Diseño adaptable | css | 4 | L10.R |
 | M11 · Transiciones y animaciones | css | 4 | L11.R |
 | M12 · Buenas prácticas y proyecto final | css | 4 | L12.R |
+| M13 · Diccionario de etiquetas HTML | html | 8 | L13.R |
 
-Total: 50 elementos, 12 repasos de módulo. Nota: M12 está marcado como `css` aunque su repaso es una página completa; al implementarlo, el curso se agrupa por módulos y no depende de esa etiqueta. Los símbolos estrenados siguen este orden: `< > /` (M01), `! = "` (M01), `, -`, `:`, `( )` (M02), `# @` (M03), `{ } ;` (M06), `*`, `[ ]`, `'`, `%` (M07) y `_` (M12).
+Total: 71 elementos, 13 repasos de módulo (M13, el diccionario, se añadió el 6-11-2026 a petición de Lucas y se muestra aparte del orden M01-M12). Nota: M12 está marcado como `css` aunque su repaso es una página completa; al implementarlo, el curso se agrupa por módulos y no depende de esa etiqueta. Los símbolos estrenados siguen este orden: `< > /` (M01), `! = "` (M01), `, -`, `:`, `( )` (M02), `# @` (M03), `{ } ;` (M06), `*`, `[ ]`, `'`, `%` (M07) y `_` (M12).
 
 ---
 

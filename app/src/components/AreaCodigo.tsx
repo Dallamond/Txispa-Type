@@ -1,6 +1,7 @@
 import { memo, useMemo } from "react";
 import { charState } from "../lib/typing";
 import { lineasDeTokens, type Token } from "../lib/curso";
+import { notasDeLinea } from "../lib/glosario";
 
 // Código a teclear, línea a línea y con la sangría ya puesta (no se teclea).
 // El cierre de cada token se ve: el espacio como hueco y el Enter como "⏎".
@@ -14,6 +15,12 @@ interface Props {
 
 export default function AreaCodigo({ tokens, tecleadas, idx }: Props) {
   const lineas = useMemo(() => lineasDeTokens(tokens), [tokens]);
+  // Notas del glosario de cada línea (se calculan una vez; solo se muestra la de la línea activa).
+  const notas = useMemo(
+    () => lineas.map((l) => notasDeLinea(l.tokens.map((i) => tokens[i].texto).join(" "))),
+    [lineas, tokens]
+  );
+  const activa = lineas.findIndex((l) => l.tokens.includes(idx));
   return (
     <div className="cod-caja" aria-label="Código a teclear">
       <div className="cod-codigo">
@@ -28,6 +35,16 @@ export default function AreaCodigo({ tokens, tecleadas, idx }: Props) {
                 estado={i < idx ? "hecha" : i === idx ? "activa" : "pendiente"}
               />
             ))}
+            {n === activa && notas[n].length > 0 && (
+              <span className="cod-nota" role="note">
+                {notas[n].map((x, k) => (
+                  <span key={x.clave}>
+                    {k > 0 && <i aria-hidden="true"> · </i>}
+                    <b>{x.clave}</b> {x.texto}
+                  </span>
+                ))}
+              </span>
+            )}
           </div>
         ))}
       </div>

@@ -332,5 +332,103 @@ export const MODULOS_HTML: readonly Modulo[] = [
         "codigo": "<!DOCTYPE html>\n<html lang=\"es\">\n  <head>\n    <meta charset=\"UTF-8\">\n    <title>Repaso multimedia y semantica</title>\n  </head>\n  <body>\n    <main>\n      <article>\n        <h2>Noticia</h2>\n        <p>Fecha: <time datetime=\"2026-11-06\">hoy</time></p>\n        <video width=\"300\" controls>\n          <source src=\"video.mp4\" type=\"video/mp4\">\n        </video>\n      </article>\n    </main>\n    <footer>Derechos reservados</footer>\n  </body>\n</html>"
       }
     ]
+  },
+  {
+    "id": "M13",
+    "curso": "html",
+    "titulo": "Diccionario de etiquetas HTML",
+    "descripcion": "Cada etiqueta abierta, cerrada y con su significado en un comentario, para memorizar cómo se teclea y qué hace.",
+    "lecciones": [
+      {
+        "id": "L13.01",
+        "moduloId": "M13",
+        "titulo": "Documento y cabecera",
+        "tipo": "leccion",
+        "dificultad": 1,
+        "nuevas": [],
+        "explicacion": "Cada línea abre y cierra una etiqueta y explica en un comentario para qué sirve. Las etiquetas vacías, como `<meta>` y `<link>`, no se cierran.",
+        "codigo": "<html></html> <!-- documento completo -->\n<head></head> <!-- cabecera sin contenido visible -->\n<body></body> <!-- todo lo que se ve -->\n<title></title> <!-- titulo de la pestana -->\n<meta> <!-- datos de la pagina -->\n<link> <!-- enlaza archivos externos -->\n<style></style> <!-- reglas de estilo CSS -->\n<script></script> <!-- codigo JavaScript -->"
+      },
+      {
+        "id": "L13.02",
+        "moduloId": "M13",
+        "titulo": "Títulos y bloques de texto",
+        "tipo": "leccion",
+        "dificultad": 1,
+        "nuevas": [],
+        "explicacion": "Los títulos van de `h1`, el principal, a `h6`. `div` agrupa en bloque y `span` marca un trozo de texto dentro de una línea.",
+        "codigo": "<h1></h1> <!-- titulo principal -->\n<h2></h2> <!-- subtitulo de seccion -->\n<h3></h3> <!-- subtitulo menor -->\n<p></p> <!-- parrafo de texto -->\n<br> <!-- salto de linea -->\n<hr> <!-- linea horizontal -->\n<div></div> <!-- caja generica de bloque -->\n<span></span> <!-- trozo de texto en linea -->"
+      },
+      {
+        "id": "L13.03",
+        "moduloId": "M13",
+        "titulo": "Énfasis y texto con significado",
+        "tipo": "leccion",
+        "dificultad": 1,
+        "nuevas": [],
+        "explicacion": "Estas etiquetas no solo cambian el aspecto: dicen qué significa el texto. Por eso se usa `strong` para lo importante y no solo para la negrita.",
+        "codigo": "<strong></strong> <!-- importante, en negrita -->\n<em></em> <!-- enfasis, en cursiva -->\n<mark></mark> <!-- texto resaltado -->\n<small></small> <!-- letra pequena o nota -->\n<code></code> <!-- fragmento de codigo -->\n<pre></pre> <!-- texto con formato fijo -->\n<blockquote></blockquote> <!-- cita larga -->\n<sub></sub> <!-- subindice -->\n<sup></sup> <!-- superindice -->"
+      },
+      {
+        "id": "L13.04",
+        "moduloId": "M13",
+        "titulo": "Enlaces, imágenes y listas",
+        "tipo": "leccion",
+        "dificultad": 1,
+        "nuevas": [],
+        "explicacion": "Un enlace usa `a`, una imagen usa `img` y una lista se monta con `ul` u `ol` y sus elementos `li`. La lista de definiciones usa `dl`, `dt` y `dd`.",
+        "codigo": "<a></a> <!-- enlace a otra pagina -->\n<img> <!-- imagen -->\n<ul></ul> <!-- lista sin orden -->\n<ol></ol> <!-- lista numerada -->\n<li></li> <!-- elemento de lista -->\n<dl></dl> <!-- lista de definiciones -->\n<dt></dt> <!-- termino a definir -->\n<dd></dd> <!-- definicion del termino -->"
+      },
+      {
+        "id": "L13.05",
+        "moduloId": "M13",
+        "titulo": "Tablas",
+        "tipo": "leccion",
+        "dificultad": 1,
+        "nuevas": [],
+        "explicacion": "Una tabla se organiza en filas, y cada fila en celdas. La cabecera, el cuerpo y el pie se separan con `thead`, `tbody` y `tfoot`.",
+        "codigo": "<table></table> <!-- tabla de datos -->\n<caption></caption> <!-- titulo de la tabla -->\n<thead></thead> <!-- cabecera de la tabla -->\n<tbody></tbody> <!-- cuerpo de la tabla -->\n<tfoot></tfoot> <!-- pie de la tabla -->\n<tr></tr> <!-- fila -->\n<th></th> <!-- celda de cabecera -->\n<td></td> <!-- celda de datos -->"
+      },
+      {
+        "id": "L13.06",
+        "moduloId": "M13",
+        "titulo": "Formularios",
+        "tipo": "leccion",
+        "dificultad": 1,
+        "nuevas": [],
+        "explicacion": "Un formulario recoge datos del usuario con campos como `input`, `textarea` o `select`. Cada campo lleva su `label` para saber qué se pide.",
+        "codigo": "<form></form> <!-- formulario -->\n<label></label> <!-- texto de un campo -->\n<input> <!-- campo de entrada -->\n<textarea></textarea> <!-- texto de varias lineas -->\n<select></select> <!-- lista desplegable -->\n<option></option> <!-- opcion de la lista -->\n<button></button> <!-- boton -->\n<fieldset></fieldset> <!-- grupo de campos -->\n<legend></legend> <!-- titulo del grupo -->"
+      },
+      {
+        "id": "L13.07",
+        "moduloId": "M13",
+        "titulo": "Estructura semántica",
+        "tipo": "leccion",
+        "dificultad": 2,
+        "nuevas": [],
+        "explicacion": "Las etiquetas semánticas describen la función de cada zona de la página, lo que ayuda a la accesibilidad y a los buscadores. `div` no dice nada; `header` o `footer` sí.",
+        "codigo": "<header></header> <!-- cabecera de pagina o seccion -->\n<nav></nav> <!-- menu de navegacion -->\n<main></main> <!-- contenido principal -->\n<section></section> <!-- seccion tematica -->\n<article></article> <!-- contenido independiente -->\n<aside></aside> <!-- contenido lateral -->\n<footer></footer> <!-- pie de pagina -->\n<figure></figure> <!-- ilustracion con pie -->\n<figcaption></figcaption> <!-- pie de la figura -->\n<details></details> <!-- bloque desplegable -->\n<summary></summary> <!-- titulo del desplegable -->"
+      },
+      {
+        "id": "L13.08",
+        "moduloId": "M13",
+        "titulo": "Multimedia",
+        "tipo": "leccion",
+        "dificultad": 2,
+        "nuevas": [],
+        "explicacion": "El audio y el vídeo se incrustan con `audio` y `video`, y sus archivos se indican con `source`. `iframe` muestra otra página dentro de la tuya.",
+        "codigo": "<audio></audio> <!-- reproductor de audio -->\n<video></video> <!-- reproductor de video -->\n<source> <!-- archivo para audio o video -->\n<picture></picture> <!-- imagen segun pantalla -->\n<iframe></iframe> <!-- pagina dentro de otra -->\n<canvas></canvas> <!-- lienzo para dibujar -->\n<svg></svg> <!-- grafico vectorial -->\n<time></time> <!-- fecha u hora -->"
+      },
+      {
+        "id": "L13.R",
+        "moduloId": "M13",
+        "titulo": "Repaso: esqueleto con las etiquetas esenciales",
+        "tipo": "repaso",
+        "dificultad": 2,
+        "nuevas": [],
+        "explicacion": "Una página con las etiquetas más usadas, cada una con su significado. Es el esqueleto de casi cualquier web.",
+        "codigo": "<!DOCTYPE html>\n<html lang=\"es\">\n  <head>\n    <title>Diccionario</title>\n  </head>\n  <body>\n    <header></header> <!-- cabecera -->\n    <nav></nav> <!-- menu -->\n    <main></main> <!-- contenido principal -->\n    <h1></h1> <!-- titulo principal -->\n    <p></p> <!-- parrafo -->\n    <ul></ul> <!-- lista sin orden -->\n    <a></a> <!-- enlace -->\n    <img> <!-- imagen -->\n    <table></table> <!-- tabla -->\n    <form></form> <!-- formulario -->\n    <footer></footer> <!-- pie de pagina -->\n  </body>\n</html>"
+      }
+    ]
   }
 ];

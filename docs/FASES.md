@@ -240,7 +240,7 @@ Detalle en `docs/curso/` (`ROADMAP-CURSO.md`, `SPEC-FORMATO-LECCIONES.md` con la
 - [x] P2: tokenización y motor de código (`lib/curso.ts`, `lib/motorCodigo.ts`, `crearIntentoLeccion`, `Fuente "curso"`, `Intento.leccionId` validado al importar). El Enter se guarda como `⏎` en las teclas y confusiones.
 - [x] P3: pestaña Curso con `TecleoCodigo`, `AreaCodigo` y un resultado mínimo (`ResultadoLeccion`). Se activa el módulo M01 entero (5 lecciones y el repaso) en vez de solo L01.01. `plan.ts` ya no cuenta una lección como entreno del día. **Sin verificar en navegador** (la extensión de Chrome no estaba conectada): solo compila y pasan los tests de la lógica.
 - [x] P4: resultado completo de la lección (`ResultadoLeccion`: ppm, precisión, errores, símbolos y confusiones con fallos, "Lección superada" con `leccionSuperada` ≥ 95 %, Repetir y Siguiente lección) y ajustes para pantallas estrechas. El resaltado de Enter, Shift y AltGr en el teclado virtual ya lo da `CHARMAP`. **Sin verificar en navegador.**
-- [ ] P4b (pedido por Lucas): glosario de etiquetas con **notas laterales** en la línea activa (`data/curso/glosario.ts`) y módulo **Diccionario de etiquetas** (abrir, cerrar y significado comentado, por categorías, sin tildes en el código).
+- [x] P4b (pedido por Lucas): glosario de etiquetas y atributos (`data/curso/glosario.ts`, `lib/glosario.ts` con tests) con **notas laterales** en la línea que se está tecleando, y módulo **M13 · Diccionario de etiquetas HTML** (8 lecciones por categorías y un repaso: etiqueta abierta, cerrada y significado como comentario, sin tildes en el código). Un test comprueba que toda etiqueta y atributo del curso tiene nota. Los textos del glosario los redactó Claude: **pendientes de tu revisión**. Para CSS (M06 en adelante) habrá glosario de propiedades al abrir esos módulos. Sin verificar en navegador.
 - [ ] P5: progreso, candados y ajuste "Desbloquear todo".
 - [ ] P6-P16: módulos M02 a M12, uno por push.
 - [ ] P17: Hoy y estadísticas. P18: exportar/importar. P19 (opcional): vista previa renderizada.
@@ -251,6 +251,12 @@ Detalle en `docs/curso/` (`ROADMAP-CURSO.md`, `SPEC-FORMATO-LECCIONES.md` con la
 - El validador encontró que L10.02 (media queries) tenía 15 líneas; con tu visto bueno el límite de las lecciones pasó de 14 a 15. El contenido del temario no se ha modificado.
 - La pestaña Curso aún no existe: P1 no cambia nada visible en la web. Solo hay que comprobar que el sitio desplegado sigue igual.
 - [ ] Revisar que el sitio de GitHub Pages sigue funcionando tras el despliegue (pestaña Actions del repositorio en verde).
+
+**P4b, checklist de Lucas (notas y diccionario):**
+- [ ] En cualquier lección, al lado de la línea que tecleas aparece en naranja la nota de sus etiquetas (hasta 3) y cambia al pasar de línea. En líneas sin etiquetas (CSS) no sale nada.
+- [ ] M13 aparece en Curso con 8 lecciones y el repaso. Teclear `<p></p> <!-- parrafo de texto -->` no da fallos con `<`, `>`, `/`, `!`, `-`.
+- [ ] Revisar los significados del glosario (`app/src/data/curso/glosario.ts`): ¿alguno impreciso o mal redactado?
+- [ ] ¿Se lee bien la nota en pantallas estrechas? Si el código es ancho hay scroll horizontal.
 
 **P4, checklist de Lucas:**
 - [ ] Al terminar una lección salen los símbolos con fallos (con `Enter ⏎` y `Espacio` con nombre) y las confusiones. Con 100 % de precisión no sale esa sección.

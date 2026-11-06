@@ -1825,3 +1825,24 @@ select:focus-visible {
     font-size: 1.05rem;
   }
 }
+
+/* Nota del glosario al lado de la línea que se está tecleando. */
+.cod-nota {
+  display: inline-block;
+  margin-left: 3ch;
+  white-space: nowrap;
+  font-family: var(--ui);
+  font-size: 0.82rem;
+  color: var(--accent);
+  vertical-align: middle;
+}
+
+.cod-nota b {
+  font-family: var(--mono);
+  font-weight: 600;
+}
+
+.cod-nota i {
+  font-style: normal;
+  color: var(--faint);
+}

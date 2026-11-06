@@ -48,8 +48,8 @@ const cssDentroDeStyle = (codigo: string) =>
   [...codigo.matchAll(/<style>([\s\S]*?)<\/style>/g)].map((m) => m[1]).join("\n");
 
 describe("estructura del curso", () => {
-  it("hay 12 módulos con su repaso al final", () => {
-    expect(MODULOS).toHaveLength(12);
+  it("hay 13 módulos con su repaso al final", () => {
+    expect(MODULOS).toHaveLength(13);
     for (const m of MODULOS) {
       const repasos = m.lecciones.filter((l) => l.tipo === "repaso");
       expect(repasos, m.id).toHaveLength(1);
