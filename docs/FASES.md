@@ -252,7 +252,7 @@ Detalle en `docs/curso/` (`ROADMAP-CURSO.md`, `SPEC-FORMATO-LECCIONES.md` con la
 - [x] P13: M09 · Flexbox y Grid.
 - [x] P14: M10 · Diseño adaptable.
 - [x] P15: M11 · Transiciones, transformaciones y animaciones.
-- [ ] P16: M12 · Buenas prácticas y proyecto final (al abrirlo se retira `MODULOS_ACTIVOS`).
+- [x] P16: M12 · Buenas prácticas y proyecto final (al abrirlo se retira `MODULOS_ACTIVOS`).
 - [ ] P17: Hoy y estadísticas. P18: exportar/importar. P19 (opcional): vista previa renderizada.
 
 **Hecho cuando:** se puede completar el curso entero con el teclado físico, el progreso sobrevive a recargar y a exportar/importar, y el plan del día no cambia.

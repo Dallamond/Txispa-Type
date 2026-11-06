@@ -19,7 +19,7 @@
 | M09 | CSS: Flexbox y Grid | Abierto (P13) |
 | M10 | CSS: diseño adaptable | Abierto (P14) |
 | M11 | CSS: transiciones, transformaciones y animaciones | Abierto (P15) |
-| M12 | CSS: buenas prácticas y proyecto final | Pendiente |
+| M12 | CSS: buenas prácticas y proyecto final | Abierto (P16) |
 | M13 | Diccionario de etiquetas HTML (módulo libre, cada etiqueta abierta, cerrada y comentada) | Abierto |
 
 - **Dónde está:** contenido en `docs/curso/TEMARIO-HTML-CSS.md` (fuente) → `npm run curso:generar` → `app/src/data/curso/{html,css}.ts`. Lógica en `lib/curso.ts` (tokens, superada), `lib/motorCodigo.ts` (motor), `lib/progresoCurso.ts` (estados y desbloqueo) y `lib/glosario.ts` (notas laterales). Pantallas: `components/{Curso,TecleoCodigo,AreaCodigo,ResultadoLeccion}.tsx`. Módulos visibles en `data/curso/activos.ts`.
