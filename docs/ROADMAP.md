@@ -133,13 +133,28 @@ Detalle técnico en `PLAN_INTEGRACION_FIREBASE.md`.
 | ID | Tarea | Prio | Esf. | Depende de |
 | --- | --- | --- | --- | --- |
 | F4-1 | Ranking opcional: colección pública `publico/{uid}` con alias, mejor ppm con precisión ≥ 95 %; reglas estrictas y, a ser posible, Cloud Function de validación | 🟢 | XL | F1-14, decisión de privacidad |
-| F4-2 | Gamificación ligera: insignias, XP, rachas (fase 5 original) | 🟢 | L | F3-5 |
+| F4-2 | Gamificación ligera: insignias, XP, rachas (fase 5 original). **Hecho en parte (nov 2026):** XP, niveles, símil de velocidad y logros por niveles bronce→diamante (`lib/xp.ts`, `lib/logros.ts`); pendiente lo que dependa de la nube | 🟢 | L | F3-5 |
 | F4-3 | PWA instalable completa con sincronización en segundo plano (Background Sync) | 🟡 | L | F2-19 |
 | F4-4 | App Check (reCAPTCHA) para blindar Firestore | 🟡 | M | F1-14 |
 | F4-5 | Compactar intentos antiguos por mes en la nube para reducir lecturas (solo si el volumen lo pide) | 🟢 | L | F1-14 |
 | F4-6 | i18n (euskera/inglés) si interesa abrir la herramienta | 🟢 | L | — |
 | F4-7 | Copias de seguridad programadas (export de Firestore o JSON semanal descargable) | 🟡 | M | F1-14 |
 | F4-8 | Accesibilidad avanzada: modo de alto contraste, navegación completa por teclado, pruebas con lector de pantalla | 🟡 | L | F2-11 |
+| F4-9 | **Reto diario con ranking** (idea de Lucas, ver abajo) | 🟡 | XL | F1-14, F4-1 |
+
+### Idea: reto diario con ranking (F4-9)
+
+Propuesta de Lucas, anotada el 6 de noviembre de 2026. Todavía sin diseñar en detalle.
+
+- **Qué es:** cada día hay un reto de tecleo igual para todos (mismo texto o mismo ejercicio). Se mide **cuánto tardas en completarlo** y se ve tu tiempo.
+- **Ranking diario:** los tiempos del día se ordenan en un ranking. Dar más puntos (XP) según tu puesto o por completarlo.
+- **Sin login:** se puede hacer el reto igualmente (tiempo y XP locales), pero **no apareces en el ranking**. Hace falta cuenta (Firebase Auth) para puntuar en él.
+- **Preguntas por resolver cuando se diseñe:**
+  - Reto determinista por día: semilla = fecha (ya hay textos por semilla, `rng.ts`), así todos tienen el mismo texto sin servidor.
+  - La precisión debe contar: el tiempo solo vale si se supera un mínimo de precisión (p. ej. 95 %), o se suma penalización por error; si no, gana quien teclea sucio y rápido.
+  - Anti-trampas: un ranking en cliente es fácil de falsificar; con reglas de Firestore o una Cloud Function que valide (ver F4-1) se reduce, pero no se elimina del todo.
+  - Alias público y privacidad (se enlaza con la decisión de F4-1: ¿solo para Lucas o más usuarios?).
+  - Cómo se combina con el XP actual: los puntos del reto deberían ser derivables del historial o venir de la nube de forma verificable.
 
 ---
 

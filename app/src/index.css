@@ -1703,3 +1703,78 @@ select:focus-visible {
   gap: 12px;
   flex-wrap: wrap;
 }
+
+/* ---------- niveles de logro (bronce → diamante) ---------- */
+.tier-bronce { --tier: #cd7f32; }
+.tier-plata { --tier: #aeb8c6; }
+.tier-oro { --tier: #f2c14e; }
+.tier-platino { --tier: #5fd0e3; }
+.tier-diamante { --tier: #b388ff; }
+
+.medallero {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 12px 0 4px;
+}
+
+.medalla-resumen {
+  padding: 4px 12px;
+  border: 1px solid var(--tier);
+  border-radius: 999px;
+  font-size: 13px;
+}
+
+.medalla-resumen.vacia {
+  opacity: 0.45;
+}
+
+.logro-tarjeta.ok {
+  border-color: var(--tier, var(--accent));
+  background: color-mix(in srgb, var(--tier, var(--accent)) 8%, transparent);
+}
+
+.logro-titulo {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  align-items: center;
+}
+
+.logro-tier {
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--tier) 22%, transparent);
+  color: var(--tier);
+  font-size: 12px;
+  font-weight: 650;
+}
+
+.logro-pasos {
+  display: flex;
+  gap: 6px;
+  margin: 6px 0 2px;
+}
+
+.logro-pasos .paso {
+  font-size: 16px;
+  filter: grayscale(1);
+  opacity: 0.35;
+}
+
+.logro-pasos .paso.on {
+  filter: none;
+  opacity: 1;
+}
+
+.logro-valor.completo {
+  color: var(--tier, var(--ok));
+}
+
+.logro-tarjeta.ok .xp-barra div {
+  background: var(--tier, var(--ok));
+}
+
+.ficha-logro {
+  border-color: var(--tier, var(--accent));
+}

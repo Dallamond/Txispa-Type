@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import type { Intento } from "../types";
-import { estadoLogros } from "../lib/logros";
+import { estadoLogros, nivelesDe, TIERS } from "../lib/logros";
 import { nivelDe, RANGOS, xpTotal } from "../lib/xp";
 
 interface Props {
@@ -9,14 +9,18 @@ interface Props {
 }
 
 const num = (n: number) => n.toLocaleString("es-ES", { maximumFractionDigits: 1 });
+const emojiDe = (tier: string) => TIERS.find((t) => t.id === tier)?.emoji ?? "";
+const nombreDe = (tier: string) => TIERS.find((t) => t.id === tier)?.nombre ?? "";
 
 export default function Logros({ intentos, objetivoTests }: Props) {
   const { nivel, estados } = useMemo(
     () => ({ nivel: nivelDe(xpTotal(intentos)), estados: estadoLogros(intentos, { objetivoTests }) }),
     [intentos, objetivoTests]
   );
-  const hechos = estados.filter((e) => e.desbloqueado).length;
   const siguienteRango = RANGOS.find((r) => r.desde > nivel.nivel) ?? null;
+  const totalNiveles = estados.reduce((n, e) => n + e.logro.metas.length, 0);
+  const alcanzados = estados.reduce((n, e) => n + e.alcanzados, 0);
+  const porTier = TIERS.map((t, i) => ({ ...t, n: estados.filter((e) => e.alcanzados > i).length }));
 
   return (
     <div>
@@ -43,27 +47,61 @@ export default function Logros({ intentos, objetivoTests }: Props) {
         <div className="logros-cabecera">
           <h1>Logros</h1>
           <span className="mono">
-            {hechos} / {estados.length}
+            {alcanzados} / {totalNiveles} niveles
           </span>
         </div>
-        <div className="logros-lista">
-          {estados.map(({ logro, valor, fraccion, desbloqueado }) => (
-            <article key={logro.id} className={`logro-tarjeta${desbloqueado ? " ok" : ""}`}>
-              <div className="logro-emoji" aria-hidden="true">
-                {logro.emoji}
-              </div>
-              <div className="logro-cuerpo">
-                <b>{logro.nombre}</b>
-                <p className="tenue">{logro.descripcion}</p>
-                <div className="xp-barra" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(fraccion * 100)} aria-label={`Progreso de ${logro.nombre}`}>
-                  <div style={{ width: `${fraccion * 100}%` }} />
-                </div>
-                <span className="tenue logro-valor">
-                  {desbloqueado ? "✓ Desbloqueado" : `${num(valor)} / ${num(logro.meta)} ${logro.unidad}`}
-                </span>
-              </div>
-            </article>
+        <div className="medallero" aria-label="Medallas conseguidas">
+          {porTier.map((t) => (
+            <span key={t.id} className={`medalla-resumen tier-${t.id}${t.n === 0 ? " vacia" : ""}`}>
+              <span aria-hidden="true">{t.emoji}</span> {t.nombre} <b>{t.n}</b>
+            </span>
           ))}
+        </div>
+
+        <div className="logros-lista">
+          {estados.map((e) => {
+            const niveles = nivelesDe(e.logro);
+            const tierActual = e.actual?.tier;
+            return (
+              <article key={e.logro.id} className={`logro-tarjeta${e.alcanzados > 0 ? " ok" : ""}${tierActual ? ` tier-${tierActual}` : ""}`}>
+                <div className="logro-emoji" aria-hidden="true">
+                  {e.logro.emoji}
+                </div>
+                <div className="logro-cuerpo">
+                  <div className="logro-titulo">
+                    <b>{e.logro.nombre}</b>
+                    {tierActual && (
+                      <span className={`logro-tier tier-${tierActual}`}>
+                        {emojiDe(tierActual)} {nombreDe(tierActual)}
+                      </span>
+                    )}
+                  </div>
+                  <p className="tenue">{e.logro.descripcion((e.siguiente ?? e.actual)!.meta)}</p>
+
+                  <div className="logro-pasos" aria-hidden="true">
+                    {niveles.map((n, i) => (
+                      <span key={n.tier} className={`paso tier-${n.tier}${i < e.alcanzados ? " on" : ""}`} title={`${nombreDe(n.tier)}: ${num(n.meta)} ${e.logro.unidad}`}>
+                        {emojiDe(n.tier)}
+                      </span>
+                    ))}
+                  </div>
+
+                  {e.completo ? (
+                    <span className="tenue logro-valor completo">✓ Todos los niveles conseguidos · {num(e.valor)} {e.logro.unidad}</span>
+                  ) : (
+                    <>
+                      <div className="xp-barra" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(e.fraccion * 100)} aria-label={`Progreso de ${e.logro.nombre}`}>
+                        <div style={{ width: `${e.fraccion * 100}%` }} />
+                      </div>
+                      <span className="tenue logro-valor">
+                        {num(e.valor)} / {num(e.siguiente!.meta)} {e.logro.unidad} → {emojiDe(e.siguiente!.tier)} {nombreDe(e.siguiente!.tier)}
+                      </span>
+                    </>
+                  )}
+                </div>
+              </article>
+            );
+          })}
         </div>
       </section>
 

@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { intentoDePrueba } from "./ayudas";
 import { desgloseXp, multiplicadorPrecision, nivelDe, xpParaNivel, xpTotal } from "../xp";
 import { ESCALONES, fraccionVelocimetro, simil } from "../simil";
-import { LOGROS, logrosNuevos, rachaMaxima } from "../logros";
+import { estadoDe, estadoLogros, LOGROS, logrosNuevos, mejorSeriePrecisa, nivelesDe, rachaMaxima, TIERS } from "../logros";
 
 const t = (id: string, date: string, extra = {}) => intentoDePrueba(id, date, extra);
 
@@ -88,32 +88,6 @@ describe("símil", () => {
   });
 });
 
-describe("logros", () => {
-  const ctx = { objetivoTests: 1 };
-  it("ids únicos", () => {
-    expect(new Set(LOGROS.map((l) => l.id)).size).toBe(LOGROS.length);
-  });
-  it("el primer test desbloquea 'primer-test'", () => {
-    const nuevos = logrosNuevos([], t("a", "2026-10-01T10:00:00Z"), ctx).map((l) => l.id);
-    expect(nuevos).toContain("primer-test");
-  });
-  it("un hito de ppm exige precisión digna", () => {
-    const flojo = logrosNuevos([], t("a", "2026-10-01T10:00:00Z", { wpm: 62, acc: 90 }), ctx).map((l) => l.id);
-    expect(flojo).not.toContain("ppm-60");
-    const bueno = logrosNuevos([], t("a", "2026-10-01T10:00:00Z", { wpm: 62, acc: 97 }), ctx).map((l) => l.id);
-    expect(bueno).toContain("ppm-60");
-  });
-  it("no repite logros ya desbloqueados", () => {
-    const previos = [t("a", "2026-10-01T10:00:00Z")];
-    const nuevos = logrosNuevos(previos, t("b", "2026-10-02T10:00:00Z"), ctx).map((l) => l.id);
-    expect(nuevos).not.toContain("primer-test");
-  });
-  it("racha máxima cuenta días consecutivos", () => {
-    const is = [t("a", "2026-10-01T10:00:00Z"), t("b", "2026-10-02T10:00:00Z"), t("c", "2026-10-03T10:00:00Z"), t("d", "2026-10-07T10:00:00Z")];
-    expect(rachaMaxima(is, ctx)).toBe(3);
-  });
-});
-
 import { comparacionDelDia } from "../delDia";
 
 describe("comparación con el día", () => {
@@ -144,21 +118,72 @@ describe("comparación con el día", () => {
   });
 });
 
-import { estadoLogros } from "../logros";
+describe("logros por niveles", () => {
+  const ctx = { objetivoTests: 1 };
+  const logro = (id: string) => LOGROS.find((l) => l.id === id)!;
 
-describe("estado de logros", () => {
-  it("sin intentos nada está desbloqueado y las fracciones están en 0..1", () => {
-    const e = estadoLogros([], { objetivoTests: 1 });
-    expect(e.length).toBe(LOGROS.length);
-    expect(e.every((x) => !x.desbloqueado && x.fraccion === 0)).toBe(true);
+  it("ids únicos y metas crecientes con tiers suficientes", () => {
+    expect(new Set(LOGROS.map((l) => l.id)).size).toBe(LOGROS.length);
+    for (const l of LOGROS) {
+      expect(l.metas.length).toBeLessThanOrEqual(TIERS.length);
+      for (let i = 1; i < l.metas.length; i++) expect(l.metas[i]).toBeGreaterThan(l.metas[i - 1]);
+      expect(nivelesDe(l)[0].tier).toBe("bronce");
+    }
   });
-  it("el progreso refleja el mejor ppm digno y se desbloquea en la meta", () => {
-    const e = estadoLogros([t("a", "2026-10-01T10:00:00Z", { wpm: 30, acc: 97 })], { objetivoTests: 1 });
-    const p50 = e.find((x) => x.logro.id === "ppm-50")!;
-    expect(p50.valor).toBe(30);
-    expect(p50.fraccion).toBeCloseTo(0.6);
-    expect(p50.desbloqueado).toBe(false);
-    expect(e.find((x) => x.logro.id === "ppm-40")!.desbloqueado).toBe(false);
-    expect(e.find((x) => x.logro.id === "primer-test")!.desbloqueado).toBe(true);
+
+  it("sin intentos no hay nivel y la fracción es 0", () => {
+    for (const e of estadoLogros([], ctx)) {
+      expect(e.alcanzados).toBe(0);
+      expect(e.actual).toBeNull();
+      expect(e.fraccion).toBe(0);
+    }
+  });
+
+  it("la velocidad sube de nivel solo con precisión digna", () => {
+    const flojo = estadoDe(logro("velocidad"), [t("a", "2026-10-01T10:00:00Z", { wpm: 60, acc: 90 })], ctx);
+    expect(flojo.alcanzados).toBe(0);
+    const bueno = estadoDe(logro("velocidad"), [t("a", "2026-10-01T10:00:00Z", { wpm: 50, acc: 97 })], ctx);
+    expect(bueno.actual).toEqual({ tier: "plata", meta: 45 });
+    expect(bueno.siguiente).toEqual({ tier: "oro", meta: 55 });
+    expect(bueno.fraccion).toBeCloseTo(0.5); // (50-45)/(55-45)
+  });
+
+  it("al completar todos los niveles la fracción es 1", () => {
+    const e = estadoDe(logro("velocidad"), [t("a", "2026-10-01T10:00:00Z", { wpm: 80, acc: 99 })], ctx);
+    expect(e.completo).toBe(true);
+    expect(e.siguiente).toBeNull();
+    expect(e.actual?.tier).toBe("diamante");
+    expect(e.fraccion).toBe(1);
+  });
+
+  it("logrosNuevos devuelve el mejor nivel nuevo por familia y no repite", () => {
+    const primero = logrosNuevos([], t("a", "2026-10-01T10:00:00Z", { wpm: 50, acc: 97, errors: 0, correct: 250 }), ctx);
+    const vel = primero.find((n) => n.logro.id === "velocidad");
+    expect(vel?.nivel.tier).toBe("plata"); // salta bronce y plata de golpe: solo se anuncia el mejor
+    expect(primero.find((n) => n.logro.id === "limpios")?.nivel.tier).toBe("bronce");
+    const previos = [t("a", "2026-10-01T10:00:00Z", { wpm: 50, acc: 97 })];
+    const segundo = logrosNuevos(previos, t("b", "2026-10-02T10:00:00Z", { wpm: 48, acc: 97 }), ctx);
+    expect(segundo.find((n) => n.logro.id === "velocidad")).toBeUndefined();
+  });
+
+  it("racha máxima cuenta días consecutivos", () => {
+    const is = [t("a", "2026-10-01T10:00:00Z"), t("b", "2026-10-02T10:00:00Z"), t("c", "2026-10-03T10:00:00Z"), t("d", "2026-10-07T10:00:00Z")];
+    expect(rachaMaxima(is, ctx)).toBe(3);
+  });
+
+  it("serie precisa: se corta con un test de poca precisión", () => {
+    const is = [
+      t("a", "2026-10-01T10:00:00Z", { acc: 97 }),
+      t("b", "2026-10-01T11:00:00Z", { acc: 96 }),
+      t("c", "2026-10-01T12:00:00Z", { acc: 90 }),
+      t("d", "2026-10-01T13:00:00Z", { acc: 98 }),
+    ];
+    expect(mejorSeriePrecisa(is)).toBe(2);
+  });
+
+  it("tiempo en horas y días distintos", () => {
+    const is = [t("a", "2026-10-01T10:00:00Z", { elapsedSec: 1800 }), t("b", "2026-10-02T10:00:00Z", { elapsedSec: 1800 })];
+    expect(estadoDe(logro("tiempo"), is, ctx).valor).toBeCloseTo(1);
+    expect(estadoDe(logro("dias"), is, ctx).valor).toBe(2);
   });
 });

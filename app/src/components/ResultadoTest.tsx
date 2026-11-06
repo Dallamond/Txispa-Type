@@ -6,7 +6,7 @@ import { PRECISION_MINIMA } from "../lib/medidas";
 import { etiquetasEje, posicionEnHistorial } from "../lib/historial";
 import { desgloseXp, nivelDe, xpTotal } from "../lib/xp";
 import { fraccionVelocimetro, PPM_MAX_VELOCIMETRO, simil } from "../lib/simil";
-import { logrosNuevos } from "../lib/logros";
+import { logrosNuevos, TIERS } from "../lib/logros";
 import { comparacionDelDia } from "../lib/delDia";
 import GraficaLinea from "./GraficaLinea";
 
@@ -282,12 +282,15 @@ export default function ResultadoTest({ intento, etiqueta, intentos, comparar, o
             <div className="logros-nuevos">
               <h2>Logro{datos.logros.length > 1 ? "s" : ""} desbloqueado{datos.logros.length > 1 ? "s" : ""}</h2>
               <div className="fichas">
-                {datos.logros.map((l, i) => (
-                  <span key={l.id} className="ficha-logro" style={{ animationDelay: `${0.4 + i * 0.15}s` }} title={l.descripcion}>
-                    <span aria-hidden="true">{l.emoji}</span> <b>{l.nombre}</b>
-                    <span className="tenue"> · {l.descripcion}</span>
-                  </span>
-                ))}
+                {datos.logros.map((n, i) => {
+                  const tier = TIERS.find((t) => t.id === n.nivel.tier)!;
+                  return (
+                    <span key={n.logro.id} className={`ficha-logro tier-${tier.id}`} style={{ animationDelay: `${0.4 + i * 0.15}s` }}>
+                      <span aria-hidden="true">{tier.emoji}</span> <b>{n.logro.nombre}</b> · {tier.nombre}
+                      <span className="tenue"> · {n.logro.descripcion(n.nivel.meta)}</span>
+                    </span>
+                  );
+                })}
               </div>
             </div>
           )}
