@@ -249,7 +249,7 @@ Detalle en `docs/curso/` (`ROADMAP-CURSO.md`, `SPEC-FORMATO-LECCIONES.md` con la
 - [x] P10: M06 · Fundamentos de CSS. Incluye el **glosario CSS** (propiedades, selectores y reglas @) en las notas laterales, con tests de cobertura. Primera prueba real de `{ } ;`, `*`, `[ ]` y la comilla simple.
 - [x] P11: M07 · Modelo de caja, bordes y sombras (estrena `%`).
 - [x] P12: M08 · Display y posicionamiento.
-- [ ] P13: M09 · Flexbox y Grid.
+- [x] P13: M09 · Flexbox y Grid.
 - [ ] P14: M10 · Diseño adaptable.
 - [ ] P15: M11 · Transiciones, transformaciones y animaciones.
 - [ ] P16: M12 · Buenas prácticas y proyecto final (al abrirlo se retira `MODULOS_ACTIVOS`).

@@ -16,7 +16,7 @@
 | M06 | Fundamentos de CSS (estrena `{ } ;`, `*`, `[ ]`, `'`) | Abierto (P10) |
 | M07 | CSS: modelo de caja, bordes y sombras (estrena `%`) | Abierto (P11) |
 | M08 | CSS: display y posicionamiento | Abierto (P12) |
-| M09 | CSS: Flexbox y Grid | Pendiente |
+| M09 | CSS: Flexbox y Grid | Abierto (P13) |
 | M10 | CSS: diseño adaptable | Pendiente |
 | M11 | CSS: transiciones, transformaciones y animaciones | Pendiente |
 | M12 | CSS: buenas prácticas y proyecto final | Pendiente |
