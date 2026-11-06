@@ -1778,3 +1778,50 @@ select:focus-visible {
 .ficha-logro {
   border-color: var(--tier, var(--accent));
 }
+
+.cur-fallos ul {
+  list-style: none;
+  margin: 8px 0 10px;
+  padding: 0;
+}
+
+.cur-fallos li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.cur-fallos li kbd {
+  min-width: 4.5ch;
+  text-align: center;
+}
+
+.cur-fallos li span {
+  color: var(--dim);
+  font-size: 14px;
+}
+
+.cur-fallos .tenue kbd {
+  margin: 0 3px;
+}
+
+.cur-acciones {
+  margin-top: 18px;
+}
+
+@media (max-width: 640px) {
+  .cur-cifras {
+    gap: 20px;
+  }
+
+  .cur-item {
+    flex-wrap: wrap;
+    gap: 6px 12px;
+  }
+
+  .cod-codigo {
+    font-size: 1.05rem;
+  }
+}

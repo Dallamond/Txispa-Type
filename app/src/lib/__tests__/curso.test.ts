@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { aTexto, lineasDeTokens, tokenizar } from "../curso";
+import { aTexto, leccionSuperada, lineasDeTokens, PRECISION_LECCION, tokenizar } from "../curso";
 import { LECCIONES } from "../../data/curso";
 
 describe("tokenizar", () => {
@@ -60,5 +60,14 @@ describe("lineasDeTokens", () => {
       { sangria: 2, tokens: [1, 2, 3] },
       { sangria: 0, tokens: [4] },
     ]);
+  });
+});
+
+describe("leccionSuperada", () => {
+  it("exige la precisión mínima y no mira la velocidad", () => {
+    expect(PRECISION_LECCION).toBe(95);
+    expect(leccionSuperada({ acc: 95 })).toBe(true);
+    expect(leccionSuperada({ acc: 100 })).toBe(true);
+    expect(leccionSuperada({ acc: 94.9 })).toBe(false);
   });
 });

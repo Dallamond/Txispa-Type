@@ -1,7 +1,19 @@
-// Tokenización del código de una lección. Lógica pura (ver docs/curso/SPEC-FORMATO-LECCIONES.md §5).
+// Tokenización del código de una lección y criterio de superada. Lógica pura
+// (ver docs/curso/SPEC-FORMATO-LECCIONES.md §5 y §6).
 //
 // El código se teclea token a token: el espacio o el Enter cierra cada token, y la sangría de
 // la línea siguiente la pone la app (no se teclea ni cuenta).
+
+import type { Intento } from "../types";
+import { PRECISION_MINIMA } from "./medidas";
+
+/** Una lección se da por superada con al menos esta precisión (%). Valor semilla, ajustable. */
+export const PRECISION_LECCION = PRECISION_MINIMA;
+
+/** ¿Este intento supera la lección? Lo exige la precisión, no la velocidad. */
+export function leccionSuperada(intento: Pick<Intento, "acc">): boolean {
+  return intento.acc >= PRECISION_LECCION;
+}
 
 export interface Token {
   /** Texto a teclear, sin espacios ni saltos. */

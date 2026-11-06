@@ -23,9 +23,20 @@ export default function Curso({ ajustes, onGuardar }: Props) {
   const [elegida, setElegida] = useState<Elegida | null>(null);
   const salir = useCallback(() => setElegida(null), []);
   const repetir = useCallback(() => setElegida((e) => (e ? { ...e, n: e.n + 1 } : e)), []);
+  // La lección que sigue en el orden del curso, entre los módulos visibles (null si es la última).
+  const siguiente = useCallback(() => {
+    setElegida((e) => {
+      if (!e) return e;
+      const orden = MODULOS_VISIBLES.flatMap((modulo) => modulo.lecciones.map((leccion) => ({ modulo, leccion })));
+      const i = orden.findIndex((x) => x.leccion === e.leccion);
+      const s = orden[i + 1];
+      return s ? { modulo: s.modulo, leccion: s.leccion, n: 0 } : e;
+    });
+  }, []);
 
   if (elegida) {
     const { modulo, leccion, n } = elegida;
+    const ultima = MODULOS_VISIBLES.at(-1)?.lecciones.at(-1) === leccion;
     return (
       <div>
         <div className="tarjeta cur-leccion">
@@ -54,6 +65,7 @@ export default function Curso({ ajustes, onGuardar }: Props) {
           onGuardar={onGuardar}
           onSalir={salir}
           onRepetir={repetir}
+          onSiguiente={ultima ? undefined : siguiente}
         />
       </div>
     );
