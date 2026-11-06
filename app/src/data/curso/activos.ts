@@ -5,7 +5,7 @@
 import { MODULOS } from "./index";
 import type { Modulo } from "./tipos";
 
-export const MODULOS_ACTIVOS: readonly string[] = ["M01", "M02", "M03", "M04", "M05", "M06", "M07", "M08", "M09", "M13"];
+export const MODULOS_ACTIVOS: readonly string[] = ["M01", "M02", "M03", "M04", "M05", "M06", "M07", "M08", "M09", "M10", "M13"];
 
 /** Módulos visibles, en orden del curso. */
 export const MODULOS_VISIBLES: readonly Modulo[] = MODULOS.filter((m) => MODULOS_ACTIVOS.includes(m.id));
