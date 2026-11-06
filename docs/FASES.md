@@ -245,7 +245,7 @@ Detalle en `docs/curso/` (`ROADMAP-CURSO.md`, `SPEC-FORMATO-LECCIONES.md` con la
 - [x] P6: M02 · Texto (encabezados, párrafos, énfasis, `pre`/`code`/`blockquote`). Estrena `:` y `( )`.
 - [x] P7: M03 · Enlaces, imágenes y listas. Estrena `#` y `@` con AltGr: **primera prueba real de AltGr**.
 - [x] P8: M04 · Tablas y formularios.
-- [ ] P9: M05 · Multimedia, semántica y accesibilidad.
+- [x] P9: M05 · Multimedia, semántica y accesibilidad.
 - [ ] P10-P16: M06 a M12 (CSS), uno por push. Cada uno lleva su glosario de propiedades CSS para las notas laterales.
 - [ ] P17: Hoy y estadísticas. P18: exportar/importar. P19 (opcional): vista previa renderizada.
 
