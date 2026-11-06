@@ -244,7 +244,7 @@ Detalle en `docs/curso/` (`ROADMAP-CURSO.md`, `SPEC-FORMATO-LECCIONES.md` con la
 - [x] P5: `lib/progresoCurso.ts` (estados bloqueada / disponible / hecha / dominada derivados de los intentos, `siguienteDisponible`, `siguienteLeccion`, mejores marcas) con tests; pantalla Curso con candados, ✓ y ★, barra y contador por módulo, botón **Continuar**, y ajuste **Curso: desbloquear todas las lecciones** (`desbloquearCurso`, en `txispatype.settings.v1`). Criterios semilla: hecha con ≥ 95 % de precisión; dominada con 98 % y 8/10/12/14/16 ppm según la dificultad, o superándola en 3 días distintos. M13 (diccionario) es un módulo libre: abierto desde el principio y fuera de la cadena de desbloqueo. Sin verificar en navegador.
 - [x] P6: M02 · Texto (encabezados, párrafos, énfasis, `pre`/`code`/`blockquote`). Estrena `:` y `( )`.
 - [x] P7: M03 · Enlaces, imágenes y listas. Estrena `#` y `@` con AltGr: **primera prueba real de AltGr**.
-- [ ] P8: M04 · Tablas y formularios.
+- [x] P8: M04 · Tablas y formularios.
 - [ ] P9: M05 · Multimedia, semántica y accesibilidad.
 - [ ] P10-P16: M06 a M12 (CSS), uno por push. Cada uno lleva su glosario de propiedades CSS para las notas laterales.
 - [ ] P17: Hoy y estadísticas. P18: exportar/importar. P19 (opcional): vista previa renderizada.
