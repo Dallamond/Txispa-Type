@@ -251,7 +251,7 @@ Detalle en `docs/curso/` (`ROADMAP-CURSO.md`, `SPEC-FORMATO-LECCIONES.md` con la
 - [x] P12: M08 · Display y posicionamiento.
 - [x] P13: M09 · Flexbox y Grid.
 - [x] P14: M10 · Diseño adaptable.
-- [ ] P15: M11 · Transiciones, transformaciones y animaciones.
+- [x] P15: M11 · Transiciones, transformaciones y animaciones.
 - [ ] P16: M12 · Buenas prácticas y proyecto final (al abrirlo se retira `MODULOS_ACTIVOS`).
 - [ ] P17: Hoy y estadísticas. P18: exportar/importar. P19 (opcional): vista previa renderizada.
 
