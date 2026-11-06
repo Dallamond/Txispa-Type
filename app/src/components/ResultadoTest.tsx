@@ -10,6 +10,11 @@ import { logrosNuevos } from "../lib/logros";
 import { comparacionDelDia } from "../lib/delDia";
 import GraficaLinea from "./GraficaLinea";
 
+const CX = 120;
+const CY = 120;
+const RV = 96;
+const ARCO = `M${CX - RV} ${CY} A${RV} ${RV} 0 0 1 ${CX + RV} ${CY}`;
+
 const fmt = (n: number, d = 1) => n.toFixed(d).replace(".", ",");
 
 const sinMovimiento = () => typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
@@ -91,10 +96,28 @@ export default function ResultadoTest({ intento, etiqueta, intentos, comparar, o
   const accAnim = useCuenta(vacio ? 0 : intento.acc, 900);
   const xpAnim = useCuenta(desglose.total, 1200);
 
-  // Velocímetro: semicírculo de radio 80.
-  const R = 80;
-  const LARGO = Math.PI * R;
+  // Velocímetro: semicírculo con centro (CX, CY) y radio RV.
   const fraccion = listo ? fraccionVelocimetro(intento.wpm) : 0;
+  const anguloAguja = -90 + 180 * fraccion;
+  const marcas = Array.from({ length: PPM_MAX_VELOCIMETRO / 5 + 1 }, (_, k) => {
+    const p = k * 5;
+    const mayor = p % 10 === 0;
+    const th = Math.PI * (1 - p / PPM_MAX_VELOCIMETRO);
+    const c = Math.cos(th);
+    const sn = Math.sin(th);
+    const r1 = RV - (mayor ? 24 : 18);
+    const r2 = RV - 9;
+    return {
+      p,
+      mayor,
+      x1: CX + r1 * c,
+      y1: CY - r1 * sn,
+      x2: CX + r2 * c,
+      y2: CY - r2 * sn,
+      tx: CX + (RV - 37) * c,
+      ty: CY - (RV - 37) * sn + 3,
+    };
+  });
 
   // Barra de XP: si sube de nivel, primero se llena hasta el final y luego queda en el nivel nuevo.
   const fraccionXp = listo ? despues.fraccion : antes.fraccion;
@@ -110,22 +133,36 @@ export default function ResultadoTest({ intento, etiqueta, intentos, comparar, o
         <>
           <div className="res-heroe">
             <div className="velocimetro" role="img" aria-label={`${fmt(intento.wpm)} palabras por minuto: ${s.escalon.nombre}`}>
-              <svg viewBox="0 0 200 110" aria-hidden="true">
-                <path className="vel-pista" d="M20 100 A80 80 0 0 1 180 100" pathLength={LARGO} />
+              <svg viewBox="0 0 240 134" aria-hidden="true">
+                <defs>
+                  <linearGradient id="vel-grad" gradientUnits="userSpaceOnUse" x1={CX - RV} y1="0" x2={CX + RV} y2="0">
+                    <stop offset="0" style={{ stopColor: "color-mix(in srgb, var(--accent) 30%, var(--bg3))" }} />
+                    <stop offset="1" style={{ stopColor: "var(--accent)" }} />
+                  </linearGradient>
+                </defs>
+                <path className="vel-pista" d={ARCO} pathLength={100} />
                 <path
                   className={`vel-arco${s.frenado ? " frenado" : ""}`}
-                  d="M20 100 A80 80 0 0 1 180 100"
-                  pathLength={LARGO}
-                  strokeDasharray={`${LARGO * fraccion} ${LARGO}`}
+                  d={ARCO}
+                  pathLength={100}
+                  strokeDasharray={`${100 * fraccion} 100`}
+                  style={{ opacity: listo && fraccion > 0 ? 1 : 0 }}
                 />
-                {[0, 30, 60, 90].map((p) => {
-                  const ang = Math.PI * (1 - p / PPM_MAX_VELOCIMETRO);
-                  return (
-                    <text key={p} className="vel-marca" x={100 + (R + 13) * Math.cos(ang)} y={100 - (R + 13) * Math.sin(ang) + 3} textAnchor="middle">
-                      {p}
-                    </text>
-                  );
-                })}
+                {marcas.map((m) => (
+                  <g key={m.p} className={`vel-marca${m.mayor ? " mayor" : ""}${listo && m.p <= intento.wpm ? " on" : ""}`} style={{ transitionDelay: `${(m.p / PPM_MAX_VELOCIMETRO) * 1.1}s` }}>
+                    <line x1={m.x1} y1={m.y1} x2={m.x2} y2={m.y2} />
+                    {m.mayor && (
+                      <text x={m.tx} y={m.ty} textAnchor="middle">
+                        {m.p}
+                      </text>
+                    )}
+                  </g>
+                ))}
+                <g className="vel-aguja" style={{ transform: `rotate(${anguloAguja}deg)` }}>
+                  <path d={`M${CX - 4.5} ${CY} L${CX} ${CY - (RV - 16)} L${CX + 4.5} ${CY} Z`} />
+                </g>
+                <circle className="vel-eje" cx={CX} cy={CY} r="8" />
+                <circle className="vel-eje-centro" cx={CX} cy={CY} r="3" />
               </svg>
               <div className="vel-centro">
                 <b className="vel-num">{fmt(wpmAnim)}</b>
