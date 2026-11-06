@@ -247,7 +247,12 @@ Detalle en `docs/curso/` (`ROADMAP-CURSO.md`, `SPEC-FORMATO-LECCIONES.md` con la
 - [x] P8: M04 · Tablas y formularios.
 - [x] P9: M05 · Multimedia, semántica y accesibilidad.
 - [x] P10: M06 · Fundamentos de CSS. Incluye el **glosario CSS** (propiedades, selectores y reglas @) en las notas laterales, con tests de cobertura. Primera prueba real de `{ } ;`, `*`, `[ ]` y la comilla simple.
-- [ ] P11-P16: M07 a M12 (CSS), uno por push.
+- [x] P11: M07 · Modelo de caja, bordes y sombras (estrena `%`).
+- [ ] P12: M08 · Display y posicionamiento.
+- [ ] P13: M09 · Flexbox y Grid.
+- [ ] P14: M10 · Diseño adaptable.
+- [ ] P15: M11 · Transiciones, transformaciones y animaciones.
+- [ ] P16: M12 · Buenas prácticas y proyecto final (al abrirlo se retira `MODULOS_ACTIVOS`).
 - [ ] P17: Hoy y estadísticas. P18: exportar/importar. P19 (opcional): vista previa renderizada.
 
 **Hecho cuando:** se puede completar el curso entero con el teclado físico, el progreso sobrevive a recargar y a exportar/importar, y el plan del día no cambia.

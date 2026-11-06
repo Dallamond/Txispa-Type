@@ -14,7 +14,12 @@
 | M04 | Tablas y formularios | Abierto |
 | M05 | Multimedia, semántica y accesibilidad | Abierto |
 | M06 | Fundamentos de CSS (estrena `{ } ;`, `*`, `[ ]`, `'`) | Abierto (P10) |
-| M07-M12 | CSS: modelo de caja, display, Flexbox/Grid, adaptable, animaciones, buenas prácticas | Pendiente de abrir, uno por push |
+| M07 | CSS: modelo de caja, bordes y sombras (estrena `%`) | Abierto (P11) |
+| M08 | CSS: display y posicionamiento | Pendiente |
+| M09 | CSS: Flexbox y Grid | Pendiente |
+| M10 | CSS: diseño adaptable | Pendiente |
+| M11 | CSS: transiciones, transformaciones y animaciones | Pendiente |
+| M12 | CSS: buenas prácticas y proyecto final | Pendiente |
 | M13 | Diccionario de etiquetas HTML (módulo libre, cada etiqueta abierta, cerrada y comentada) | Abierto |
 
 - **Dónde está:** contenido en `docs/curso/TEMARIO-HTML-CSS.md` (fuente) → `npm run curso:generar` → `app/src/data/curso/{html,css}.ts`. Lógica en `lib/curso.ts` (tokens, superada), `lib/motorCodigo.ts` (motor), `lib/progresoCurso.ts` (estados y desbloqueo) y `lib/glosario.ts` (notas laterales). Pantallas: `components/{Curso,TecleoCodigo,AreaCodigo,ResultadoLeccion}.tsx`. Módulos visibles en `data/curso/activos.ts`.
