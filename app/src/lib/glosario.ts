@@ -29,7 +29,8 @@ export function notasDeLinea(linea: string, max = 3): Nota[] {
     const nombre = m[1].replace(/^\//, "").toLowerCase();
     añadir(nombre, nombre === "!doctype" ? "<!DOCTYPE>" : `<${nombre}>`, GLOSARIO_ETIQUETAS[nombre]);
   }
-  for (const m of codigo.matchAll(/\s([a-z][a-z-]*)=/g)) {
+  // Un atributo va tras un espacio, o al principio de la línea si la etiqueta se parte en varias.
+  for (const m of codigo.matchAll(/(?:^|\s)([a-z][a-z-]*)=/g)) {
     añadir(`@${m[1]}`, `${m[1]}=`, GLOSARIO_ATRIBUTOS[m[1]]);
   }
   return notas.slice(0, max);

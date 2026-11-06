@@ -18,6 +18,11 @@ describe("notasDeLinea", () => {
     expect(n.map((x) => x.clave)).toEqual(["<a>", "href=", "class="]);
   });
 
+  it("un atributo que abre la línea (etiqueta partida en varias líneas) también tiene nota", () => {
+    expect(notasDeLinea('src="logo.png"').map((x) => x.clave)).toEqual(["src="]);
+    expect(notasDeLinea('height="200">').map((x) => x.clave)).toEqual(["height="]);
+  });
+
   it("el doctype tiene su nota", () => {
     expect(notasDeLinea("<!DOCTYPE html>")[0].clave).toBe("<!DOCTYPE>");
   });

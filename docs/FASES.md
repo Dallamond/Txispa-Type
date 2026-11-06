@@ -242,7 +242,11 @@ Detalle en `docs/curso/` (`ROADMAP-CURSO.md`, `SPEC-FORMATO-LECCIONES.md` con la
 - [x] P4: resultado completo de la lección (`ResultadoLeccion`: ppm, precisión, errores, símbolos y confusiones con fallos, "Lección superada" con `leccionSuperada` ≥ 95 %, Repetir y Siguiente lección) y ajustes para pantallas estrechas. El resaltado de Enter, Shift y AltGr en el teclado virtual ya lo da `CHARMAP`. **Sin verificar en navegador.**
 - [x] P4b (pedido por Lucas): glosario de etiquetas y atributos (`data/curso/glosario.ts`, `lib/glosario.ts` con tests) con **notas laterales** en la línea que se está tecleando, y módulo **M13 · Diccionario de etiquetas HTML** (8 lecciones por categorías y un repaso: etiqueta abierta, cerrada y significado como comentario, sin tildes en el código). Un test comprueba que toda etiqueta y atributo del curso tiene nota. Los textos del glosario los redactó Claude: **pendientes de tu revisión**. Para CSS (M06 en adelante) habrá glosario de propiedades al abrir esos módulos. Sin verificar en navegador.
 - [x] P5: `lib/progresoCurso.ts` (estados bloqueada / disponible / hecha / dominada derivados de los intentos, `siguienteDisponible`, `siguienteLeccion`, mejores marcas) con tests; pantalla Curso con candados, ✓ y ★, barra y contador por módulo, botón **Continuar**, y ajuste **Curso: desbloquear todas las lecciones** (`desbloquearCurso`, en `txispatype.settings.v1`). Criterios semilla: hecha con ≥ 95 % de precisión; dominada con 98 % y 8/10/12/14/16 ppm según la dificultad, o superándola en 3 días distintos. M13 (diccionario) es un módulo libre: abierto desde el principio y fuera de la cadena de desbloqueo. Sin verificar en navegador.
-- [ ] P6-P16: módulos M02 a M12, uno por push.
+- [x] P6: M02 · Texto (encabezados, párrafos, énfasis, `pre`/`code`/`blockquote`). Estrena `:` y `( )`.
+- [ ] P7: M03 · Enlaces, imágenes y listas. Estrena `#` y `@` con AltGr: **primera prueba real de AltGr**.
+- [ ] P8: M04 · Tablas y formularios.
+- [ ] P9: M05 · Multimedia, semántica y accesibilidad.
+- [ ] P10-P16: M06 a M12 (CSS), uno por push. Cada uno lleva su glosario de propiedades CSS para las notas laterales.
 - [ ] P17: Hoy y estadísticas. P18: exportar/importar. P19 (opcional): vista previa renderizada.
 
 **Hecho cuando:** se puede completar el curso entero con el teclado físico, el progreso sobrevive a recargar y a exportar/importar, y el plan del día no cambia.
