@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { Intento } from "../types";
 import { mediaUltimos } from "../lib/estadisticas";
 import { confusionesMasRepetidas, teclasMasFalladas } from "../lib/intento";
@@ -65,6 +65,13 @@ interface Props {
 export default function ResultadoTest({ intento, etiqueta, intentos, comparar, objetivoTests, desviacionMs, onRepetir, onSalir }: Props) {
   const vacio = intento.correct + intento.errors === 0;
   const listo = useEntrada();
+  const repetirRef = useRef<HTMLButtonElement>(null);
+
+  // Al mostrar el resultado: arriba del todo, y el foco en «Repetir» sin que el navegador baje hasta el botón.
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+    repetirRef.current?.focus({ preventScroll: true });
+  }, []);
 
   const datos = useMemo(() => {
     const previos = intentos.filter((i) => i.id !== intento.id);
@@ -345,7 +352,7 @@ export default function ResultadoTest({ intento, etiqueta, intentos, comparar, o
       )}
 
       <div className="acciones">
-        <button type="button" className="btn primario" onClick={onRepetir} autoFocus>
+        <button ref={repetirRef} type="button" className="btn primario" onClick={onRepetir}>
           Repetir <kbd>⏎</kbd>
         </button>
         <button type="button" className="btn" onClick={onSalir}>

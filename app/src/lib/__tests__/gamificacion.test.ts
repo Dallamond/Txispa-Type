@@ -143,3 +143,22 @@ describe("comparación con el día", () => {
     expect(comparacionDelDia([a], t("e", "2026-10-01T12:00:00Z", { modo: "entreno" }))).toBeNull();
   });
 });
+
+import { estadoLogros } from "../logros";
+
+describe("estado de logros", () => {
+  it("sin intentos nada está desbloqueado y las fracciones están en 0..1", () => {
+    const e = estadoLogros([], { objetivoTests: 1 });
+    expect(e.length).toBe(LOGROS.length);
+    expect(e.every((x) => !x.desbloqueado && x.fraccion === 0)).toBe(true);
+  });
+  it("el progreso refleja el mejor ppm digno y se desbloquea en la meta", () => {
+    const e = estadoLogros([t("a", "2026-10-01T10:00:00Z", { wpm: 30, acc: 97 })], { objetivoTests: 1 });
+    const p50 = e.find((x) => x.logro.id === "ppm-50")!;
+    expect(p50.valor).toBe(30);
+    expect(p50.fraccion).toBeCloseTo(0.6);
+    expect(p50.desbloqueado).toBe(false);
+    expect(e.find((x) => x.logro.id === "ppm-40")!.desbloqueado).toBe(false);
+    expect(e.find((x) => x.logro.id === "primer-test")!.desbloqueado).toBe(true);
+  });
+});

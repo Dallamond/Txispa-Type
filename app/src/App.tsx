@@ -11,6 +11,7 @@ import Hoy from "./components/Hoy";
 import Calentar from "./components/Calentar";
 import Test from "./components/Test";
 import Entrenar, { type FuenteEntrenar, type PedidoEntreno } from "./components/Entrenar";
+import Logros from "./components/Logros";
 import Estadisticas from "./components/Estadisticas";
 import AjustesPantalla from "./components/AjustesPantalla";
 
@@ -22,6 +23,7 @@ const PESTANAS = [
   { id: "calentar", etiqueta: "Calentar" },
   { id: "test", etiqueta: "Test" },
   { id: "entrenar", etiqueta: "Entrenar" },
+  { id: "logros", etiqueta: "Logros" },
 ] as const;
 
 type PestanaId = (typeof PESTANAS)[number]["id"];
@@ -163,7 +165,7 @@ export default function App() {
             objetivoMinutos={ajustes.objetivoMinutos}
             onCambiarObjetivo={(min) => cambiarAjustes({ objetivoMinutos: min })}
           />
-          <div className="nivel-chip" role="status" aria-label={`Nivel ${nivel.nivel}, ${nivel.rango}, ${nivel.enNivel} de ${nivel.tramo} XP`} title={`${nivel.rango} · ${nivel.enNivel}/${nivel.tramo} XP`}>
+          <div className="nivel-chip" role="button" tabIndex={0} onClick={() => setPestana("logros")} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") setPestana("logros"); }} aria-label={`Nivel ${nivel.nivel}, ${nivel.rango}, ${nivel.enNivel} de ${nivel.tramo} XP`} title={`${nivel.rango} · ${nivel.enNivel}/${nivel.tramo} XP`}>
             <span>
               Nivel <b>{nivel.nivel}</b> · {nivel.xp.toLocaleString("es-ES")} XP
             </span>
@@ -198,6 +200,7 @@ export default function App() {
         {pestana === "calentar" && <Calentar ajustes={ajustes} intentos={intentos} onCambiarAjustes={cambiarAjustes} onIr={setPestana} />}
         {pestana === "test" && <Test ajustes={ajustes} intentos={intentos} onGuardar={guardar} onCambiarAjustes={cambiarAjustes} />}
         {pestana === "entrenar" && <Entrenar ajustes={ajustes} intentos={intentos} onGuardar={guardar} pedido={pedido} />}
+        {pestana === "logros" && <Logros intentos={intentos} objetivoTests={ajustes.objetivoTests} />}
       </main>
 
       {ajustesAbiertos && (
