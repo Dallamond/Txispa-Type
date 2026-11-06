@@ -1,13 +1,23 @@
 // Construcción del `Intento` a partir del motor y utilidades de resultado.
 
 import type { Fuente, Intento, Modo, TeclaStat } from "../types";
-import type { MotorTecleo } from "./motor";
+import type { congelar } from "./agregados";
+import type { Medidas } from "./medidas";
 import { diaLocal } from "./estadisticas";
+
+/** Lo que `crearIntento` necesita de un motor; lo cumplen `MotorTecleo` y `MotorCodigo`. */
+export interface MotorMedible {
+  readonly correct: number;
+  readonly errors: number;
+  medidas(ts: number, durationSec: number): Medidas;
+  agregados(): ReturnType<typeof congelar>;
+}
 
 export interface ConfigIntento {
   modo: Modo;
   fuente: Fuente;
   ejercicioId?: string;
+  leccionId?: string;
   iaHashes?: string[];
   durationSec: number;
   seed: number;
@@ -15,7 +25,7 @@ export interface ConfigIntento {
 }
 
 export function crearIntento(p: {
-  motor: MotorTecleo;
+  motor: MotorMedible;
   /** Marca de tiempo (ms, mismo reloj que las pulsaciones) del final del intento. */
   ts: number;
   config: ConfigIntento;
@@ -46,7 +56,39 @@ export function crearIntento(p: {
     confusiones: agr.confusiones,
   };
   if (config.ejercicioId) intento.ejercicioId = config.ejercicioId;
+  if (config.leccionId) intento.leccionId = config.leccionId;
   if (config.iaHashes && config.iaHashes.length > 0) intento.iaHashes = config.iaHashes;
+  return intento;
+}
+
+/** Tope de tiempo con el que se miden las lecciones, que no tienen cuenta atrás (1 hora). */
+export const TOPE_LECCION_SEG = 3600;
+
+/** Intento de una lección del curso: un entreno de fuente "curso" cuya duración es lo que se tardó. */
+export function crearIntentoLeccion(p: {
+  motor: MotorMedible;
+  ts: number;
+  /** "html/L01.01". */
+  leccionId: string;
+  estricto: boolean;
+  id: string;
+  fecha: Date;
+}): Intento {
+  const intento = crearIntento({
+    motor: p.motor,
+    ts: p.ts,
+    id: p.id,
+    fecha: p.fecha,
+    config: {
+      modo: "entreno",
+      fuente: "curso",
+      leccionId: p.leccionId,
+      durationSec: TOPE_LECCION_SEG,
+      seed: 0,
+      estricto: p.estricto,
+    },
+  });
+  intento.durationSec = Math.ceil(intento.elapsedSec);
   return intento;
 }
 

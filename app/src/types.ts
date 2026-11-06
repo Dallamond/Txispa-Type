@@ -12,7 +12,7 @@ export interface KeyDef {
 
 /** Los calentamientos NO se guardan: solo existen estos dos modos. */
 export type Modo = "test" | "entreno";
-export type Fuente = "banco" | "debiles" | "alternancia" | "ia" | "ejercicio";
+export type Fuente = "banco" | "debiles" | "alternancia" | "ia" | "ejercicio" | "curso";
 
 export interface TeclaStat {
   /** Pulsaciones esperadas con esa tecla. */
@@ -40,6 +40,8 @@ export interface Intento {
   fuente: Fuente;
   /** Si fuente === "ejercicio". */
   ejercicioId?: string;
+  /** Si fuente === "curso": lección tecleada, p. ej. "html/L01.01". */
+  leccionId?: string;
   /** Si fuente === "ia": hash de cada texto generado que se usó (el modelo no es determinista). */
   iaHashes?: string[];
   durationSec: number;

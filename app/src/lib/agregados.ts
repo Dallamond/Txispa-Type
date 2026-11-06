@@ -7,6 +7,8 @@ import { INTERVALO_MAX_MS, INTERVALO_MIN_MS } from "./medidas";
 
 /** El espacio se guarda como "␣" para que las claves se lean bien. */
 export const ESPACIO = "␣";
+/** Igual para el Enter, que se teclea al cerrar las líneas del curso. */
+export const ENTER = "⏎";
 
 export interface Acumulador {
   teclas: Record<string, TeclaStat>;
@@ -24,9 +26,9 @@ export function acumuladorVacio(): Acumulador {
   return { teclas: {}, pares: {}, confusiones: {}, intervalos: [], ultimoTs: null, ultimaCorrecta: null };
 }
 
-/** Clave de agregado de un carácter: minúscula, y el espacio como "␣". */
+/** Clave de agregado de un carácter: minúscula, el espacio como "␣" y el salto de línea como "⏎". */
 export function claveTecla(ch: string): string {
-  return ch === " " ? ESPACIO : ch.toLowerCase();
+  return ch === " " ? ESPACIO : ch === "\n" ? ENTER : ch.toLowerCase();
 }
 
 /** ¿Cuenta para pares? Letras (con tildes y ñ), dígitos y espacio. Los signos no. */

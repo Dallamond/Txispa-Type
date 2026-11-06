@@ -237,7 +237,7 @@ Detalle en `docs/curso/` (`ROADMAP-CURSO.md`, `SPEC-FORMATO-LECCIONES.md` con la
 - [x] P1 / C1-3: `scripts/generar-curso.mjs` (Markdown a `html.ts` y `css.ts`; falla con nº de línea) y script `npm run curso:generar`.
 - [x] P1 / C1-4: `data/__tests__/curso.test.ts` con las validaciones de la §7 (191 pruebas).
 - [x] P1 / C1-5: `npm run check` comprueba que los datos generados están al día con el temario.
-- [ ] P2: tokenización y motor de código (`lib/curso.ts`, `lib/motorCodigo.ts`, tipos del intento).
+- [x] P2: tokenización y motor de código (`lib/curso.ts`, `lib/motorCodigo.ts`, `crearIntentoLeccion`, `Fuente "curso"`, `Intento.leccionId` validado al importar). El Enter se guarda como `⏎` en las teclas y confusiones.
 - [ ] P3: primera lección tecleable (pestaña Curso, `TecleoCodigo`).
 - [ ] P4: módulo 1 completo y pantalla de resultado.
 - [ ] P5: progreso, candados y ajuste "Desbloquear todo".

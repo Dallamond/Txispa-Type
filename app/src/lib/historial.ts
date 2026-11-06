@@ -149,6 +149,7 @@ export function mediaPrevia(intentos: readonly Intento[], actual: Intento, n = 1
 }
 
 const NOMBRE_FUENTE: Record<Fuente, string> = {
+  curso: "Curso",
   banco: "Texto corrido",
   debiles: "Teclas débiles",
   alternancia: "Alternancia de manos",

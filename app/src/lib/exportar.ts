@@ -28,9 +28,13 @@ export type ResultadoImportacion =
 const esObjeto = (v: unknown): v is Record<string, unknown> => typeof v === "object" && v !== null && !Array.isArray(v);
 const esNumero = (v: unknown) => typeof v === "number" && Number.isFinite(v);
 
+/** Identificador de lección del curso: "html/L01.01", "css/L06.R". */
+export const PATRON_LECCION_ID = /^(html|css)\/L\d{2}\.(\d{2}|R)$/;
+
 /** ¿Tiene un intento la forma mínima para no romper estadísticas ni almacén? */
 export function esIntentoValido(v: unknown): v is Intento {
   if (!esObjeto(v)) return false;
+  if (v.leccionId !== undefined && !(typeof v.leccionId === "string" && PATRON_LECCION_ID.test(v.leccionId))) return false;
   return (
     typeof v.id === "string" &&
     v.id.length > 0 &&
