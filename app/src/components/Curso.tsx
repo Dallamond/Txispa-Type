@@ -68,6 +68,7 @@ export default function Curso({ ajustes, intentos, onGuardar }: Props) {
           )}
         </div>
         <TecleoCodigo
+          intentos={intentos}
           key={`${leccion.id}-${n}`}
           codigo={leccion.codigo}
           leccionId={idLeccion(modulo, leccion)}

@@ -1,14 +1,15 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import type { Intento } from "../types";
 import { mediaUltimos } from "../lib/estadisticas";
 import { confusionesMasRepetidas, teclasMasFalladas } from "../lib/intento";
 import { PRECISION_MINIMA } from "../lib/medidas";
 import { etiquetasEje, posicionEnHistorial } from "../lib/historial";
-import { desgloseXp, nivelDe, xpTotal } from "../lib/xp";
+import { desgloseXp } from "../lib/xp";
 import { fraccionVelocimetro, PPM_MAX_VELOCIMETRO, simil } from "../lib/simil";
-import { logrosNuevos, TIERS } from "../lib/logros";
 import { comparacionDelDia } from "../lib/delDia";
+import { useCuenta, useEntrada } from "../hooks/useAnimacion";
 import GraficaLinea from "./GraficaLinea";
+import ProgresoIntento from "./ProgresoIntento";
 
 const CX = 120;
 const CY = 120;
@@ -16,39 +17,6 @@ const RV = 96;
 const ARCO = `M${CX - RV} ${CY} A${RV} ${RV} 0 0 1 ${CX + RV} ${CY}`;
 
 const fmt = (n: number, d = 1) => n.toFixed(d).replace(".", ",");
-
-const sinMovimiento = () => typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
-
-/** Cuenta de 0 a `valor` con easing; sin animación si el usuario la ha desactivado. */
-function useCuenta(valor: number, ms = 1100): number {
-  const [v, setV] = useState(() => (sinMovimiento() ? valor : 0));
-  useEffect(() => {
-    if (sinMovimiento()) {
-      setV(valor);
-      return;
-    }
-    let raf = 0;
-    const t0 = performance.now();
-    const paso = (ahora: number) => {
-      const p = Math.min(1, (ahora - t0) / ms);
-      setV(valor * (1 - (1 - p) ** 3));
-      if (p < 1) raf = requestAnimationFrame(paso);
-    };
-    raf = requestAnimationFrame(paso);
-    return () => cancelAnimationFrame(raf);
-  }, [valor, ms]);
-  return v;
-}
-
-/** true un instante después de montar: dispara las transiciones CSS de entrada. */
-function useEntrada(): boolean {
-  const [listo, setListo] = useState(false);
-  useEffect(() => {
-    const id = requestAnimationFrame(() => setListo(true));
-    return () => cancelAnimationFrame(id);
-  }, []);
-  return listo;
-}
 
 interface Props {
   intento: Intento;
@@ -76,14 +44,10 @@ export default function ResultadoTest({ intento, etiqueta, intentos, comparar, o
   const datos = useMemo(() => {
     const previos = intentos.filter((i) => i.id !== intento.id);
     const media = comparar ? mediaUltimos([...intentos], 10, intento.id) : null;
-    const xpAntes = xpTotal(previos);
     const desglose = desgloseXp(intento, previos);
     return {
       media,
       desglose,
-      antes: nivelDe(xpAntes),
-      despues: nivelDe(xpAntes + desglose.total),
-      logros: logrosNuevos(previos, intento, { objetivoTests }),
       posicion: comparar ? posicionEnHistorial(intentos, intento) : null,
       dia: comparar ? comparacionDelDia(intentos, intento) : null,
       falladas: teclasMasFalladas(intento.teclas),
@@ -91,17 +55,14 @@ export default function ResultadoTest({ intento, etiqueta, intentos, comparar, o
     };
   }, [intentos, intento, comparar, objetivoTests]);
 
-  const { media, desglose, antes, despues, posicion, dia } = datos;
+  const { media, desglose, posicion, dia } = datos;
   const dW = media ? intento.wpm - media.wpm : null;
   const dA = media ? intento.acc - media.acc : null;
-  const subeNivel = despues.nivel > antes.nivel;
   const esRecord = desglose.bonusRecord > 0;
-  const fiesta = !vacio && (subeNivel || esRecord || datos.logros.length > 0);
 
   const s = simil(intento.wpm, intento.acc);
   const wpmAnim = useCuenta(vacio ? 0 : intento.wpm);
   const accAnim = useCuenta(vacio ? 0 : intento.acc, 900);
-  const xpAnim = useCuenta(desglose.total, 1200);
 
   // Velocímetro: semicírculo con centro (CX, CY) y radio RV.
   const fraccion = listo ? fraccionVelocimetro(intento.wpm) : 0;
@@ -126,12 +87,8 @@ export default function ResultadoTest({ intento, etiqueta, intentos, comparar, o
     };
   });
 
-  // Barra de XP: si sube de nivel, primero se llena hasta el final y luego queda en el nivel nuevo.
-  const fraccionXp = listo ? despues.fraccion : antes.fraccion;
-
   return (
-    <section className={`tarjeta resultado${fiesta ? " con-fiesta" : ""}`}>
-      {fiesta && <Confeti />}
+    <section className="tarjeta resultado">
       <h1>{etiqueta} · resultado</h1>
 
       {vacio ? (
@@ -212,33 +169,7 @@ export default function ResultadoTest({ intento, etiqueta, intentos, comparar, o
             {desviacionMs !== undefined && <Cifra valor={desviacionMs === null ? "—" : `${Math.round(desviacionMs)} ms`} etiqueta="desviación al pulso" />}
           </div>
 
-          <div className="xp-bloque">
-            <div className="xp-cabecera">
-              <span>
-                <b>+{Math.round(xpAnim)} XP</b>
-                <span className="tenue">
-                  {" "}
-                  · {desglose.base} base{desglose.multiplicador !== 1 ? ` (×${String(desglose.multiplicador).replace(".", ",")} por precisión)` : ""}
-                  {desglose.bonusRecord > 0 ? ` + ${desglose.bonusRecord} récord` : ""}
-                  {desglose.bonusLimpio > 0 ? ` + ${desglose.bonusLimpio} test limpio` : ""}
-                </span>
-              </span>
-              <span className="xp-nivel">
-                Nivel <b>{despues.nivel}</b> · {despues.rango}
-              </span>
-            </div>
-            <div className="xp-barra" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(despues.fraccion * 100)} aria-label="Progreso de nivel">
-              <div style={{ width: `${fraccionXp * 100}%` }} />
-            </div>
-            <p className="tenue">
-              {despues.enNivel} / {despues.tramo} XP para el nivel {despues.nivel + 1}
-            </p>
-            {subeNivel && (
-              <p className="subida-nivel">
-                ⬆️ ¡Subes al nivel {despues.nivel}! <span className="tenue">({despues.rango})</span>
-              </p>
-            )}
-          </div>
+          <ProgresoIntento intento={intento} intentos={intentos} objetivoTests={objetivoTests} />
 
           {dia && (
             <div className="dia-bloque">
@@ -275,23 +206,6 @@ export default function ResultadoTest({ intento, etiqueta, intentos, comparar, o
                   <p className="tenue">Las barras apagadas son tests con precisión por debajo del {PRECISION_MINIMA} %.</p>
                 </>
               )}
-            </div>
-          )}
-
-          {datos.logros.length > 0 && (
-            <div className="logros-nuevos">
-              <h2>Logro{datos.logros.length > 1 ? "s" : ""} desbloqueado{datos.logros.length > 1 ? "s" : ""}</h2>
-              <div className="fichas">
-                {datos.logros.map((n, i) => {
-                  const tier = TIERS.find((t) => t.id === n.nivel.tier)!;
-                  return (
-                    <span key={n.logro.id} className={`ficha-logro tier-${tier.id}`} style={{ animationDelay: `${0.4 + i * 0.15}s` }}>
-                      <span aria-hidden="true">{tier.emoji}</span> <b>{n.logro.nombre}</b> · {tier.nombre}
-                      <span className="tenue"> · {n.logro.descripcion(n.nivel.meta)}</span>
-                    </span>
-                  );
-                })}
-              </div>
             </div>
           )}
 
@@ -378,28 +292,6 @@ function Cifra({ valor, etiqueta, delta, sufijo = "" }: { valor: string; etiquet
           {sufijo}
         </div>
       )}
-    </div>
-  );
-}
-
-/** Confeti solo con CSS: piezas con posición, color y retardo fijos (sin aleatoriedad en el render). */
-function Confeti() {
-  const piezas = Array.from({ length: 18 }, (_, i) => i);
-  return (
-    <div className="confeti" aria-hidden="true">
-      {piezas.map((i) => (
-        <span
-          key={i}
-          style={
-            {
-              "--x": `${(i * 53) % 100}%`,
-              "--d": `${(i % 6) * 0.12}s`,
-              "--r": `${(i * 47) % 360}deg`,
-              "--c": i % 3 === 0 ? "var(--accent)" : i % 3 === 1 ? "var(--ok)" : "var(--text)",
-            } as React.CSSProperties
-          }
-        />
-      ))}
     </div>
   );
 }

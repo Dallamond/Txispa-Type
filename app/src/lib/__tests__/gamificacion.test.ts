@@ -187,3 +187,94 @@ describe("logros por niveles", () => {
     expect(estadoDe(logro("dias"), is, ctx).valor).toBe(2);
   });
 });
+
+import { BONUS_DOMINADA, BONUS_LECCION, BONUS_MODULO } from "../xp";
+import { estadosGam, leccionesDominadas, leccionesDeModulo, leccionesSuperadas, modulosCompletados, moduloDeLeccion } from "../gamCurso";
+
+describe("curso y gamificación", () => {
+  const ctx = { objetivoTests: 1 };
+  const ids = leccionesDeModulo("M01");
+  const dia = (n: number) => `2026-11-${String(n).padStart(2, "0")}T10:00:00Z`;
+  const leccion = (id: string, n: number, extra = {}) =>
+    t(`${id}-${n}`, dia(1 + (n % 28)), { fuente: "curso", modo: "entreno", leccionId: id, acc: 97, ...extra });
+
+  it("el módulo M01 existe y se reconoce la lección", () => {
+    expect(ids.length).toBeGreaterThan(1);
+    expect(moduloDeLeccion(ids[0])).toBe("M01");
+    expect(moduloDeLeccion("html/NOEXISTE")).toBeNull();
+  });
+
+  it("primera superación da bonus de lección; repetir no", () => {
+    const a = desgloseXp(leccion(ids[0], 1), []);
+    expect(a.bonusLeccion).toBe(BONUS_LECCION);
+    expect(a.total).toBe(a.base + BONUS_LECCION);
+    const b = desgloseXp(leccion(ids[0], 2), [leccion(ids[0], 1)]);
+    expect(b.bonusLeccion).toBe(0);
+  });
+
+  it("sin precisión suficiente no hay bonus de curso, pero sí XP base", () => {
+    const d = desgloseXp(leccion(ids[0], 1, { acc: 90 }), []);
+    expect(d.bonusLeccion + d.bonusDominada + d.bonusModulo).toBe(0);
+    expect(d.base).toBeGreaterThan(0);
+  });
+
+  it("la tercera superación domina la lección (+bonus una sola vez)", () => {
+    const previos = [leccion(ids[0], 1), leccion(ids[0], 2)];
+    expect(desgloseXp(leccion(ids[0], 3), previos).bonusDominada).toBe(BONUS_DOMINADA);
+    expect(desgloseXp(leccion(ids[0], 4), [...previos, leccion(ids[0], 3)]).bonusDominada).toBe(0);
+  });
+
+  it("completar el módulo da el bonus solo con la última lección nueva", () => {
+    const todasMenosUna = ids.slice(0, -1).map((id, i) => leccion(id, i));
+    const ultima = leccion(ids[ids.length - 1], 20);
+    expect(desgloseXp(ultima, todasMenosUna).bonusModulo).toBe(BONUS_MODULO);
+    // si ya estaba completo, repetir una lección no vuelve a darlo
+    expect(desgloseXp(leccion(ids[0], 25), [...todasMenosUna, ultima]).bonusModulo).toBe(0);
+    // y con una lección distinta aún por hacer, tampoco
+    expect(desgloseXp(leccion(ids[0], 25), todasMenosUna.slice(1)).bonusModulo).toBe(0);
+  });
+
+  it("los bonus del curso suman al XP total", () => {
+    const is = [leccion(ids[0], 1), leccion(ids[1], 2)];
+    const base = is.reduce((n, i) => n + desgloseXp(i, []).base, 0);
+    expect(xpTotal(is)).toBe(base + 2 * BONUS_LECCION);
+  });
+
+  it("estados y contadores derivados", () => {
+    const is = [leccion(ids[0], 1), leccion(ids[0], 2), leccion(ids[0], 3), leccion(ids[1], 4), leccion(ids[2], 5, { acc: 80 })];
+    expect(leccionesSuperadas(is)).toBe(2);
+    const est = estadosGam(is);
+    expect(est.get(ids[0])).toBe("dominada"); // superada en 3 días distintos
+    expect(est.get(ids[1])).toBe("superada");
+    expect(est.get(ids[2])).toBe("pendiente"); // 80 % no llega al 95 %
+    expect(leccionesDominadas(is)).toBe(1);
+    expect(modulosCompletados(is)).toBe(0);
+    expect(modulosCompletados(ids.map((id, i) => leccion(id, i)))).toBe(1);
+  });
+
+  it("los logros del curso suben de nivel con las lecciones superadas", () => {
+    const tres = ids.slice(0, 3).map((id, i) => leccion(id, i));
+    const e = estadoLogros(tres, ctx).find((x) => x.logro.id === "lecciones")!;
+    expect(e.valor).toBe(3);
+    expect(e.actual?.tier).toBe("bronce");
+    const nuevos = logrosNuevos(tres.slice(0, 2), tres[2], ctx).map((n) => n.logro.id);
+    expect(nuevos).toContain("lecciones");
+  });
+});
+
+describe("curso: criterio del progreso del curso", () => {
+  const ids = leccionesDeModulo("M01");
+  const dia = (n: number) => `2026-11-${String(n).padStart(2, "0")}T10:00:00Z`;
+
+  it("una sola vez basta para dominar con 98 % y la velocidad de la dificultad", () => {
+    const rapida = t("r", dia(1), { fuente: "curso", modo: "entreno", leccionId: ids[0], acc: 99, wpm: 80 });
+    const d = desgloseXp(rapida, []);
+    expect(d.bonusLeccion).toBe(BONUS_LECCION);
+    expect(d.bonusDominada).toBe(BONUS_DOMINADA);
+  });
+
+  it("repetir el mismo día no domina por días", () => {
+    const mk = (n: number) => t(`m${n}`, dia(1), { fuente: "curso", modo: "entreno", leccionId: ids[0], acc: 96, wpm: 20 });
+    expect(estadosGam([mk(1), mk(2), mk(3)]).get(ids[0])).toBe("superada");
+  });
+});

@@ -111,6 +111,7 @@ export default function Logros({ intentos, objetivoTests }: Props) {
           <li>1 XP por cada 10 caracteres correctos, en tests y entrenos (los calentamientos no cuentan).</li>
           <li>La precisión multiplica: ×0,5 por debajo del 92 %, ×0,8 hasta el 95 %, ×1 hasta el 98 % y ×1,5 desde el 98 %.</li>
           <li>+50 XP por un récord personal con 95 % de precisión o más, y +20 XP por un test limpio (0 errores).</li>
+          <li>Curso: +30 XP la primera vez que superas una lección (95 % de precisión o más), +20 XP al dominarla (la dominas al superarla en 3 días distintos, o con 98 % de precisión y velocidad suficiente) y +100 XP al completar un módulo entero.</li>
           <li>La velocidad sola no da más XP: sin precisión, el símil de velocidad va «con el freno puesto».</li>
         </ul>
       </section>

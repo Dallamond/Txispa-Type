@@ -2,10 +2,14 @@ import type { Intento } from "../types";
 import { formatoReloj } from "../lib/historial";
 import { leccionSuperada, PRECISION_LECCION } from "../lib/curso";
 import { confusionesMasRepetidas, teclasMasFalladas } from "../lib/intento";
+import ProgresoIntento from "./ProgresoIntento";
 
 interface Props {
   intento: Intento;
   titulo: string;
+  /** Historial, para calcular el XP y los logros de esta lección. */
+  intentos: readonly Intento[];
+  objetivoTests: number;
   onRepetir: () => void;
   onSalir: () => void;
   /** Si hay una lección después de esta, para abrirla desde aquí. */
@@ -16,12 +20,12 @@ interface Props {
 const nombreTecla = (t: string) => (t === "␣" ? "Espacio" : t === "⏎" ? "Enter ⏎" : t);
 
 /** Resultado de una lección: velocidad y precisión siempre juntas (regla del proyecto). */
-export default function ResultadoLeccion({ intento, titulo, onRepetir, onSalir, onSiguiente }: Props) {
+export default function ResultadoLeccion({ intento, titulo, intentos, objetivoTests, onRepetir, onSalir, onSiguiente }: Props) {
   const superada = leccionSuperada(intento);
   const falladas = teclasMasFalladas(intento.teclas, 5);
   const confusiones = confusionesMasRepetidas(intento.confusiones, 4);
   return (
-    <section className="tarjeta cur-resultado" aria-live="polite">
+    <section className="tarjeta cur-resultado resultado" aria-live="polite">
       <p className="tenue">{titulo}</p>
       <h1>{superada ? "Lección superada" : "Casi: repítela con más precisión"}</h1>
       <p className="tenue">
@@ -47,6 +51,8 @@ export default function ResultadoLeccion({ intento, titulo, onRepetir, onSalir, 
           <span>tiempo</span>
         </div>
       </div>
+
+      <ProgresoIntento intento={intento} intentos={intentos} objetivoTests={objetivoTests} />
 
       {falladas.length > 0 && (
         <div className="cur-fallos">

@@ -5,6 +5,7 @@
 import type { Intento } from "../types";
 import { racha } from "./estadisticas";
 import { PRECISION_MINIMA } from "./medidas";
+import { leccionesDominadas, leccionesSuperadas, modulosCompletados, TOTAL_LECCIONES, TOTAL_MODULOS } from "./gamCurso";
 
 export type Tier = "bronce" | "plata" | "oro" | "platino" | "diamante";
 
@@ -127,6 +128,33 @@ export const LOGROS: readonly Logro[] = [
     unidad: "entrenos",
     metas: [5, 25, 75, 150, 300],
     valor: (is) => is.filter((i) => i.modo === "entreno").length,
+  },
+  {
+    id: "lecciones",
+    nombre: "Aprendiz de código",
+    emoji: "🧑‍💻",
+    descripcion: (m) => `Supera ${m} ${m === 1 ? "lección" : "lecciones"} del curso con ${PRECISION_MINIMA} % de precisión o más.`,
+    unidad: "lecciones",
+    metas: [3, 10, 25, 45, TOTAL_LECCIONES],
+    valor: (is) => leccionesSuperadas(is),
+  },
+  {
+    id: "dominadas",
+    nombre: "Dominio",
+    emoji: "🎓",
+    descripcion: (m) => `Domina ${m} ${m === 1 ? "lección" : "lecciones"} del curso.`,
+    unidad: "lecciones dominadas",
+    metas: [1, 5, 15, 35, TOTAL_LECCIONES],
+    valor: (is) => leccionesDominadas(is),
+  },
+  {
+    id: "modulos",
+    nombre: "Módulos del curso",
+    emoji: "📚",
+    descripcion: (m) => `Completa ${m} ${m === 1 ? "módulo" : "módulos"} del curso (todas sus lecciones superadas).`,
+    unidad: "módulos",
+    metas: [1, 3, 6, 9, TOTAL_MODULOS],
+    valor: (is) => modulosCompletados(is),
   },
   {
     id: "racha",

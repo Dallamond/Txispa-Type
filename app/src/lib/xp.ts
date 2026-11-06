@@ -5,11 +5,16 @@
 
 import type { Intento } from "../types";
 import { PRECISION_MINIMA } from "./medidas";
+import { esLeccionSuperada, estadosGam, moduloCompleto, moduloDeLeccion } from "./gamCurso";
 
 /** Caracteres correctos que dan 1 XP. */
 export const CARACTERES_POR_XP = 10;
 export const BONUS_RECORD = 50;
 export const BONUS_LIMPIO = 20;
+/** Curso: primera vez que se supera una lección, tercera vez (dominada) y módulo completo. */
+export const BONUS_LECCION = 30;
+export const BONUS_DOMINADA = 20;
+export const BONUS_MODULO = 100;
 /** Caracteres correctos mínimos para que un intento "limpio" (0 errores) cuente como tal. */
 export const MIN_CARACTERES_LIMPIO = 150;
 
@@ -19,6 +24,12 @@ export interface DesgloseXp {
   multiplicador: number;
   bonusRecord: number;
   bonusLimpio: number;
+  /** Curso: lección superada por primera vez. */
+  bonusLeccion: number;
+  /** Curso: lección dominada (tercera superación). */
+  bonusDominada: number;
+  /** Curso: módulo completado con este intento. */
+  bonusModulo: number;
   total: number;
 }
 
@@ -40,6 +51,22 @@ export function mejorWpmDigno(intentos: readonly Intento[]): number | null {
   return mejor;
 }
 
+/** Bonus del curso, comparando el progreso antes y después del intento (los criterios de
+ * hecha y dominada son los de `progresoCurso`). Solo si el intento es una lección superada. */
+function bonusCurso(intento: Intento, previos: readonly Intento[]): { leccion: number; dominada: number; modulo: number } {
+  const nulo = { leccion: 0, dominada: 0, modulo: 0 };
+  if (!esLeccionSuperada(intento)) return nulo;
+  const id = intento.leccionId!;
+  const antes = estadosGam(previos);
+  const despues = estadosGam([...previos, intento]);
+  const antesLeccion = antes.get(id) ?? "pendiente";
+  const leccion = antesLeccion === "pendiente" ? BONUS_LECCION : 0;
+  const dominada = antesLeccion !== "dominada" && despues.get(id) === "dominada" ? BONUS_DOMINADA : 0;
+  const m = moduloDeLeccion(id);
+  const modulo = m && !moduloCompleto(m, antes) && moduloCompleto(m, despues) ? BONUS_MODULO : 0;
+  return { leccion, dominada, modulo };
+}
+
 /** XP de un intento, dado lo anterior (para el bonus de récord). `previos` no incluye al intento. */
 export function desgloseXp(intento: Intento, previos: readonly Intento[]): DesgloseXp {
   const multiplicador = multiplicadorPrecision(intento.acc);
@@ -48,7 +75,18 @@ export function desgloseXp(intento: Intento, previos: readonly Intento[]): Desgl
   const esRecord = intento.modo === "test" && intento.acc >= PRECISION_MINIMA && mejor !== null && intento.wpm > mejor;
   const bonusRecord = esRecord ? BONUS_RECORD : 0;
   const bonusLimpio = intento.errors === 0 && intento.correct >= MIN_CARACTERES_LIMPIO ? BONUS_LIMPIO : 0;
-  return { base, multiplicador, bonusRecord, bonusLimpio, total: base + bonusRecord + bonusLimpio };
+  const curso = bonusCurso(intento, previos);
+  const total = base + bonusRecord + bonusLimpio + curso.leccion + curso.dominada + curso.modulo;
+  return {
+    base,
+    multiplicador,
+    bonusRecord,
+    bonusLimpio,
+    bonusLeccion: curso.leccion,
+    bonusDominada: curso.dominada,
+    bonusModulo: curso.modulo,
+    total,
+  };
 }
 
 function porFecha(intentos: readonly Intento[]): Intento[] {

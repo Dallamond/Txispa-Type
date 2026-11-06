@@ -18,6 +18,8 @@ interface Props {
   /** "html/L01.01". */
   leccionId: string;
   titulo: string;
+  /** Historial, para el XP y los logros del resultado. */
+  intentos: readonly Intento[];
   ajustes: Ajustes;
   onGuardar: (intento: Intento) => Promise<void> | void;
   onSalir: () => void;
@@ -29,7 +31,7 @@ interface Props {
 /** Una lección tecleada de principio a fin. Sin cuenta atrás: el reloj cuenta hacia arriba
  * desde la primera pulsación y la lección termina al dejar el código bien escrito.
  * El padre la remonta (con `key`) para repetir. */
-export default function TecleoCodigo({ codigo, leccionId, titulo, ajustes, onGuardar, onSalir, onRepetir, onSiguiente }: Props) {
+export default function TecleoCodigo({ codigo, leccionId, titulo, intentos, ajustes, onGuardar, onSalir, onRepetir, onSiguiente }: Props) {
   const [motor] = useState(() => new MotorCodigo(tokenizar(codigo), ajustes.estrictoPorDefecto));
   const [, repinta] = useReducer((n: number) => n + 1, 0);
   const [resultado, setResultado] = useState<Intento | null>(null);
@@ -115,7 +117,17 @@ export default function TecleoCodigo({ codigo, leccionId, titulo, ajustes, onGua
   }, [resultado, onRepetir]);
 
   if (resultado) {
-    return <ResultadoLeccion intento={resultado} titulo={titulo} onRepetir={onRepetir} onSalir={onSalir} onSiguiente={onSiguiente} />;
+    return (
+      <ResultadoLeccion
+        intento={resultado}
+        titulo={titulo}
+        intentos={intentos}
+        objetivoTests={ajustes.objetivoTests}
+        onRepetir={onRepetir}
+        onSalir={onSalir}
+        onSiguiente={onSiguiente}
+      />
+    );
   }
 
   const el = motor.inicio === null ? 0 : (performance.now() - motor.inicio) / 1000;
