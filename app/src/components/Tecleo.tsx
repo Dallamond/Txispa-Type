@@ -5,19 +5,12 @@ import { esAtajo, isModifier, modifierLabel, pressedKeyFor } from "../lib/typing
 import { usePressedKey } from "../hooks/usePressedKey";
 import { usePulso } from "../hooks/usePulso";
 import { desviacionAlPulso, desviacionMedia, limitarPulso } from "../lib/metronomo";
-import {
-  confusionesMasRepetidas,
-  crearIntento,
-  teclasMasFalladas,
-  type ConfigIntento,
-} from "../lib/intento";
-import { mediaUltimos } from "../lib/estadisticas";
-import { PRECISION_MINIMA, precision, wpmNeta } from "../lib/medidas";
+import { crearIntento, type ConfigIntento } from "../lib/intento";
+import { precision, wpmNeta } from "../lib/medidas";
 import { posicionFantasma } from "../lib/calentamientos";
 import { useContadorTecleo } from "../hooks/ContadorTecleo";
 import AreaTexto from "./AreaTexto";
-import GraficaLinea from "./GraficaLinea";
-import { etiquetasEje, posicionEnHistorial } from "../lib/historial";
+import ResultadoTest from "./ResultadoTest";
 import VirtualKeyboard from "./VirtualKeyboard";
 
 interface Props {
@@ -45,8 +38,6 @@ const formatoReloj = (s: number) => {
   const t = Math.ceil(s);
   return `${Math.floor(t / 60)}:${String(t % 60).padStart(2, "0")}`;
 };
-
-const fmt = (n: number, d = 1) => n.toFixed(d).replace(".", ",");
 
 /** Una prueba completa: texto, cronómetro, métricas en vivo y resultado.
  * El padre la remonta (con `key`) para repetir con otro texto. */
@@ -164,8 +155,9 @@ export default function Tecleo({ palabras, config, ajustes, intentos, guardar, e
   if (resultado) {
     if (onTerminar) return null;
     return (
-      <Resultado
+      <ResultadoTest
         intento={resultado}
+        objetivoTests={ajustes.objetivoTests}
         etiqueta={etiqueta}
         intentos={intentos}
         comparar={guardar && resultado.modo === "test"}
@@ -236,135 +228,5 @@ export default function Tecleo({ palabras, config, ajustes, intentos, guardar, e
         <kbd>Esc</kbd> cancelar · el <kbd>espacio</kbd> cierra cada palabra y no se puede volver atrás
       </p>
     </section>
-  );
-}
-
-function Resultado({
-  intento,
-  etiqueta,
-  intentos,
-  comparar,
-  desviacionMs,
-  onRepetir,
-  onSalir,
-}: {
-  intento: Intento;
-  etiqueta: string;
-  intentos: readonly Intento[];
-  comparar: boolean;
-  /** Desviación media al pulso del metrónomo (ms); undefined si no hubo metrónomo. */
-  desviacionMs?: number | null;
-  onRepetir: () => void;
-  onSalir: () => void;
-}) {
-  const previos = comparar ? mediaUltimos([...intentos], 10, intento.id) : null;
-  const dW = previos ? intento.wpm - previos.wpm : null;
-  const dA = previos ? intento.acc - previos.acc : null;
-  const falladas = teclasMasFalladas(intento.teclas);
-  const confusiones = confusionesMasRepetidas(intento.confusiones, 3);
-  const posicion = comparar ? posicionEnHistorial(intentos, intento) : null;
-  const vacio = intento.correct + intento.errors === 0;
-
-  return (
-    <section className="tarjeta resultado">
-      <h1>{etiqueta} · resultado</h1>
-
-      {vacio ? (
-        <p className="tenue">No se tecleó nada.</p>
-      ) : (
-        <>
-          <div className="resultado-cifras">
-            <Cifra valor={fmt(intento.wpm)} etiqueta="ppm netas" delta={dW} />
-            <Cifra valor={`${fmt(intento.acc)}%`} etiqueta="precisión" delta={dA} sufijo="%" />
-            <Cifra valor={fmt(intento.rawWpm)} etiqueta="ppm brutas" />
-            <Cifra valor={intento.consistency === null ? "—" : `${Math.round(intento.consistency)}%`} etiqueta="ritmo constante" />
-            <Cifra valor={String(intento.errors)} etiqueta="errores" />
-            {desviacionMs !== undefined && (
-              <Cifra valor={desviacionMs === null ? "—" : `${Math.round(desviacionMs)} ms`} etiqueta="desviación al pulso" />
-            )}
-          </div>
-
-          {intento.acc < PRECISION_MINIMA && (
-            <p className="aviso-precision">
-              Precisión por debajo del {PRECISION_MINIMA}%: esta velocidad no cuenta como progreso. Baja un poco el ritmo.
-            </p>
-          )}
-          {previos ? (
-            <p className="tenue">{previos.n === 1 ? "Comparado con tu test anterior" : `Comparado con la media de tus últimos ${previos.n} tests`} ({fmt(previos.wpm)} ppm, {fmt(previos.acc)}%).</p>
-          ) : (
-            comparar && <p className="tenue">Es tu primer test: aún no hay con qué comparar.</p>
-          )}
-
-          {posicion && posicion.total > 1 && (
-            <>
-              <h2>Dónde queda entre tus {posicion.total} tests</h2>
-              <p className="tenue">
-                {posicion.esRecord ? `Es tu test más rápido con precisión de ${PRECISION_MINIMA}% o más. ` : ""}
-                Puesto {posicion.puesto} de {posicion.total} por velocidad, contando también los de poca precisión (el punto grande es este test).
-              </p>
-              <GraficaLinea
-                valores={posicion.serie.map((t) => t.wpm)}
-                etiquetas={etiquetasEje(posicion.serie)}
-                metrica="wpm"
-                titulo="Velocidad neta de todos los tests"
-                unidad="ppm"
-                destacar={posicion.indice}
-              />
-            </>
-          )}
-
-          <h2>Teclas con más fallos en este test</h2>
-          {falladas.length === 0 ? (
-            <p className="tenue">Ninguna. Test limpio.</p>
-          ) : (
-            <div className="fichas">
-              {falladas.map((t) => (
-                <span key={t.tecla} className="ficha mono">
-                  {t.tecla} ×{t.errores}
-                </span>
-              ))}
-            </div>
-          )}
-
-          {confusiones.length > 0 && (
-            <>
-              <h2>Confusiones</h2>
-              <div className="fichas">
-                {confusiones.map((c) => (
-                  <span key={`${c.esperada}>${c.escrita}`} className="ficha mono">
-                    {c.esperada} → {c.escrita} ×{c.veces}
-                  </span>
-                ))}
-              </div>
-            </>
-          )}
-        </>
-      )}
-
-      <div className="acciones">
-        <button type="button" className="btn primario" onClick={onRepetir} autoFocus>
-          Repetir <kbd>⏎</kbd>
-        </button>
-        <button type="button" className="btn" onClick={onSalir}>
-          Volver
-        </button>
-      </div>
-    </section>
-  );
-}
-
-function Cifra({ valor, etiqueta, delta, sufijo = "" }: { valor: string; etiqueta: string; delta?: number | null; sufijo?: string }) {
-  return (
-    <div className="cifra">
-      <div className="cifra-valor">{valor}</div>
-      <div className="cifra-etiqueta">{etiqueta}</div>
-      {delta !== undefined && delta !== null && (
-        <div className={`cifra-delta ${delta >= 0 ? "sube" : "baja"}`}>
-          {delta >= 0 ? "+" : "−"}
-          {fmt(Math.abs(delta))}
-          {sufijo}
-        </div>
-      )}
-    </div>
   );
 }

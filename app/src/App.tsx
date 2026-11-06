@@ -5,6 +5,7 @@ import { useTecladoFisico } from "./hooks/useTecladoFisico";
 import { crearAlmacenIndexedDB } from "./lib/almacen";
 import { useIntentos } from "./hooks/useIntentos";
 import { formatoReloj } from "./lib/historial";
+import { nivelDe, xpTotal } from "./lib/xp";
 import { ProveedorContador, useTotalPulsaciones } from "./hooks/ContadorTecleo";
 import Hoy from "./components/Hoy";
 import Calentar from "./components/Calentar";
@@ -106,6 +107,7 @@ export default function App() {
   const { intentos } = useIntentos(almacen);
   const { total: pulsaciones, segundosHoy, api: contador } = useTotalPulsaciones(intentos);
   const metaSeg = ajustes.objetivoMinutos * 60;
+  const nivel = useMemo(() => nivelDe(xpTotal(intentos)), [intentos]);
   const [pedido, setPedido] = useState<PedidoEntreno | null>(null);
   const practicar = useCallback((fuente: FuenteEntrenar) => {
     setPedido((p) => ({ fuente, n: (p?.n ?? 0) + 1 }));
@@ -161,6 +163,14 @@ export default function App() {
             objetivoMinutos={ajustes.objetivoMinutos}
             onCambiarObjetivo={(min) => cambiarAjustes({ objetivoMinutos: min })}
           />
+          <div className="nivel-chip" role="status" aria-label={`Nivel ${nivel.nivel}, ${nivel.rango}, ${nivel.enNivel} de ${nivel.tramo} XP`} title={`${nivel.rango} · ${nivel.enNivel}/${nivel.tramo} XP`}>
+            <span>
+              Nivel <b>{nivel.nivel}</b> · {nivel.xp.toLocaleString("es-ES")} XP
+            </span>
+            <div className="xp-barra">
+              <div style={{ width: `${nivel.fraccion * 100}%` }} />
+            </div>
+          </div>
           <div className="contador-pulsaciones" role="status" aria-label="Pulsaciones totales">
             <b>{pulsaciones.toLocaleString("es-ES")}</b>
             <span>pulsaciones</span>
