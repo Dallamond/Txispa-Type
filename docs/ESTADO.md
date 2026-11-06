@@ -1,4 +1,28 @@
-# Estado del proyecto (copia de seguridad del 27 de octubre de 2026)
+# Estado del proyecto (actualizado el 6 de noviembre de 2026)
+
+> La sección del curso se actualiza en cada push. El resto del documento es la copia del 27 de octubre de 2026; el análisis técnico del 4 de noviembre está en `ESTADO_DEL_PROYECTO.md`.
+
+## Cursos (pestaña Curso)
+
+**Curso de HTML y CSS:** se aprende tecleando código real. Cada línea se cierra con `Enter`, la sangría la pone la app, el cierre de cada palabra es el espacio, y al lado de la línea activa aparece el significado de sus etiquetas, atributos, selectores o propiedades. Una lección se supera con ≥ 95 % de precisión (la velocidad no cuenta para pasarla); se domina con 98 % y 8-16 ppm según su dificultad, o superándola en 3 días distintos.
+
+| Módulo | Contenido | Estado |
+| --- | --- | --- |
+| M01 | Estructura básica de HTML5 (5 + repaso) | Abierto |
+| M02 | Texto: encabezados, párrafos, formato | Abierto |
+| M03 | Enlaces, imágenes y listas (estrena `#` y `@` con AltGr) | Abierto |
+| M04 | Tablas y formularios | Abierto |
+| M05 | Multimedia, semántica y accesibilidad | Abierto |
+| M06 | Fundamentos de CSS (estrena `{ } ;`, `*`, `[ ]`, `'`) | Abierto (P10) |
+| M07-M12 | CSS: modelo de caja, display, Flexbox/Grid, adaptable, animaciones, buenas prácticas | Pendiente de abrir, uno por push |
+| M13 | Diccionario de etiquetas HTML (módulo libre, cada etiqueta abierta, cerrada y comentada) | Abierto |
+
+- **Dónde está:** contenido en `docs/curso/TEMARIO-HTML-CSS.md` (fuente) → `npm run curso:generar` → `app/src/data/curso/{html,css}.ts`. Lógica en `lib/curso.ts` (tokens, superada), `lib/motorCodigo.ts` (motor), `lib/progresoCurso.ts` (estados y desbloqueo) y `lib/glosario.ts` (notas laterales). Pantallas: `components/{Curso,TecleoCodigo,AreaCodigo,ResultadoLeccion}.tsx`. Módulos visibles en `data/curso/activos.ts`.
+- **Datos:** no hay almacén nuevo. Cada lección tecleada es un intento (`fuente "curso"`, `modo "entreno"`, `leccionId` como `html/L01.01`); el progreso se calcula a partir de ellos, así que exportar/importar lo conserva. Las lecciones suman al tiempo del día, pero no cuentan como entreno del plan ni para la media de ppm. Nuevo ajuste `desbloquearCurso` en `txispatype.settings.v1`.
+- **Calidad:** `npm run check` incluye que los datos generados estén al día con el temario y un test que valida las 71 lecciones (longitud, sangría, caracteres tecleables, etiquetas y llaves balanceadas, símbolos nuevos, explicaciones) y que todo lo usado tiene nota en el glosario.
+- **Sin verificar en navegador por Claude** (la extensión de Chrome no conecta): lo prueba Lucas. Pendiente de su revisión: los textos del glosario y del diccionario, y el temario M06-M12. Checklists en `docs/FASES.md`, Fase 6.
+- **Pendiente del curso:** abrir M07-M12, tarjeta "Siguiente lección" en Inicio, filtro de estadísticas por curso, símbolos de programación como teclas débiles, vista previa renderizada (opcional), y más cursos (ver `docs/curso/AÑADIR-CURSO.md` cuando exista).
+- **Futuro:** Lucas quiere fusionar otro juego de mecanografía que ya creó; mantener motor, datos y pantalla desacoplados.
 
 ## Resumen
 

@@ -246,7 +246,8 @@ Detalle en `docs/curso/` (`ROADMAP-CURSO.md`, `SPEC-FORMATO-LECCIONES.md` con la
 - [x] P7: M03 · Enlaces, imágenes y listas. Estrena `#` y `@` con AltGr: **primera prueba real de AltGr**.
 - [x] P8: M04 · Tablas y formularios.
 - [x] P9: M05 · Multimedia, semántica y accesibilidad.
-- [ ] P10-P16: M06 a M12 (CSS), uno por push. Cada uno lleva su glosario de propiedades CSS para las notas laterales.
+- [x] P10: M06 · Fundamentos de CSS. Incluye el **glosario CSS** (propiedades, selectores y reglas @) en las notas laterales, con tests de cobertura. Primera prueba real de `{ } ;`, `*`, `[ ]` y la comilla simple.
+- [ ] P11-P16: M07 a M12 (CSS), uno por push.
 - [ ] P17: Hoy y estadísticas. P18: exportar/importar. P19 (opcional): vista previa renderizada.
 
 **Hecho cuando:** se puede completar el curso entero con el teclado físico, el progreso sobrevive a recargar y a exportar/importar, y el plan del día no cambia.
