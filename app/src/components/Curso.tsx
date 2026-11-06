@@ -1,7 +1,6 @@
 import { useCallback, useMemo, useState } from "react";
 import type { Ajustes, Intento } from "../types";
-import { MODULOS_VISIBLES } from "../data/curso/activos";
-import { MODULOS_LIBRES, idLeccion, type Leccion, type Modulo } from "../data/curso";
+import { MODULOS, MODULOS_LIBRES, idLeccion, type Leccion, type Modulo } from "../data/curso";
 import {
   avanceDeModulo,
   progresoCurso,
@@ -41,14 +40,14 @@ export default function Curso({ ajustes, intentos, onGuardar }: Props) {
   const repetir = useCallback(() => setElegida((e) => (e ? { ...e, n: e.n + 1 } : e)), []);
 
   const estados = useMemo(
-    () => progresoCurso(intentos, MODULOS_VISIBLES, { desbloquearTodo: ajustes.desbloquearCurso, libres: MODULOS_LIBRES }),
+    () => progresoCurso(intentos, MODULOS, { desbloquearTodo: ajustes.desbloquearCurso, libres: MODULOS_LIBRES }),
     [intentos, ajustes.desbloquearCurso]
   );
   const resumenes = useMemo(() => resumenesDeLecciones(intentos), [intentos]);
 
   if (elegida) {
     const { modulo, leccion, n } = elegida;
-    const proxima = siguienteLeccion(MODULOS_VISIBLES, modulo, leccion, MODULOS_LIBRES);
+    const proxima = siguienteLeccion(MODULOS, modulo, leccion, MODULOS_LIBRES);
     const puedeSeguir = proxima !== null && estados.get(idLeccion(proxima.modulo, proxima.leccion)) !== "bloqueada";
     return (
       <div>
@@ -84,7 +83,7 @@ export default function Curso({ ajustes, intentos, onGuardar }: Props) {
     );
   }
 
-  const continuar = siguienteDisponible(MODULOS_VISIBLES, estados, MODULOS_LIBRES);
+  const continuar = siguienteDisponible(MODULOS, estados, MODULOS_LIBRES);
   return (
     <div>
       <div className="tarjeta">
@@ -103,7 +102,7 @@ export default function Curso({ ajustes, intentos, onGuardar }: Props) {
           )}
         </div>
       </div>
-      {MODULOS_VISIBLES.map((m) => {
+      {MODULOS.map((m) => {
         const { hechas, total } = avanceDeModulo(m, estados);
         const libre = MODULOS_LIBRES.includes(m.id);
         return (
