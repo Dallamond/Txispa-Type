@@ -238,7 +238,7 @@ Detalle en `docs/curso/` (`ROADMAP-CURSO.md`, `SPEC-FORMATO-LECCIONES.md` con la
 - [x] P1 / C1-4: `data/__tests__/curso.test.ts` con las validaciones de la §7 (191 pruebas).
 - [x] P1 / C1-5: `npm run check` comprueba que los datos generados están al día con el temario.
 - [x] P2: tokenización y motor de código (`lib/curso.ts`, `lib/motorCodigo.ts`, `crearIntentoLeccion`, `Fuente "curso"`, `Intento.leccionId` validado al importar). El Enter se guarda como `⏎` en las teclas y confusiones.
-- [ ] P3: primera lección tecleable (pestaña Curso, `TecleoCodigo`).
+- [x] P3: pestaña Curso con `TecleoCodigo`, `AreaCodigo` y un resultado mínimo (`ResultadoLeccion`). Se activa el módulo M01 entero (5 lecciones y el repaso) en vez de solo L01.01. `plan.ts` ya no cuenta una lección como entreno del día. **Sin verificar en navegador** (la extensión de Chrome no estaba conectada): solo compila y pasan los tests de la lógica.
 - [ ] P4: módulo 1 completo y pantalla de resultado.
 - [ ] P5: progreso, candados y ajuste "Desbloquear todo".
 - [ ] P6-P16: módulos M02 a M12, uno por push.
@@ -250,6 +250,16 @@ Detalle en `docs/curso/` (`ROADMAP-CURSO.md`, `SPEC-FORMATO-LECCIONES.md` con la
 - El validador encontró que L10.02 (media queries) tenía 15 líneas; con tu visto bueno el límite de las lecciones pasó de 14 a 15. El contenido del temario no se ha modificado.
 - La pestaña Curso aún no existe: P1 no cambia nada visible en la web. Solo hay que comprobar que el sitio desplegado sigue igual.
 - [ ] Revisar que el sitio de GitHub Pages sigue funcionando tras el despliegue (pestaña Actions del repositorio en verde).
+
+**P3, checklist de Lucas (pestaña Curso, módulo M01):**
+- [ ] La pestaña Curso aparece entre Entrenar y Logros y lista M01 con sus 6 elementos.
+- [ ] Al abrir L01.01 se ve el código con la sangría puesta y el cursor en la primera letra. El reloj arranca con la primera pulsación.
+- [ ] Teclear `<`, `>`, `/`, `"`, `=`: no cuentan fallo. `Enter` cierra la línea (se ve `⏎`) y el espacio cierra la palabra.
+- [ ] Pulsar espacio donde toca Enter (o al revés) cuenta fallo y no avanza. Con una letra mal: se pone en rojo; Backspace la quita.
+- [ ] La lección termina sola al dejar bien la última palabra y muestra ppm, precisión, errores y tiempo. Con ≥ 95 % dice "Lección superada".
+- [ ] Enter en el resultado repite; Esc a mitad vuelve al listado sin guardar.
+- [ ] La lección aparece en el historial de Inicio como "Curso", suma al tiempo de hoy y no marca el entreno del plan como hecho.
+- [ ] Tema claro y una ventana estrecha: el código largo (L01.03) hace scroll horizontal en vez de romperse.
 
 ## Registro de decisiones
 

@@ -242,14 +242,15 @@ export interface PasoPlan {
 /**
  * Lista de pasos del plan. El foco sale de `dia`; lo hecho se mide sobre los intentos de `hoy`.
  * - tests: hecho si los tests de hoy >= objetivoTests.
- * - entreno: hecho si hay algún intento "entreno" hoy con fuente distinta de "ejercicio".
+ * - entreno: hecho si hay algún intento "entreno" hoy con fuente distinta de "ejercicio" y "curso"
+ *   (las lecciones del curso cuentan como tiempo, pero no sustituyen al entreno de teclas del día).
  * - calentamiento y revisión no se guardan: hecho false y manual true.
  */
 export function pasosDelDia(dia: string, hoy: string, intentos: Intento[], objetivoTests: number): PasoPlan[] {
   const foco = focoDelDia(dia);
   const e = foco.entreno;
   const testsHoy = testsDelDia(intentos, hoy).length;
-  const entrenoHecho = intentos.some((i) => i.localDate === hoy && i.modo === "entreno" && i.fuente !== "ejercicio");
+  const entrenoHecho = intentos.some((i) => i.localDate === hoy && i.modo === "entreno" && i.fuente !== "ejercicio" && i.fuente !== "curso");
 
   const detalleEntreno =
     e.minutos > 0 ? `${foco.foco} (${e.minutos} min): ${e.descripcion}` : `${foco.foco}: ${e.descripcion}`;

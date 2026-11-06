@@ -1575,3 +1575,131 @@ select:focus-visible {
   margin: 8px 0 0;
   padding-left: 20px;
 }
+
+/* ---------- Curso de HTML y CSS ---------- */
+
+.cod-caja {
+  margin: 28px 0 22px;
+  overflow-x: auto;
+}
+
+.cod-codigo {
+  font-family: var(--mono);
+  font-size: 1.3rem;
+  line-height: 1.75;
+  width: max-content;
+  min-width: 100%;
+}
+
+.cod-linea {
+  white-space: pre;
+  min-height: 1.75em;
+}
+
+/* El hueco entre palabras lo da el cierre (espacio o ⏎), así que el margen de .w sobra. */
+.cod-linea .w {
+  margin-right: 0;
+}
+
+.cod-cierre {
+  display: inline-block;
+  min-width: 1ch;
+  color: var(--faint);
+  text-align: center;
+}
+
+.cur-leccion .cur-explicacion {
+  margin: 8px 0 12px;
+  line-height: 1.6;
+}
+
+.cur-leccion kbd,
+.cur-lista + kbd {
+  margin-right: 6px;
+}
+
+.cur-lista {
+  list-style: none;
+  margin: 14px 0 0;
+  padding: 0;
+}
+
+.cur-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  padding: 11px 6px;
+  border: 0;
+  border-bottom: 1px solid var(--border-soft);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.cur-item:hover,
+.cur-item:focus-visible {
+  background: var(--bg3);
+}
+
+.cur-id {
+  color: var(--faint);
+  font-size: 13px;
+  min-width: 5.5ch;
+}
+
+.cur-titulo {
+  flex: 1;
+}
+
+.cur-etiqueta {
+  font-size: 11.5px;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.cur-dif {
+  color: var(--dim);
+  letter-spacing: 2px;
+  font-size: 12px;
+}
+
+.cur-cifras {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 32px;
+  margin: 22px 0;
+}
+
+.cur-cifras div {
+  display: flex;
+  flex-direction: column;
+}
+
+.cur-cifras b {
+  font-size: 34px;
+  font-weight: 650;
+  line-height: 1.1;
+}
+
+.cur-cifras span {
+  color: var(--dim);
+  font-size: 13px;
+}
+
+.cur-cifras .ok b {
+  color: var(--ok);
+}
+
+.cur-cifras .mal b {
+  color: var(--warn);
+}
+
+.cur-acciones {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}

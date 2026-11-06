@@ -56,7 +56,7 @@ export default function AreaTexto({ palabras, tecleadas, idx, adelante = 120, fa
 
 // `memo` no es un adorno: sin él cada pulsación vuelve a montar las ~130 palabras.
 // Por eso `tecleada` se pasa como string y no dentro de un objeto recién creado.
-const Palabra = memo(function Palabra({
+export const Palabra = memo(function Palabra({
   palabra,
   tecleada,
   estado,

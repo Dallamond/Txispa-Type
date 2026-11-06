@@ -11,6 +11,7 @@ import Hoy from "./components/Hoy";
 import Calentar from "./components/Calentar";
 import Test from "./components/Test";
 import Entrenar, { type FuenteEntrenar, type PedidoEntreno } from "./components/Entrenar";
+import Curso from "./components/Curso";
 import Logros from "./components/Logros";
 import Estadisticas from "./components/Estadisticas";
 import AjustesPantalla from "./components/AjustesPantalla";
@@ -23,6 +24,7 @@ const PESTANAS = [
   { id: "calentar", etiqueta: "Calentar" },
   { id: "test", etiqueta: "Test" },
   { id: "entrenar", etiqueta: "Entrenar" },
+  { id: "curso", etiqueta: "Curso" },
   { id: "logros", etiqueta: "Logros" },
 ] as const;
 
@@ -200,7 +202,8 @@ export default function App() {
         {pestana === "calentar" && <Calentar ajustes={ajustes} intentos={intentos} onCambiarAjustes={cambiarAjustes} onIr={setPestana} />}
         {pestana === "test" && <Test ajustes={ajustes} intentos={intentos} onGuardar={guardar} onCambiarAjustes={cambiarAjustes} />}
         {pestana === "entrenar" && <Entrenar ajustes={ajustes} intentos={intentos} onGuardar={guardar} pedido={pedido} />}
-        {pestana === "logros" && <Logros intentos={intentos} objetivoTests={ajustes.objetivoTests} />}
+        {pestana === "curso" && <Curso ajustes={ajustes} onGuardar={guardar} />}
+        {pestana === "logros" &&<Logros intentos={intentos} objetivoTests={ajustes.objetivoTests} />}
       </main>
 
       {ajustesAbiertos && (

@@ -168,6 +168,10 @@ describe("pasosDelDia", () => {
     const ayer = intento("2026-10-25", { modo: "entreno", fuente: "debiles" });
     expect(pasosDelDia(HOY, HOY, [ayer], 3)[1].hecho).toBe(false);
   });
+  it("una lección del curso no cuenta como entreno del día", () => {
+    const leccion = intento(HOY, { modo: "entreno", fuente: "curso", leccionId: "html/L01.01" });
+    expect(pasosDelDia(HOY, HOY, [leccion], 3)[1].hecho).toBe(false);
+  });
   it("domingo: el detalle habla de medición y de los tests de 60 y 120 s", () => {
     const p = pasosDelDia("2026-11-01", "2026-11-01", [], 3);
     expect(p[1].detalle).toContain("Medición");
