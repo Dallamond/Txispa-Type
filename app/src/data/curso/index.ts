@@ -12,6 +12,9 @@ export const MODULOS: readonly Modulo[] = [...MODULOS_HTML, ...MODULOS_CSS].sort
 /** Todas las lecciones en el orden del curso. */
 export const LECCIONES: readonly Leccion[] = MODULOS.flatMap((m) => m.lecciones);
 
+/** Módulos fuera de la ruta del curso: abiertos desde el principio y sin desbloquear a otros (el diccionario). */
+export const MODULOS_LIBRES: readonly string[] = ["M13"];
+
 /** Identificador que se guarda en el intento: "html/L01.01". */
 export function idLeccion(modulo: Modulo, leccion: Leccion): string {
   return `${modulo.curso}/${leccion.id}`;

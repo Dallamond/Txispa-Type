@@ -85,6 +85,8 @@ export interface Ajustes {
   /** Duración del calentamiento tecleado, en minutos. */
   calentamientoMin: number;
   reglasDeAjuste: boolean;
+  /** Curso: salta el orden y deja todas las lecciones disponibles. */
+  desbloquearCurso: boolean;
   sonidos: boolean;
   ollamaUrl: string;
   ollamaModelo: string;

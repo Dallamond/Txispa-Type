@@ -119,6 +119,10 @@ export default function AjustesPantalla({ ajustes, onCambiar, almacen, intentos 
         <input type="checkbox" checked={ajustes.estrictoPorDefecto} onChange={(e) => onCambiar({ estrictoPorDefecto: e.target.checked })} />
       </label>
       <label className="fila">
+        <span>Curso: desbloquear todas las lecciones</span>
+        <input type="checkbox" checked={ajustes.desbloquearCurso} onChange={(e) => onCambiar({ desbloquearCurso: e.target.checked })} />
+      </label>
+      <label className="fila">
         <span>Puntuación y mayúsculas</span>
         <input type="checkbox" checked={ajustes.puntuacionYMayusculas} onChange={(e) => onCambiar({ puntuacionYMayusculas: e.target.checked })} />
       </label>

@@ -21,6 +21,7 @@ export const AJUSTES_POR_DEFECTO: Ajustes = {
   duracionPorDefecto: 60,
   calentamientoMin: 5,
   reglasDeAjuste: true,
+  desbloquearCurso: false,
   sonidos: false,
   ollamaUrl: "http://localhost:11434",
   ollamaModelo: "",
@@ -64,6 +65,7 @@ export function normalizarAjustes(crudo: unknown): Ajustes {
       ? (o.calentamientoMin as number)
       : d.calentamientoMin,
     reglasDeAjuste: bool(o.reglasDeAjuste, d.reglasDeAjuste),
+    desbloquearCurso: bool(o.desbloquearCurso, d.desbloquearCurso),
     sonidos: bool(o.sonidos, d.sonidos),
     ollamaUrl: texto(o.ollamaUrl, d.ollamaUrl).trim() || d.ollamaUrl,
     ollamaModelo: texto(o.ollamaModelo, d.ollamaModelo),

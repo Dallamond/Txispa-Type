@@ -1846,3 +1846,53 @@ select:focus-visible {
   font-style: normal;
   color: var(--faint);
 }
+
+/* Progreso del curso */
+.cur-modulo-cab {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.cur-modulo-cab h1 {
+  margin-bottom: 0;
+}
+
+.cur-avance {
+  margin-left: auto;
+  color: var(--dim);
+  font-size: 14px;
+}
+
+.cur-estado {
+  width: 1.6em;
+  text-align: center;
+  color: var(--faint);
+}
+
+.cur-item.hecha .cur-estado {
+  color: var(--ok);
+}
+
+.cur-item.dominada .cur-estado {
+  color: var(--warn);
+}
+
+.cur-item.disponible .cur-estado {
+  color: var(--accent);
+}
+
+.cur-item:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.cur-item:disabled:hover {
+  background: transparent;
+}
+
+.cur-mejor {
+  font-size: 12.5px;
+  white-space: nowrap;
+}

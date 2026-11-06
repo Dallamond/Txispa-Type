@@ -241,7 +241,7 @@ Detalle en `docs/curso/` (`ROADMAP-CURSO.md`, `SPEC-FORMATO-LECCIONES.md` con la
 - [x] P3: pestaña Curso con `TecleoCodigo`, `AreaCodigo` y un resultado mínimo (`ResultadoLeccion`). Se activa el módulo M01 entero (5 lecciones y el repaso) en vez de solo L01.01. `plan.ts` ya no cuenta una lección como entreno del día. **Sin verificar en navegador** (la extensión de Chrome no estaba conectada): solo compila y pasan los tests de la lógica.
 - [x] P4: resultado completo de la lección (`ResultadoLeccion`: ppm, precisión, errores, símbolos y confusiones con fallos, "Lección superada" con `leccionSuperada` ≥ 95 %, Repetir y Siguiente lección) y ajustes para pantallas estrechas. El resaltado de Enter, Shift y AltGr en el teclado virtual ya lo da `CHARMAP`. **Sin verificar en navegador.**
 - [x] P4b (pedido por Lucas): glosario de etiquetas y atributos (`data/curso/glosario.ts`, `lib/glosario.ts` con tests) con **notas laterales** en la línea que se está tecleando, y módulo **M13 · Diccionario de etiquetas HTML** (8 lecciones por categorías y un repaso: etiqueta abierta, cerrada y significado como comentario, sin tildes en el código). Un test comprueba que toda etiqueta y atributo del curso tiene nota. Los textos del glosario los redactó Claude: **pendientes de tu revisión**. Para CSS (M06 en adelante) habrá glosario de propiedades al abrir esos módulos. Sin verificar en navegador.
-- [ ] P5: progreso, candados y ajuste "Desbloquear todo".
+- [x] P5: `lib/progresoCurso.ts` (estados bloqueada / disponible / hecha / dominada derivados de los intentos, `siguienteDisponible`, `siguienteLeccion`, mejores marcas) con tests; pantalla Curso con candados, ✓ y ★, barra y contador por módulo, botón **Continuar**, y ajuste **Curso: desbloquear todas las lecciones** (`desbloquearCurso`, en `txispatype.settings.v1`). Criterios semilla: hecha con ≥ 95 % de precisión; dominada con 98 % y 8/10/12/14/16 ppm según la dificultad, o superándola en 3 días distintos. M13 (diccionario) es un módulo libre: abierto desde el principio y fuera de la cadena de desbloqueo. Sin verificar en navegador.
 - [ ] P6-P16: módulos M02 a M12, uno por push.
 - [ ] P17: Hoy y estadísticas. P18: exportar/importar. P19 (opcional): vista previa renderizada.
 
@@ -251,6 +251,14 @@ Detalle en `docs/curso/` (`ROADMAP-CURSO.md`, `SPEC-FORMATO-LECCIONES.md` con la
 - El validador encontró que L10.02 (media queries) tenía 15 líneas; con tu visto bueno el límite de las lecciones pasó de 14 a 15. El contenido del temario no se ha modificado.
 - La pestaña Curso aún no existe: P1 no cambia nada visible en la web. Solo hay que comprobar que el sitio desplegado sigue igual.
 - [ ] Revisar que el sitio de GitHub Pages sigue funcionando tras el despliegue (pestaña Actions del repositorio en verde).
+
+**P5, checklist de Lucas (progreso):**
+- [ ] Con datos nuevos, en M01 solo está abierta L01.01; las demás salen con candado y no se pueden abrir. M13 está abierto desde la primera lección.
+- [ ] Superar L01.01 (≥ 95 %) pone ✓ y abre L01.02. Con menos del 95 % se queda abierta y "Siguiente lección" no aparece. Recargar la página conserva el progreso.
+- [ ] La estrella ★ sale con 98 % y 8 ppm o más en lecciones de dificultad 1, o tras superarla en tres días distintos.
+- [ ] "Continuar" lleva a la primera lección disponible; la barra y el contador `x/y` del módulo suben al hacer lecciones.
+- [ ] Ajustes > "Curso: desbloquear todas las lecciones" abre todo sin hacer el orden (útil para probar un módulo concreto).
+- [ ] Cada lección muestra su mejor ppm y precisión tras hacerla.
 
 **P4b, checklist de Lucas (notas y diccionario):**
 - [ ] En cualquier lección, al lado de la línea que tecleas aparece en naranja la nota de sus etiquetas (hasta 3) y cambia al pasar de línea. En líneas sin etiquetas (CSS) no sale nada.

@@ -202,7 +202,7 @@ export default function App() {
         {pestana === "calentar" && <Calentar ajustes={ajustes} intentos={intentos} onCambiarAjustes={cambiarAjustes} onIr={setPestana} />}
         {pestana === "test" && <Test ajustes={ajustes} intentos={intentos} onGuardar={guardar} onCambiarAjustes={cambiarAjustes} />}
         {pestana === "entrenar" && <Entrenar ajustes={ajustes} intentos={intentos} onGuardar={guardar} pedido={pedido} />}
-        {pestana === "curso" && <Curso ajustes={ajustes} onGuardar={guardar} />}
+        {pestana === "curso" && <Curso ajustes={ajustes} intentos={intentos} onGuardar={guardar} />}
         {pestana === "logros" &&<Logros intentos={intentos} objetivoTests={ajustes.objetivoTests} />}
       </main>
 
