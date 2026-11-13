@@ -56,3 +56,24 @@ describe("tiempo extra del día (sesiones sin terminar)", () => {
     expect(sumarTiempoExtra(null, HOY, 30)).toBe(30);
   });
 });
+
+import { leerContadores, restaurarContadores } from "../contador";
+
+describe("exportar y restaurar contadores", () => {
+  const memoria = () => {
+    const m = new Map<string, string>();
+    return { getItem: (k: string) => m.get(k) ?? null, setItem: (k: string, v: string) => void m.set(k, v) };
+  };
+
+  it("restaurar no duplica: gana el mayor y repetir da lo mismo", () => {
+    const a = memoria();
+    sumarPulsacionesCalentamiento(a, 500);
+    restaurarContadores(a, { calentamientoPuls: 300, tiempoExtra: null });
+    expect(leerPulsacionesCalentamiento(a)).toBe(500);
+    restaurarContadores(a, { calentamientoPuls: 900, tiempoExtra: { dia: "2026-11-13", segundos: 60 } });
+    restaurarContadores(a, { calentamientoPuls: 900, tiempoExtra: { dia: "2026-11-13", segundos: 60 } });
+    expect(leerPulsacionesCalentamiento(a)).toBe(900);
+    expect(leerContadores(a, "2026-11-13").tiempoExtra).toEqual({ dia: "2026-11-13", segundos: 60 });
+    expect(leerContadores(a, "2026-11-14").tiempoExtra).toBeNull();
+  });
+});

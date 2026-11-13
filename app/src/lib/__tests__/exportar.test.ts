@@ -73,3 +73,35 @@ describe("exportar e importar", () => {
     expect(nombreArchivo("2026-10-25")).toBe("txispa-type-2026-10-25.json");
   });
 });
+
+describe("contadores y validación estricta", () => {
+  const fecha = new Date("2026-11-13T10:00:00Z");
+  const base = intentoDePrueba("a", "2026-11-13T09:00:00Z", { modo: "test" });
+
+  it("la exportación lleva los contadores y se leen al importar", () => {
+    const c = { calentamientoPuls: 1200, tiempoExtra: { dia: "2026-11-13", segundos: 95 } };
+    const r = leerImportacion(JSON.stringify(crearExportacion([base], AJUSTES_POR_DEFECTO, fecha, c)));
+    expect(r.ok && r.contadores).toEqual(c);
+  });
+
+  it("un archivo antiguo sin contadores sigue valiendo", () => {
+    const r = leerImportacion(JSON.stringify(crearExportacion([base], AJUSTES_POR_DEFECTO, fecha)));
+    expect(r.ok && r.contadores).toBeNull();
+  });
+
+  it("contadores rotos se ignoran sin rechazar el archivo", () => {
+    const texto = JSON.stringify({ ...crearExportacion([base], AJUSTES_POR_DEFECTO, fecha), contadores: { calentamientoPuls: "mucho" } });
+    const r = leerImportacion(texto);
+    expect(r.ok).toBe(true);
+    expect(r.ok && r.contadores).toBeNull();
+  });
+
+  it("descarta intentos con estadísticas no numéricas o con demasiadas claves", () => {
+    expect(esIntentoValido({ ...base, teclas: { a: { n: "x", e: 0, ms: 0, msN: 0 } } })).toBe(false);
+    expect(esIntentoValido({ ...base, pares: { ab: { n: 1 } } })).toBe(false);
+    expect(esIntentoValido({ ...base, confusiones: { "a>b": Number.NaN } })).toBe(false);
+    const muchas = Object.fromEntries(Array.from({ length: 201 }, (_, i) => [`k${i}`, 1]));
+    expect(esIntentoValido({ ...base, confusiones: muchas })).toBe(false);
+    expect(esIntentoValido(base)).toBe(true);
+  });
+});

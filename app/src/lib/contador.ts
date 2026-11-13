@@ -28,6 +28,31 @@ export function sumarPulsacionesCalentamiento(almacen: AlmacenClaveValor | null,
   return total;
 }
 
+/** Contadores actuales, para la exportación. */
+export function leerContadores(almacen: AlmacenClaveValor | null, hoy: string): { calentamientoPuls: number; tiempoExtra: { dia: string; segundos: number } | null } {
+  const v = leerCrudo(almacen);
+  return { calentamientoPuls: leerPulsacionesCalentamiento(almacen), tiempoExtra: v.dia === hoy && v.segundos > 0 ? { dia: v.dia, segundos: v.segundos } : null };
+}
+
+/** Restaura contadores importados sin duplicar: gana el mayor de lo local y lo importado, así importar dos veces no suma dos. */
+export function restaurarContadores(almacen: AlmacenClaveValor | null, importados: { calentamientoPuls: number; tiempoExtra: { dia: string; segundos: number } | null }): void {
+  if (!almacen) return;
+  try {
+    if (importados.calentamientoPuls > leerPulsacionesCalentamiento(almacen)) {
+      almacen.setItem(CLAVE_CALENTAMIENTO, JSON.stringify(importados.calentamientoPuls));
+    }
+    const t = importados.tiempoExtra;
+    if (t) {
+      const actual = leerCrudo(almacen);
+      if (actual.dia !== t.dia || t.segundos > actual.segundos) {
+        if (actual.dia <= t.dia) almacen.setItem(CLAVE_TIEMPO_EXTRA, JSON.stringify({ dia: t.dia, segundos: t.segundos } satisfies TiempoExtra));
+      }
+    }
+  } catch {
+    // Almacenamiento lleno o bloqueado: los intentos importados no dependen de esto.
+  }
+}
+
 // Tiempo de práctica vivido en sesiones que no acabaron (test abandonado, pestaña
 // cerrada). Los intentos guardados ya cuentan su tiempo; esto solo cubre lo demás
 // del día, para que cada segundo tecleado sume aunque el test no se complete.

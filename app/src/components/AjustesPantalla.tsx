@@ -1,7 +1,8 @@
 import { useRef, useState } from "react";
 import type { Ajustes, Intento } from "../types";
 import type { RunStore } from "../lib/almacen";
-import { DURACIONES } from "../lib/ajustes";
+import { DURACIONES, almacenLocal } from "../lib/ajustes";
+import { leerContadores, restaurarContadores } from "../lib/contador";
 import { DURACIONES_CALENTAMIENTO } from "../lib/calentamientos";
 import { crearExportacion, leerImportacion, nombreArchivo } from "../lib/exportar";
 import { diaLocal } from "../lib/estadisticas";
@@ -39,7 +40,7 @@ export default function AjustesPantalla({ ajustes, onCambiar, almacen, intentos 
 
   function exportar() {
     const ahora = new Date();
-    const datos = crearExportacion(intentos, ajustes, ahora);
+    const datos = crearExportacion(intentos, ajustes, ahora, leerContadores(almacenLocal(), diaLocal(ahora)));
     const url = URL.createObjectURL(new Blob([JSON.stringify(datos)], { type: "application/json" }));
     const a = document.createElement("a");
     a.href = url;
@@ -57,6 +58,7 @@ export default function AjustesPantalla({ ajustes, onCambiar, almacen, intentos 
     }
     const nuevos = await almacen.importMany(r.intentos);
     if (r.ajustes) onCambiar(r.ajustes);
+    if (r.contadores) restaurarContadores(almacenLocal(), r.contadores);
     const descartados = r.descartados > 0 ? ` ${r.descartados} con formato roto se han descartado.` : "";
     setMensaje(`Importados ${nuevos} intentos nuevos (${r.intentos.length - nuevos} ya existían).${descartados}`);
   }
