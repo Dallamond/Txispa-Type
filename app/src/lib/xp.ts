@@ -5,7 +5,9 @@
 
 import type { Intento } from "../types";
 import { PRECISION_MINIMA } from "./medidas";
-import { esLeccionSuperada, estadosGam, moduloCompleto, moduloDeLeccion } from "./gamCurso";
+import { buscarLeccion } from "../data/curso";
+import { esLeccionSuperada, moduloCompleto, moduloDeLeccion, type EstadoGam } from "./gamCurso";
+import { esDominada } from "./progresoCurso";
 
 /** Caracteres correctos que dan 1 XP. */
 export const CARACTERES_POR_XP = 10;
@@ -51,53 +53,75 @@ export function mejorWpmDigno(intentos: readonly Intento[]): number | null {
   return mejor;
 }
 
-/** Bonus del curso, comparando el progreso antes y después del intento (los criterios de
- * hecha y dominada son los de `progresoCurso`). Solo si el intento es una lección superada. */
-function bonusCurso(intento: Intento, previos: readonly Intento[]): { leccion: number; dominada: number; modulo: number } {
-  const nulo = { leccion: 0, dominada: 0, modulo: 0 };
-  if (!esLeccionSuperada(intento)) return nulo;
-  const id = intento.leccionId!;
-  const antes = estadosGam(previos);
-  const despues = estadosGam([...previos, intento]);
-  const antesLeccion = antes.get(id) ?? "pendiente";
-  const leccion = antesLeccion === "pendiente" ? BONUS_LECCION : 0;
-  const dominada = antesLeccion !== "dominada" && despues.get(id) === "dominada" ? BONUS_DOMINADA : 0;
-  const m = moduloDeLeccion(id);
-  const modulo = m && !moduloCompleto(m, antes) && moduloCompleto(m, despues) ? BONUS_MODULO : 0;
-  return { leccion, dominada, modulo };
+/** Estado del historial ya procesado: permite calcular el XP de cada intento en una sola pasada,
+ * sin volver a recorrer todos los anteriores (antes `xpTotal` era O(n²)). */
+interface Acumulado {
+  /** Mejor wpm de test con precisión digna hasta ahora. */
+  mejorWpm: number | null;
+  /** Intentos que superan cada lección del curso, por `leccionId`. */
+  superados: Map<string, Intento[]>;
+  /** Estado de las lecciones del curso (las no hechas no aparecen: son "pendiente"). */
+  estados: Map<string, EstadoGam>;
+}
+
+const acumuladoVacio = (): Acumulado => ({ mejorWpm: null, superados: new Map(), estados: new Map() });
+
+/** Estado de una lección con los criterios de `progresoCurso` (hecha / dominada); null si ya no existe en el catálogo. */
+function estadoDeLeccion(id: string, superados: readonly Intento[]): EstadoGam | null {
+  const encontrada = buscarLeccion(id);
+  if (!encontrada) return null;
+  return esDominada(superados, encontrada.leccion) ? "dominada" : "superada";
+}
+
+/** XP de un intento dado el historial acumulado, y lo incorpora al acumulado. */
+function procesar(intento: Intento, acc: Acumulado): DesgloseXp {
+  const multiplicador = multiplicadorPrecision(intento.acc);
+  const base = Math.round((intento.correct / CARACTERES_POR_XP) * multiplicador);
+  const digno = intento.modo === "test" && intento.acc >= PRECISION_MINIMA;
+  const esRecord = digno && acc.mejorWpm !== null && intento.wpm > acc.mejorWpm;
+  const bonusRecord = esRecord ? BONUS_RECORD : 0;
+  const bonusLimpio = intento.errors === 0 && intento.correct >= MIN_CARACTERES_LIMPIO ? BONUS_LIMPIO : 0;
+
+  // Curso: se compara el progreso antes y después del intento (solo si es una lección superada).
+  let bonusLeccion = 0;
+  let bonusDominada = 0;
+  let bonusModulo = 0;
+  if (esLeccionSuperada(intento)) {
+    const id = intento.leccionId!;
+    const modulo = moduloDeLeccion(id);
+    const antesLeccion = acc.estados.get(id) ?? "pendiente";
+    const moduloAntes = modulo !== null && moduloCompleto(modulo, acc.estados);
+    const lista = acc.superados.get(id) ?? [];
+    lista.push(intento);
+    acc.superados.set(id, lista);
+    const despues = estadoDeLeccion(id, lista);
+    if (despues) acc.estados.set(id, despues);
+    if (antesLeccion === "pendiente") bonusLeccion = BONUS_LECCION;
+    if (antesLeccion !== "dominada" && despues === "dominada") bonusDominada = BONUS_DOMINADA;
+    if (modulo !== null && !moduloAntes && moduloCompleto(modulo, acc.estados)) bonusModulo = BONUS_MODULO;
+  }
+  if (digno && (acc.mejorWpm === null || intento.wpm > acc.mejorWpm)) acc.mejorWpm = intento.wpm;
+
+  const total = base + bonusRecord + bonusLimpio + bonusLeccion + bonusDominada + bonusModulo;
+  return { base, multiplicador, bonusRecord, bonusLimpio, bonusLeccion, bonusDominada, bonusModulo, total };
 }
 
 /** XP de un intento, dado lo anterior (para el bonus de récord). `previos` no incluye al intento. */
 export function desgloseXp(intento: Intento, previos: readonly Intento[]): DesgloseXp {
-  const multiplicador = multiplicadorPrecision(intento.acc);
-  const base = Math.round((intento.correct / CARACTERES_POR_XP) * multiplicador);
-  const mejor = mejorWpmDigno(previos);
-  const esRecord = intento.modo === "test" && intento.acc >= PRECISION_MINIMA && mejor !== null && intento.wpm > mejor;
-  const bonusRecord = esRecord ? BONUS_RECORD : 0;
-  const bonusLimpio = intento.errors === 0 && intento.correct >= MIN_CARACTERES_LIMPIO ? BONUS_LIMPIO : 0;
-  const curso = bonusCurso(intento, previos);
-  const total = base + bonusRecord + bonusLimpio + curso.leccion + curso.dominada + curso.modulo;
-  return {
-    base,
-    multiplicador,
-    bonusRecord,
-    bonusLimpio,
-    bonusLeccion: curso.leccion,
-    bonusDominada: curso.dominada,
-    bonusModulo: curso.modulo,
-    total,
-  };
+  const acc = acumuladoVacio();
+  for (const p of previos) procesar(p, acc);
+  return procesar(intento, acc);
 }
 
 function porFecha(intentos: readonly Intento[]): Intento[] {
   return [...intentos].sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
 }
 
-/** XP total de todo el historial. */
+/** XP total de todo el historial, en una sola pasada por orden de fecha. */
 export function xpTotal(intentos: readonly Intento[]): number {
-  const orden = porFecha(intentos);
+  const acc = acumuladoVacio();
   let total = 0;
-  for (let k = 0; k < orden.length; k++) total += desgloseXp(orden[k], orden.slice(0, k)).total;
+  for (const intento of porFecha(intentos)) total += procesar(intento, acc).total;
   return total;
 }
 

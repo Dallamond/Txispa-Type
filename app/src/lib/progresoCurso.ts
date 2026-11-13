@@ -35,7 +35,7 @@ function superadosPorLeccion(intentos: readonly Intento[]): Map<string, Intento[
   return mapa;
 }
 
-function esDominada(superados: readonly Intento[], leccion: Leccion): boolean {
+export function esDominada(superados: readonly Intento[], leccion: Leccion): boolean {
   const ppm = PPM_DOMINADA[leccion.dificultad - 1];
   if (new Set(superados.map((i) => i.localDate)).size >= DIAS_DOMINADA) return true;
   return superados.some((i) => i.acc >= PRECISION_DOMINADA && i.wpm >= ppm);
