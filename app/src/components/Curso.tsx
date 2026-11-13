@@ -1,10 +1,23 @@
 import { useCallback, useMemo, useState } from "react";
 import type { Ajustes, Intento } from "../types";
-import { CURSOS, MODULOS, MODULOS_LIBRES, idLeccion, type Leccion, type Modulo } from "../data/curso";
 import {
+  CURSOS,
+  IDS_CURSOS,
+  MODULOS_POR_CURSO,
+  esModuloLibre,
+  idLeccion,
+  libresDeCurso,
+  requisitoDe,
+  type CursoId,
+  type Leccion,
+  type Modulo,
+} from "../data/curso";
+import {
+  avanceDeCurso,
   avanceDeModulo,
-  progresoCurso,
+  progresoDeCursos,
   resumenesDeLecciones,
+  rutaCompleta,
   siguienteDisponible,
   siguienteLeccion,
   type EstadoLeccion,
@@ -24,7 +37,6 @@ interface Elegida {
   n: number;
 }
 
-
 const ICONO: Record<EstadoLeccion, { simbolo: string; texto: string }> = {
   bloqueada: { simbolo: "🔒", texto: "Bloqueada: supera antes la lección anterior" },
   disponible: { simbolo: "○", texto: "Disponible" },
@@ -32,27 +44,25 @@ const ICONO: Record<EstadoLeccion, { simbolo: string; texto: string }> = {
   dominada: { simbolo: "★", texto: "Dominada" },
 };
 
-/** Pestaña Curso: módulos y lecciones de HTML y CSS que se aprenden tecleando el código. */
+/** Pestaña Cursos: el catálogo de cursos y, dentro de cada uno, sus módulos y lecciones, que se aprenden tecleando. */
 export default function Curso({ ajustes, intentos, onGuardar }: Props) {
+  const [cursoId, setCursoId] = useState<CursoId | null>(null);
   const [elegida, setElegida] = useState<Elegida | null>(null);
   const salir = useCallback(() => setElegida(null), []);
   const repetir = useCallback(() => setElegida((e) => (e ? { ...e, n: e.n + 1 } : e)), []);
 
-  const estados = useMemo(
-    () => progresoCurso(intentos, MODULOS, { desbloquearTodo: ajustes.desbloquearCurso, libres: MODULOS_LIBRES }),
-    [intentos, ajustes.desbloquearCurso]
-  );
+  const estados = useMemo(() => progresoDeCursos(intentos, { desbloquearTodo: ajustes.desbloquearCurso }), [intentos, ajustes.desbloquearCurso]);
   const resumenes = useMemo(() => resumenesDeLecciones(intentos), [intentos]);
 
-  if (elegida) {
+  if (elegida && cursoId) {
     const { modulo, leccion, n } = elegida;
-    const proxima = siguienteLeccion(MODULOS, modulo, leccion, MODULOS_LIBRES);
+    const proxima = siguienteLeccion(MODULOS_POR_CURSO[cursoId], modulo, leccion, libresDeCurso(cursoId));
     const puedeSeguir = proxima !== null && estados.get(idLeccion(proxima.modulo, proxima.leccion)) !== "bloqueada";
     return (
       <div>
         <div className="tarjeta cur-leccion">
           <p className="tenue">
-            {CURSOS[modulo.curso]} · {modulo.titulo}
+            {CURSOS[modulo.curso].nombre} · {modulo.titulo}
           </p>
           <h1>
             {leccion.id} · {leccion.titulo}
@@ -69,7 +79,7 @@ export default function Curso({ ajustes, intentos, onGuardar }: Props) {
         </div>
         <TecleoCodigo
           intentos={intentos}
-          key={`${leccion.id}-${n}`}
+          key={`${idLeccion(modulo, leccion)}-${n}`}
           codigo={leccion.codigo}
           leccionId={idLeccion(modulo, leccion)}
           titulo={`${leccion.id} · ${leccion.titulo}`}
@@ -83,15 +93,52 @@ export default function Curso({ ajustes, intentos, onGuardar }: Props) {
     );
   }
 
-  const continuar = siguienteDisponible(MODULOS, estados, MODULOS_LIBRES);
+  if (!cursoId) {
+    return (
+      <div>
+        <div className="tarjeta">
+          <h1>Cursos</h1>
+          <p className="tenue">
+            Aprendes tecleando el código real. Cada línea se cierra con <kbd>Enter</kbd>, la sangría la pone la app y las lecciones cuentan como
+            tiempo de práctica. Una lección se da por hecha con un 95 % de precisión.
+          </p>
+        </div>
+        <div className="cur-catalogo">
+          {IDS_CURSOS.map((id) => {
+            const { hechas, total } = avanceDeCurso(id, estados);
+            const requiere = requisitoDe(id);
+            const cerrado = requiere !== undefined && !ajustes.desbloquearCurso && !rutaCompleta(requiere, estados);
+            return (
+              <button type="button" key={id} className={`tarjeta cur-curso${cerrado ? " cerrado" : ""}`} onClick={() => setCursoId(id)}>
+                <span className="cur-curso-cab">
+                  <h1>{CURSOS[id].nombre}</h1>
+                  <span className="cur-avance mono">
+                    {hechas}/{total}
+                  </span>
+                </span>
+                <span className="tenue">{CURSOS[id].descripcion}</span>
+                <span className="cronometro-barra" role="progressbar" aria-valuemin={0} aria-valuemax={total} aria-valuenow={hechas} aria-label={`Progreso del curso de ${CURSOS[id].nombre}`}>
+                  <span className="cronometro-relleno" style={{ width: `${total ? (hechas / total) * 100 : 0}%` }} />
+                </span>
+                {cerrado && requiere && <span className="cur-etiqueta">Se abre al completar {CURSOS[requiere].nombre}</span>}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    );
+  }
+
+  const modulos = MODULOS_POR_CURSO[cursoId];
+  const continuar = siguienteDisponible(modulos, estados, libresDeCurso(cursoId));
   return (
     <div>
       <div className="tarjeta">
-        <h1>Curso de HTML y CSS</h1>
-        <p className="tenue">
-          Aprendes HTML5 y CSS3 tecleando código real. Cada línea se cierra con <kbd>Enter</kbd>, la sangría la pone la app y las
-          lecciones cuentan como tiempo de práctica. Una lección se da por hecha con un 95 % de precisión.
-        </p>
+        <button type="button" className="btn" onClick={() => setCursoId(null)}>
+          ← Cursos
+        </button>
+        <h1>Curso de {CURSOS[cursoId].nombre}</h1>
+        <p className="tenue">{CURSOS[cursoId].descripcion}</p>
         <div className="cur-acciones">
           {continuar ? (
             <button type="button" className="btn primario" onClick={() => setElegida({ ...continuar, n: 0 })}>
@@ -102,16 +149,15 @@ export default function Curso({ ajustes, intentos, onGuardar }: Props) {
           )}
         </div>
       </div>
-      {MODULOS.map((m) => {
+      {modulos.map((m) => {
         const { hechas, total } = avanceDeModulo(m, estados);
-        const libre = MODULOS_LIBRES.includes(m.id);
         return (
           <div className="tarjeta" key={m.id}>
             <div className="cur-modulo-cab">
               <h1>
                 {m.id} · {m.titulo}
               </h1>
-              {libre && <span className="cur-etiqueta">Libre</span>}
+              {esModuloLibre(m) && <span className="cur-etiqueta">Libre</span>}
               <span className="cur-avance mono">
                 {hechas}/{total}
               </span>

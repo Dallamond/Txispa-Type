@@ -2,7 +2,7 @@
 // Criterios de docs/curso/SPEC-FORMATO-LECCIONES.md §6. Son valores semilla, no verdades sobre Lucas.
 
 import type { Intento } from "../types";
-import { idLeccion, type Leccion, type Modulo } from "../data/curso";
+import { IDS_CURSOS, MODULOS_POR_CURSO, idLeccion, libresDeCurso, requisitoDe, type CursoId, type Leccion, type Modulo } from "../data/curso";
 import { leccionSuperada } from "./curso";
 
 export type EstadoLeccion = "bloqueada" | "disponible" | "hecha" | "dominada";
@@ -19,6 +19,8 @@ export interface OpcionesProgreso {
   desbloquearTodo?: boolean;
   /** Módulos fuera de la ruta (diccionario): están abiertos desde el principio y no desbloquean a otros. */
   libres?: readonly string[];
+  /** Si la ruta empieza abierta (por defecto sí). Un curso con requisito empieza cerrado hasta completar el anterior. */
+  abierta?: boolean;
 }
 
 /** Intentos del curso que superan su lección, agrupados por `leccionId`. */
@@ -48,10 +50,10 @@ export function progresoCurso(
   modulos: readonly Modulo[],
   opciones: OpcionesProgreso = {}
 ): Map<string, EstadoLeccion> {
-  const { desbloquearTodo = false, libres = [] } = opciones;
+  const { desbloquearTodo = false, libres = [], abierta = true } = opciones;
   const superados = superadosPorLeccion(intentos);
   const estados = new Map<string, EstadoLeccion>();
-  let rutaAbierta = true;
+  let rutaAbierta = abierta;
 
   for (const modulo of modulos) {
     const libre = libres.includes(modulo.id);
@@ -133,4 +135,68 @@ export function avanceDeModulo(modulo: Modulo, estados: ReadonlyMap<string, Esta
     return e === "hecha" || e === "dominada";
   }).length;
   return { hechas, total: modulo.lecciones.length };
+}
+
+/** Estado de las lecciones de todos los cursos, por `leccionId`. Cada curso tiene su propia ruta;
+ * si pide un requisito (`CURSOS[id].requiere`), no abre hasta completar la ruta de ese curso. */
+export function progresoDeCursos(intentos: readonly Intento[], opciones: { desbloquearTodo?: boolean } = {}): Map<string, EstadoLeccion> {
+  const salida = new Map<string, EstadoLeccion>();
+  const completos = new Set<string>();
+  for (const id of IDS_CURSOS) {
+    const requiere = requisitoDe(id);
+    const estados = progresoCurso(intentos, MODULOS_POR_CURSO[id], {
+      desbloquearTodo: opciones.desbloquearTodo,
+      libres: libresDeCurso(id),
+      abierta: requiere === undefined || completos.has(requiere),
+    });
+    for (const [k, v] of estados) salida.set(k, v);
+    if (rutaCompleta(id, estados)) completos.add(id);
+  }
+  return salida;
+}
+
+/** ¿Están hechas todas las lecciones de la ruta del curso (sin los módulos libres)? */
+export function rutaCompleta(curso: CursoId, estados: ReadonlyMap<string, EstadoLeccion>): boolean {
+  const libres = libresDeCurso(curso);
+  return MODULOS_POR_CURSO[curso]
+    .filter((m) => !libres.includes(m.id))
+    .every((m) => avanceDeModulo(m, estados).hechas === m.lecciones.length);
+}
+
+/** Lecciones hechas y totales de la ruta del curso (sin los módulos libres). */
+export function avanceDeCurso(curso: CursoId, estados: ReadonlyMap<string, EstadoLeccion>): { hechas: number; total: number } {
+  const libres = libresDeCurso(curso);
+  let hechas = 0;
+  let total = 0;
+  for (const m of MODULOS_POR_CURSO[curso]) {
+    if (libres.includes(m.id)) continue;
+    const a = avanceDeModulo(m, estados);
+    hechas += a.hechas;
+    total += a.total;
+  }
+  return { hechas, total };
+}
+
+/** El curso en el que Lucas está: el de su último intento de lección, o el primero si no ha empezado. */
+export function cursoActivo(intentos: readonly Intento[]): CursoId {
+  let ultimo: Intento | null = null;
+  for (const i of intentos) {
+    if (i.fuente !== "curso" || !i.leccionId) continue;
+    if (!ultimo || i.date > ultimo.date) ultimo = i;
+  }
+  const id = ultimo?.leccionId?.split("/")[0];
+  return IDS_CURSOS.find((c) => c === id) ?? IDS_CURSOS[0];
+}
+
+/** La próxima lección a hacer: la siguiente disponible del curso activo o, si ese está terminado, la del primer curso que tenga. */
+export function siguienteDelCursoActivo(
+  intentos: readonly Intento[],
+  estados: ReadonlyMap<string, EstadoLeccion>
+): { modulo: Modulo; leccion: Leccion } | null {
+  const activo = cursoActivo(intentos);
+  for (const c of [activo, ...IDS_CURSOS.filter((x) => x !== activo)]) {
+    const s = siguienteDisponible(MODULOS_POR_CURSO[c], estados, libresDeCurso(c));
+    if (s) return s;
+  }
+  return null;
 }

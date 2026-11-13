@@ -193,14 +193,14 @@ import { estadosGam, leccionesDominadas, leccionesDeModulo, leccionesSuperadas, 
 
 describe("curso y gamificación", () => {
   const ctx = { objetivoTests: 1 };
-  const ids = leccionesDeModulo("M01");
+  const ids = leccionesDeModulo("html/M01");
   const dia = (n: number) => `2026-11-${String(n).padStart(2, "0")}T10:00:00Z`;
   const leccion = (id: string, n: number, extra = {}) =>
     t(`${id}-${n}`, dia(1 + (n % 28)), { fuente: "curso", modo: "entreno", leccionId: id, acc: 97, ...extra });
 
   it("el módulo M01 existe y se reconoce la lección", () => {
     expect(ids.length).toBeGreaterThan(1);
-    expect(moduloDeLeccion(ids[0])).toBe("M01");
+    expect(moduloDeLeccion(ids[0])).toBe("html/M01");
     expect(moduloDeLeccion("html/NOEXISTE")).toBeNull();
   });
 
@@ -263,7 +263,7 @@ describe("curso y gamificación", () => {
 });
 
 describe("curso: criterio del progreso del curso", () => {
-  const ids = leccionesDeModulo("M01");
+  const ids = leccionesDeModulo("html/M01");
   const dia = (n: number) => `2026-11-${String(n).padStart(2, "0")}T10:00:00Z`;
 
   it("una sola vez basta para dominar con 98 % y la velocidad de la dificultad", () => {

@@ -301,3 +301,10 @@ Detalle en `docs/curso/` (`ROADMAP-CURSO.md`, `SPEC-FORMATO-LECCIONES.md` con la
 | 2026-10-25 | Los calentamientos no cuentan en las estadísticas. Los entrenos solo alimentan teclas, pares y confusiones. |
 | 2026-10-25 | La IA local va en la fase 4: no bloquea sustituir a typing.com. |
 | 2026-10-25 | Estiramiento de manos de 45 s: abrir 3 s, puño 1 s, 10 repeticiones (la primera versión decía 5 s y no cuadraba). |
+
+### Cursos separados (fase 1 del catálogo de cursos, 13 de noviembre de 2026)
+
+- [x] HTML y CSS son ahora dos cursos independientes con su propia ruta; CSS se abre al completar HTML (`requiere`). La pestaña **Cursos** muestra una tarjeta por curso con su avance, y dentro el listado de módulos.
+- [x] Claves de módulo `curso/módulo` (`html/M01`) para que otro curso pueda repetir `M01`. Progreso por curso (`progresoDeCursos`), curso activo y siguiente lección en Inicio (`siguienteDelCursoActivo`).
+- [x] Logros: uno por curso, generado del catálogo; las metas de los logros generales ya no dependen del total de lecciones (3/10/25/50/100, 1/5/15/35/75 y 1/3/6/10/20 módulos).
+- [ ] Checklist de Lucas: Cursos > HTML > hacer una lección; Inicio muestra "Siguiente lección (HTML)"; CSS sale con "Se abre al completar HTML" y con el ajuste de desbloquear todo se abre; el progreso de antes se conserva.

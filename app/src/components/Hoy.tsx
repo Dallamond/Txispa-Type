@@ -14,8 +14,8 @@ import { formatoNumero, formatoTiempo, formatoVariacion, precisionBaja } from ".
 import { PRECISION_MINIMA } from "../lib/medidas";
 import { useHoy } from "../hooks/useHoy";
 import MapaActividad from "./MapaActividad";
-import { MODULOS, MODULOS_LIBRES } from "../data/curso";
-import { progresoCurso, siguienteDisponible } from "../lib/progresoCurso";
+import { CURSOS } from "../data/curso";
+import { progresoDeCursos, siguienteDelCursoActivo } from "../lib/progresoCurso";
 import { calcularAjustes, focoDelDia, pasosDelDia, type PasoPlan } from "../lib/plan";
 
 type Destino = "calentar" | "entrenar" | "test" | "estadisticas" | "curso";
@@ -74,11 +74,7 @@ export default function Hoy({ ajustes, intentos, onIr }: Props) {
       mejor: mejorDeLaSemana(lista, hoy),
       pulsaHoy: pulsaDeHoy(lista, hoy),
       leccionesHoy: lista.filter((i) => i.fuente === "curso" && i.localDate === hoy).length,
-      siguienteLeccion: siguienteDisponible(
-        MODULOS,
-        progresoCurso(lista, MODULOS, { desbloquearTodo: ajustes.desbloquearCurso, libres: MODULOS_LIBRES }),
-        MODULOS_LIBRES
-      ),
+      siguienteLeccion: siguienteDelCursoActivo(lista, progresoDeCursos(lista, { desbloquearTodo: ajustes.desbloquearCurso })),
     };
   }, [intentos, hoy, ajustes.objetivoTests, ajustes.objetivoMinutos, ajustes.reglasDeAjuste, ajustes.desbloquearCurso]);
 
@@ -148,7 +144,7 @@ export default function Hoy({ ajustes, intentos, onIr }: Props) {
         <h1>Curso de HTML y CSS</h1>
         <p className="tenue">
           {datos.siguienteLeccion
-            ? `Siguiente lección: ${datos.siguienteLeccion.leccion.id} · ${datos.siguienteLeccion.leccion.titulo}.`
+            ? `Siguiente lección (${CURSOS[datos.siguienteLeccion.modulo.curso].nombre}): ${datos.siguienteLeccion.leccion.id} · ${datos.siguienteLeccion.leccion.titulo}.`
             : "Has completado todas las lecciones de la ruta."}{" "}
           {datos.leccionesHoy > 0 ? `Hoy llevas ${datos.leccionesHoy} ${datos.leccionesHoy === 1 ? "lección" : "lecciones"}.` : "Hoy aún no has hecho ninguna."}
         </p>

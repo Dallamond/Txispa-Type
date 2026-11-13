@@ -179,3 +179,44 @@ describe("siguienteLeccion", () => {
     expect(siguienteLeccion([M01, M13], M01, M01.lecciones[2], libres)).toBeNull();
   });
 });
+
+import { progresoDeCursos, cursoActivo, siguienteDelCursoActivo, avanceDeCurso, rutaCompleta } from "../progresoCurso";
+import { MODULOS_POR_CURSO, idLeccion } from "../../data/curso";
+
+describe("progreso por cursos", () => {
+  const todas = (curso: "html" | "css") => MODULOS_POR_CURSO[curso].flatMap((m) => m.lecciones.map((l) => idLeccion(m, l)));
+  const hechos = (ids: string[]) => ids.map((id) => hecho(id));
+
+  it("al empezar, HTML tiene su primera lección abierta y CSS está cerrado", () => {
+    const e = progresoDeCursos([]);
+    expect(e.get("html/L01.01")).toBe("disponible");
+    expect(e.get("css/L06.01")).toBe("bloqueada");
+  });
+
+  it("CSS se abre al completar la ruta de HTML (sin contar el diccionario)", () => {
+    const rutaHtml = MODULOS_POR_CURSO.html.filter((m) => m.id !== "M13").flatMap((m) => m.lecciones.map((l) => idLeccion(m, l)));
+    const e = progresoDeCursos(hechos(rutaHtml));
+    expect(rutaCompleta("html", e)).toBe(true);
+    expect(e.get("css/L06.01")).toBe("disponible");
+  });
+
+  it("desbloquear todo abre los cursos a la vez", () => {
+    expect(progresoDeCursos([], { desbloquearTodo: true }).get("css/L06.01")).toBe("disponible");
+  });
+
+  it("el avance de un curso solo cuenta su ruta", () => {
+    const html = todas("html");
+    const { hechas, total } = avanceDeCurso("html", progresoDeCursos(hechos(html.slice(0, 2))));
+    expect(hechas).toBe(2);
+    expect(total).toBeGreaterThan(2);
+    expect(avanceDeCurso("css", progresoDeCursos(hechos(html.slice(0, 2)))).hechas).toBe(0);
+  });
+
+  it("el curso activo es el del último intento y la siguiente lección sale de él", () => {
+    expect(cursoActivo([])).toBe("html");
+    const intentos = [hecho("css/L06.01", { date: "2026-11-02T10:00:00Z" })];
+    expect(cursoActivo(intentos)).toBe("css");
+    const e = progresoDeCursos(intentos, { desbloquearTodo: true });
+    expect(siguienteDelCursoActivo(intentos, e)?.modulo.curso).toBe("css");
+  });
+});

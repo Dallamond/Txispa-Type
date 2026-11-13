@@ -5,7 +5,8 @@
 import type { Intento } from "../types";
 import { racha } from "./estadisticas";
 import { PRECISION_MINIMA } from "./medidas";
-import { leccionesDominadas, leccionesSuperadas, modulosCompletados, TOTAL_LECCIONES, TOTAL_MODULOS } from "./gamCurso";
+import { CURSOS, IDS_CURSOS } from "../data/curso";
+import { leccionesDominadas, leccionesSuperadas, modulosCompletados, totalLeccionesDeCurso } from "./gamCurso";
 
 export type Tier = "bronce" | "plata" | "oro" | "platino" | "diamante";
 
@@ -65,7 +66,7 @@ export function mejorSeriePrecisa(intentos: readonly Intento[]): number {
   return max;
 }
 
-export const LOGROS: readonly Logro[] = [
+const LOGROS_GENERALES: readonly Logro[] = [
   {
     id: "velocidad",
     nombre: "Velocista",
@@ -135,7 +136,7 @@ export const LOGROS: readonly Logro[] = [
     emoji: "🧑‍💻",
     descripcion: (m) => `Supera ${m} ${m === 1 ? "lección" : "lecciones"} del curso con ${PRECISION_MINIMA} % de precisión o más.`,
     unidad: "lecciones",
-    metas: [3, 10, 25, 45, TOTAL_LECCIONES],
+    metas: [3, 10, 25, 50, 100],
     valor: (is) => leccionesSuperadas(is),
   },
   {
@@ -144,7 +145,7 @@ export const LOGROS: readonly Logro[] = [
     emoji: "🎓",
     descripcion: (m) => `Domina ${m} ${m === 1 ? "lección" : "lecciones"} del curso.`,
     unidad: "lecciones dominadas",
-    metas: [1, 5, 15, 35, TOTAL_LECCIONES],
+    metas: [1, 5, 15, 35, 75],
     valor: (is) => leccionesDominadas(is),
   },
   {
@@ -153,7 +154,7 @@ export const LOGROS: readonly Logro[] = [
     emoji: "📚",
     descripcion: (m) => `Completa ${m} ${m === 1 ? "módulo" : "módulos"} del curso (todas sus lecciones superadas).`,
     unidad: "módulos",
-    metas: [1, 3, 6, 9, TOTAL_MODULOS],
+    metas: [1, 3, 6, 10, 20],
     valor: (is) => modulosCompletados(is),
   },
   {
@@ -193,6 +194,27 @@ export const LOGROS: readonly Logro[] = [
     valor: (is) => is.reduce((n, i) => n + i.correct + i.errors, 0),
   },
 ];
+
+const EMOJI_CURSO: Readonly<Record<string, string>> = { html: "🌐", css: "🎨" };
+
+/** Metas de un logro de curso: del 10 % al 100 % de sus lecciones, sin repetir ninguna. */
+export function metasDeCurso(total: number): number[] {
+  const metas = [0.1, 0.25, 0.5, 0.75, 1].map((f) => Math.max(1, Math.round(total * f)));
+  return [...new Set(metas)];
+}
+
+/** Un logro por curso: lecciones superadas de ese curso. Se generan a partir del catálogo. */
+const LOGROS_DE_CURSO: readonly Logro[] = IDS_CURSOS.map((id) => ({
+  id: `curso-${id}`,
+  nombre: `Curso de ${CURSOS[id].nombre}`,
+  emoji: EMOJI_CURSO[id] ?? "📘",
+  descripcion: (m: number) => `Supera ${m} ${m === 1 ? "lección" : "lecciones"} del curso de ${CURSOS[id].nombre}.`,
+  unidad: "lecciones",
+  metas: metasDeCurso(totalLeccionesDeCurso(id)),
+  valor: (is: readonly Intento[]) => leccionesSuperadas(is, id),
+}));
+
+export const LOGROS: readonly Logro[] = [...LOGROS_GENERALES, ...LOGROS_DE_CURSO];
 
 /** Niveles de una familia, con su tier asignado por orden. */
 export function nivelesDe(logro: Logro): NivelLogro[] {

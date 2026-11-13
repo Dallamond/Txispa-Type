@@ -9,7 +9,7 @@ import type { Leccion, Modulo } from "../curso";
 /** Etiquetas HTML que no se cierran. */
 const VACIAS = new Set(["br", "hr", "img", "meta", "link", "input", "source", "track", "col", "area", "base", "embed", "wbr"]);
 
-const conModulo = LECCIONES.map((l) => ({ l, m: MODULOS.find((m) => m.id === l.moduloId) as Modulo }));
+const conModulo = MODULOS.flatMap((m) => m.lecciones.map((l) => ({ l, m: m as Modulo })));
 
 /** Quita los comentarios HTML (también los de varias líneas). */
 const sinComentarios = (codigo: string) => codigo.replace(/<!--[\s\S]*?-->/g, "");

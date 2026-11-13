@@ -24,7 +24,7 @@ const PESTANAS = [
   { id: "calentar", etiqueta: "Calentar" },
   { id: "test", etiqueta: "Test" },
   { id: "entrenar", etiqueta: "Entrenar" },
-  { id: "curso", etiqueta: "Curso" },
+  { id: "curso", etiqueta: "Cursos" },
   { id: "logros", etiqueta: "Logros" },
 ] as const;
 
