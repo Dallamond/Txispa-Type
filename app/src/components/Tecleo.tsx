@@ -8,6 +8,8 @@ import { desviacionAlPulso, desviacionMedia, limitarPulso } from "../lib/metrono
 import { crearIntento, type ConfigIntento } from "../lib/intento";
 import { precision, wpmNeta } from "../lib/medidas";
 import { posicionFantasma } from "../lib/calentamientos";
+import { nuevoId } from "../lib/rng";
+import { AVISO_GUARDADO, guardarIntento } from "../lib/guardado";
 import { useContadorTecleo } from "../hooks/ContadorTecleo";
 import AreaTexto from "./AreaTexto";
 import ResultadoTest from "./ResultadoTest";
@@ -51,6 +53,7 @@ export default function Tecleo({ palabras, config, ajustes, intentos, guardar, e
   const { destello, rejilla } = usePulso(pulso, !resultado);
   const desviosRef = useRef<number[]>([]);
   const [desviacionFinal, setDesviacionFinal] = useState<number | null>(null);
+  const [errorGuardado, setErrorGuardado] = useState(false);
   const alGuardarRef = useRef(onGuardar);
   alGuardarRef.current = onGuardar;
   const contador = useContadorTecleo();
@@ -61,12 +64,16 @@ export default function Tecleo({ palabras, config, ajustes, intentos, guardar, e
     (ts: number) => {
       if (terminadoRef.current) return;
       terminadoRef.current = true;
-      const intento = crearIntento({ motor, ts, config, id: crypto.randomUUID(), fecha: new Date() });
+      const intento = crearIntento({ motor, ts, config, id: nuevoId(), fecha: new Date() });
       setResultado(intento);
       const desviacionMs = desviacionMedia(desviosRef.current);
       setDesviacionFinal(desviacionMs);
       alTerminarRef.current?.(intento, { desviacionMs });
-      if (guardar && motor.correct + motor.errors > 0) void alGuardarRef.current(intento);
+      if (guardar && motor.correct + motor.errors > 0) {
+        void guardarIntento(alGuardarRef.current, intento).then((ok) => {
+          if (!ok) setErrorGuardado(true);
+        });
+      }
       // Lo guardado entra en el total cuando aparece en el almacén; un calentamiento no se guarda y se suma aparte.
       if (!guardar) contador.confirmar(motor.correct + motor.errors);
     },
@@ -155,16 +162,23 @@ export default function Tecleo({ palabras, config, ajustes, intentos, guardar, e
   if (resultado) {
     if (onTerminar) return null;
     return (
-      <ResultadoTest
-        intento={resultado}
-        objetivoTests={ajustes.objetivoTests}
-        etiqueta={etiqueta}
-        intentos={intentos}
-        comparar={guardar && resultado.modo === "test"}
-        desviacionMs={pulso !== null ? desviacionFinal : undefined}
-        onRepetir={onRepetir}
-        onSalir={onSalir}
-      />
+      <>
+        {errorGuardado && (
+          <p className="aviso" role="alert">
+            {AVISO_GUARDADO}
+          </p>
+        )}
+        <ResultadoTest
+          intento={resultado}
+          objetivoTests={ajustes.objetivoTests}
+          etiqueta={etiqueta}
+          intentos={intentos}
+          comparar={guardar && resultado.modo === "test"}
+          desviacionMs={pulso !== null ? desviacionFinal : undefined}
+          onRepetir={onRepetir}
+          onSalir={onSalir}
+        />
+      </>
     );
   }
 

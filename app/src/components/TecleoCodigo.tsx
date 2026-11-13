@@ -3,6 +3,8 @@ import type { Ajustes, Intento } from "../types";
 import { MotorCodigo } from "../lib/motorCodigo";
 import { tokenizar } from "../lib/curso";
 import { crearIntentoLeccion } from "../lib/intento";
+import { nuevoId } from "../lib/rng";
+import { AVISO_GUARDADO, guardarIntento } from "../lib/guardado";
 import { precision, wpmNeta } from "../lib/medidas";
 import { formatoReloj } from "../lib/historial";
 import { esAtajo, isModifier, modifierLabel, pressedKeyFor } from "../lib/typing";
@@ -39,6 +41,7 @@ export default function TecleoCodigo({ codigo, notas, leccionId, titulo, intento
   const [resultado, setResultado] = useState<Intento | null>(null);
   const [pressedKey, setPressedKey] = usePressedKey();
   const terminadoRef = useRef(false);
+  const [errorGuardado, setErrorGuardado] = useState(false);
   const alGuardarRef = useRef(onGuardar);
   alGuardarRef.current = onGuardar;
   const contador = useContadorTecleo();
@@ -47,9 +50,11 @@ export default function TecleoCodigo({ codigo, notas, leccionId, titulo, intento
     (ts: number) => {
       if (terminadoRef.current) return;
       terminadoRef.current = true;
-      const intento = crearIntentoLeccion({ motor, ts, leccionId, estricto: motor.estricto, id: crypto.randomUUID(), fecha: new Date() });
+      const intento = crearIntentoLeccion({ motor, ts, leccionId, estricto: motor.estricto, id: nuevoId(), fecha: new Date() });
       setResultado(intento);
-      void alGuardarRef.current(intento);
+      void guardarIntento(alGuardarRef.current, intento).then((ok) => {
+        if (!ok) setErrorGuardado(true);
+      });
     },
     [motor, leccionId]
   );
@@ -120,15 +125,22 @@ export default function TecleoCodigo({ codigo, notas, leccionId, titulo, intento
 
   if (resultado) {
     return (
-      <ResultadoLeccion
-        intento={resultado}
-        titulo={titulo}
-        intentos={intentos}
-        objetivoTests={ajustes.objetivoTests}
-        onRepetir={onRepetir}
-        onSalir={onSalir}
-        onSiguiente={onSiguiente}
-      />
+      <>
+        {errorGuardado && (
+          <p className="aviso" role="alert">
+            {AVISO_GUARDADO}
+          </p>
+        )}
+        <ResultadoLeccion
+          intento={resultado}
+          titulo={titulo}
+          intentos={intentos}
+          objetivoTests={ajustes.objetivoTests}
+          onRepetir={onRepetir}
+          onSalir={onSalir}
+          onSiguiente={onSiguiente}
+        />
+      </>
     );
   }
 

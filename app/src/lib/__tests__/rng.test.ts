@@ -49,3 +49,39 @@ describe("barajado", () => {
     expect(barajado(orig, mulberry32(5))).toEqual(barajado(orig, mulberry32(5)));
   });
 });
+
+import { nuevoId } from "../rng";
+import { guardarIntento } from "../guardado";
+import { vi } from "vitest";
+
+describe("nuevoId", () => {
+  const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
+
+  it("devuelve un UUID v4 y no se repite", () => {
+    const a = nuevoId();
+    expect(a).toMatch(UUID);
+    expect(nuevoId()).not.toBe(a);
+  });
+
+  it("funciona sin crypto.randomUUID (contexto no seguro)", () => {
+    const real = globalThis.crypto;
+    vi.stubGlobal("crypto", { getRandomValues: <T extends ArrayBufferView>(a: T) => real.getRandomValues(a as unknown as Uint8Array<ArrayBuffer>) });
+    try {
+      expect(nuevoId()).toMatch(UUID);
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+});
+
+describe("guardarIntento", () => {
+  it("true si guarda, false si la promesa o la función fallan", async () => {
+    expect(await guardarIntento(async () => {}, 1)).toBe(true);
+    expect(await guardarIntento(() => Promise.reject(new Error("cuota")), 1)).toBe(false);
+    expect(
+      await guardarIntento(() => {
+        throw new Error("bloqueado");
+      }, 1)
+    ).toBe(false);
+  });
+});
