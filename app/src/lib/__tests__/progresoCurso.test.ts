@@ -220,3 +220,21 @@ describe("progreso por cursos", () => {
     expect(siguienteDelCursoActivo(intentos, e)?.modulo.curso).toBe("css");
   });
 });
+
+describe("curso de Linux", () => {
+  it("es independiente: su primera lección está abierta desde el principio", () => {
+    const e = progresoDeCursos([]);
+    expect(e.get("linux/L01.01")).toBe("disponible");
+    expect(e.get("linux/L01.02")).toBe("bloqueada");
+  });
+
+  it("el jefe cierra el módulo y desbloquea el siguiente al superarlo", () => {
+    const m1 = MODULOS_POR_CURSO.linux[0];
+    const ids = m1.lecciones.map((l) => idLeccion(m1, l));
+    expect(ids[ids.length - 1]).toMatch(/\/L01\.J$/);
+    const sinJefe = progresoDeCursos(ids.slice(0, -1).map((id) => hecho(id)));
+    expect(sinJefe.get("linux/L02.01")).toBe("bloqueada");
+    const conJefe = progresoDeCursos(ids.map((id) => hecho(id)));
+    expect(conJefe.get("linux/L02.01")).toBe("disponible");
+  });
+});

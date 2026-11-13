@@ -1,4 +1,4 @@
-// Generado por scripts/generar-curso.mjs desde docs/curso/TEMARIO-HTML-CSS.md.
+// Generado por scripts/generar-curso.mjs desde docs/curso/**/TEMARIO*.md.
 // No editar a mano: se cambia el Markdown y se ejecuta `npm run curso:generar`.
 
 import type { Modulo } from "./tipos";

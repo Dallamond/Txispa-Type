@@ -30,7 +30,7 @@ const esObjeto = (v: unknown): v is Record<string, unknown> => typeof v === "obj
 const esNumero = (v: unknown) => typeof v === "number" && Number.isFinite(v);
 
 /** Identificador de lección del curso: "html/L01.01", "css/L06.R". */
-export const PATRON_LECCION_ID = new RegExp(`^(${Object.keys(CURSOS).join("|")})/L\\d{2}\\.(\\d{2}|R)$`);
+export const PATRON_LECCION_ID = new RegExp(`^(${Object.keys(CURSOS).join("|")})/L\\d{2}\\.(\\d{2}|R|J)$`);
 
 /** ¿Tiene un intento la forma mínima para no romper estadísticas ni almacén? */
 export function esIntentoValido(v: unknown): v is Intento {

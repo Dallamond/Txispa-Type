@@ -195,7 +195,7 @@ const LOGROS_GENERALES: readonly Logro[] = [
   },
 ];
 
-const EMOJI_CURSO: Readonly<Record<string, string>> = { html: "🌐", css: "🎨" };
+const EMOJI_CURSO: Readonly<Record<string, string>> = { html: "🌐", css: "🎨", linux: "🐧" };
 
 /** Metas de un logro de curso: del 10 % al 100 % de sus lecciones, sin repetir ninguna. */
 export function metasDeCurso(total: number): number[] {

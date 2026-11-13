@@ -3,8 +3,18 @@
 
 import { describe, it, expect } from "vitest";
 import { CHARMAP } from "../keyboard";
-import { MODULOS, LECCIONES, buscarLeccion, idLeccion } from "../curso";
-import type { Leccion, Modulo } from "../curso";
+import { MODULOS, MODULOS_POR_CURSO, buscarLeccion, idLeccion } from "../curso";
+import type { CursoId, Leccion, Modulo } from "../curso";
+
+/** Rango de líneas por tipo de lección y curso. Los de terminal tienen lecciones cortas (una pantalla de comandos). */
+const LONGITUD: Record<CursoId, Record<Leccion["tipo"], [number, number]>> = {
+  html: { leccion: [6, 15], repaso: [12, 25], jefe: [1, 1] },
+  css: { leccion: [6, 15], repaso: [12, 25], jefe: [1, 1] },
+  linux: { leccion: [1, 15], repaso: [1, 15], jefe: [1, 3] },
+};
+
+/** Cada curso cierra sus módulos con un repaso (código) o con un jefe (terminal). */
+const CIERRE: Record<CursoId, Leccion["tipo"]> = { html: "repaso", css: "repaso", linux: "jefe" };
 
 /** Etiquetas HTML que no se cierran. */
 const VACIAS = new Set(["br", "hr", "img", "meta", "link", "input", "source", "track", "col", "area", "base", "embed", "wbr"]);
@@ -48,23 +58,27 @@ const cssDentroDeStyle = (codigo: string) =>
   [...codigo.matchAll(/<style>([\s\S]*?)<\/style>/g)].map((m) => m[1]).join("\n");
 
 describe("estructura del curso", () => {
-  it("hay 13 módulos con su repaso al final", () => {
-    expect(MODULOS).toHaveLength(13);
+  it("hay 13 módulos de HTML y CSS y 8 de Linux, cada uno cerrado por su repaso o su jefe", () => {
+    expect(MODULOS_POR_CURSO.html.length + MODULOS_POR_CURSO.css.length).toBe(13);
+    expect(MODULOS_POR_CURSO.linux).toHaveLength(8);
     for (const m of MODULOS) {
-      const repasos = m.lecciones.filter((l) => l.tipo === "repaso");
-      expect(repasos, m.id).toHaveLength(1);
-      expect(m.lecciones[m.lecciones.length - 1].tipo, m.id).toBe("repaso");
+      const cierre = CIERRE[m.curso];
+      const cierres = m.lecciones.filter((l) => l.tipo === cierre);
+      expect(cierres, `${m.curso}/${m.id}`).toHaveLength(1);
+      expect(m.lecciones[m.lecciones.length - 1].tipo, `${m.curso}/${m.id}`).toBe(cierre);
     }
   });
 
   it("ids únicos y coherentes con su módulo, y dificultad de 1 a 5", () => {
     const vistos = new Set<string>();
     for (const { l, m } of conModulo) {
-      expect(vistos.has(l.id), `${l.id} repetido`).toBe(false);
-      vistos.add(l.id);
-      expect(l.id, l.id).toMatch(/^L\d{2}\.(\d{2}|R)$/);
+      const clave = `${m.curso}/${l.id}`;
+      expect(vistos.has(clave), `${clave} repetido`).toBe(false);
+      vistos.add(clave);
+      expect(l.id, l.id).toMatch(/^L\d{2}\.(\d{2}|R|J)$/);
       expect(l.id.slice(1, 3), l.id).toBe(m.id.slice(1, 3));
       expect(l.tipo === "repaso", l.id).toBe(l.id.endsWith(".R"));
+      expect(l.tipo === "jefe", l.id).toBe(l.id.endsWith(".J"));
       expect(l.dificultad, l.id).toBeGreaterThanOrEqual(1);
       expect(l.dificultad, l.id).toBeLessThanOrEqual(5);
     }
@@ -79,10 +93,11 @@ describe("estructura del curso", () => {
 });
 
 describe("formato del código de cada lección", () => {
-  for (const { l } of conModulo) {
-    it(`${l.id} · ${l.titulo}: longitud, sangría y espacios`, () => {
+  for (const { l, m } of conModulo) {
+    const nombre = `${m.curso}/${l.id}`;
+    it(`${nombre} · ${l.titulo}: longitud, sangría y espacios`, () => {
       const lineas = l.codigo.split("\n");
-      const [min, max] = l.tipo === "repaso" ? [12, 25] : [6, 15];
+      const [min, max] = LONGITUD[m.curso][l.tipo];
       expect(lineas.length, `${l.id}: ${lineas.length} líneas (debe estar entre ${min} y ${max})`).toBeGreaterThanOrEqual(min);
       expect(lineas.length, `${l.id}: ${lineas.length} líneas (debe estar entre ${min} y ${max})`).toBeLessThanOrEqual(max);
       expect(l.codigo, `${l.id}: tabuladores`).not.toContain("\t");
@@ -102,7 +117,24 @@ describe("formato del código de cada lección", () => {
       }
     });
 
-    it(`${l.id}: código bien formado`, () => {
+    it(`${nombre}: notas por línea`, () => {
+      if (m.curso === "linux" && l.tipo !== "jefe") expect(l.notas?.length, `${nombre}: una nota por línea`).toBe(l.codigo.split("\n").length);
+      else expect(l.notas, `${nombre}: este curso saca las notas del glosario`).toBeUndefined();
+    });
+
+    it(`${nombre}: el jefe tiene una sola opción correcta y es lo que se teclea`, () => {
+      if (l.tipo !== "jefe") {
+        expect(l.opciones, nombre).toBeUndefined();
+        return;
+      }
+      const buenas = (l.opciones ?? []).filter((o) => o.correcta);
+      expect(buenas, nombre).toHaveLength(1);
+      expect(buenas[0].comando, nombre).toBe(l.codigo);
+      for (const o of l.opciones ?? []) if (!o.correcta) expect(o.razon.length, `${nombre}: razón de ${o.comando}`).toBeGreaterThan(0);
+    });
+
+    it(`${nombre}: código bien formado`, () => {
+      if (m.curso === "linux") return; // comandos de terminal: no hay etiquetas ni llaves que balancear
       // Si empieza por "<" es HTML (con posible <style> dentro); si no, es CSS suelto.
       const esHtml = l.codigo.trimStart().startsWith("<");
       if (esHtml) {
@@ -117,14 +149,16 @@ describe("formato del código de cada lección", () => {
 });
 
 describe("símbolos nuevos y explicaciones", () => {
-  it("cada símbolo nuevo aparece en su código y no se había estrenado antes", () => {
-    const estrenados = new Set<string>();
-    for (const l of LECCIONES) {
-      for (const s of l.nuevas) {
-        expect(s.length, `${l.id}: "${s}" no es un solo carácter`).toBe(1);
-        expect(l.codigo.includes(s), `${l.id}: "${s}" no aparece en el código`).toBe(true);
-        expect(estrenados.has(s), `${l.id}: "${s}" ya se estrenó antes`).toBe(false);
-        estrenados.add(s);
+  it("cada símbolo nuevo aparece en su código y no se había estrenado antes en su curso", () => {
+    for (const modulos of Object.values(MODULOS_POR_CURSO)) {
+      const estrenados = new Set<string>();
+      for (const l of modulos.flatMap((m) => m.lecciones)) {
+        for (const s of l.nuevas) {
+          expect(s.length, `${l.id}: "${s}" no es un solo carácter`).toBe(1);
+          expect(l.codigo.includes(s), `${l.id}: "${s}" no aparece en el código`).toBe(true);
+          expect(estrenados.has(s), `${l.id}: "${s}" ya se estrenó antes`).toBe(false);
+          estrenados.add(s);
+        }
       }
     }
   });
@@ -132,7 +166,7 @@ describe("símbolos nuevos y explicaciones", () => {
   it("la explicación tiene de 1 a 4 frases", () => {
     const frases = (t: Leccion["explicacion"]) =>
       (t.replace(/`[^`]*`/g, "x").match(/[.!?](?=\s|$)/g) ?? []).length;
-    for (const l of LECCIONES) {
+    for (const l of MODULOS.flatMap((m) => m.lecciones)) {
       const n = frases(l.explicacion);
       expect(n, `${l.id}: ${n} frases`).toBeGreaterThanOrEqual(1);
       expect(n, `${l.id}: ${n} frases`).toBeLessThanOrEqual(4);

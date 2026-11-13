@@ -14,6 +14,7 @@ export interface InfoCurso {
 export const CURSOS = {
   html: { nombre: "HTML", descripcion: "Estructura, texto, enlaces, tablas, formularios y semántica de HTML5." },
   css: { nombre: "CSS", descripcion: "Estilos, modelo de caja, Flexbox, Grid, diseño adaptable y animaciones.", requiere: "html" },
+  linux: { nombre: "Linux", descripcion: "Administración de sistemas en la terminal: archivos, red, permisos, usuarios, procesos, discos, pipes y homelab." },
 } as const satisfies Record<string, InfoCurso>;
 export type CursoId = keyof typeof CURSOS;
 
@@ -22,13 +23,25 @@ export interface Leccion {
   id: string;
   moduloId: string;
   titulo: string;
-  tipo: "leccion" | "repaso";
+  /** "jefe": el examen del módulo (escenario, opciones y el comando correcto, que se teclea). */
+  tipo: "leccion" | "repaso" | "jefe";
   dificultad: 1 | 2 | 3 | 4 | 5;
   /** Símbolos que se estrenan en la lección (para el aviso previo y el teclado). */
   nuevas: string[];
   explicacion: string;
   /** Código tal cual, con "\n" y sangría de 2 espacios. Sin tabuladores. */
   codigo: string;
+  /** Explicación de cada línea del código (una por línea), si no se deduce del glosario (cursos de terminal). */
+  notas?: string[];
+  /** Solo en los jefes: las opciones entre las que hay que elegir antes de teclear. */
+  opciones?: OpcionJefe[];
+}
+
+export interface OpcionJefe {
+  comando: string;
+  correcta: boolean;
+  /** Por qué falla (vacía en la correcta). */
+  razon: string;
 }
 
 export interface Modulo {

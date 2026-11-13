@@ -1,19 +1,17 @@
 // Punto de entrada del contenido de los cursos (los datos se generan con `npm run curso:generar`).
 
-import { MODULOS_HTML } from "./html";
-import { MODULOS_CSS } from "./css";
+import { MODULOS_GENERADOS } from "./generado";
 import { CURSOS, type CursoId, type Leccion, type Modulo } from "./tipos";
 
 export { CURSOS, requisitoDe } from "./tipos";
-export type { CursoId, InfoCurso, Leccion, Modulo } from "./tipos";
+export type { CursoId, InfoCurso, Leccion, Modulo, OpcionJefe } from "./tipos";
 
 const porId = (a: Modulo, b: Modulo) => a.id.localeCompare(b.id);
 
 /** Módulos de cada curso, en su orden (M01, M02…). */
-export const MODULOS_POR_CURSO: Readonly<Record<CursoId, readonly Modulo[]>> = {
-  html: [...MODULOS_HTML].sort(porId),
-  css: [...MODULOS_CSS].sort(porId),
-};
+export const MODULOS_POR_CURSO = Object.fromEntries(
+  (Object.keys(CURSOS) as CursoId[]).map((c) => [c, [...MODULOS_GENERADOS[c]].sort(porId)])
+) as unknown as Readonly<Record<CursoId, readonly Modulo[]>>;
 
 /** Los ids de curso en el orden en que se muestran. */
 export const IDS_CURSOS = Object.keys(CURSOS) as CursoId[];

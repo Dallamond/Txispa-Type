@@ -11,14 +11,23 @@ interface Props {
   tokens: readonly Token[];
   tecleadas: readonly string[];
   idx: number;
+  /** Explicación de cada línea, si el curso la trae escrita (cursos de terminal); si no, sale del glosario. */
+  notasPropias?: readonly string[];
 }
 
-export default function AreaCodigo({ tokens, tecleadas, idx }: Props) {
+export default function AreaCodigo({ tokens, tecleadas, idx, notasPropias }: Props) {
   const lineas = useMemo(() => lineasDeTokens(tokens), [tokens]);
   // Notas del glosario de cada línea (se calculan una vez; solo se muestra la de la línea activa).
   const notas = useMemo(
-    () => lineas.map((l) => notasDeLinea(l.tokens.map((i) => tokens[i].texto).join(" "))),
-    [lineas, tokens]
+    () =>
+      lineas.map((l, n) =>
+        notasPropias
+          ? notasPropias[n]
+            ? [{ clave: "", texto: notasPropias[n] }]
+            : []
+          : notasDeLinea(l.tokens.map((i) => tokens[i].texto).join(" "))
+      ),
+    [lineas, tokens, notasPropias]
   );
   const activa = lineas.findIndex((l) => l.tokens.includes(idx));
   return (

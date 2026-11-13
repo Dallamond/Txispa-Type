@@ -15,6 +15,8 @@ import VirtualKeyboard from "./VirtualKeyboard";
 interface Props {
   /** Código de la lección, tal cual (con "\n" y sangría). */
   codigo: string;
+  /** Explicación de cada línea, si la lección la trae escrita. */
+  notas?: readonly string[];
   /** "html/L01.01". */
   leccionId: string;
   titulo: string;
@@ -31,7 +33,7 @@ interface Props {
 /** Una lección tecleada de principio a fin. Sin cuenta atrás: el reloj cuenta hacia arriba
  * desde la primera pulsación y la lección termina al dejar el código bien escrito.
  * El padre la remonta (con `key`) para repetir. */
-export default function TecleoCodigo({ codigo, leccionId, titulo, intentos, ajustes, onGuardar, onSalir, onRepetir, onSiguiente }: Props) {
+export default function TecleoCodigo({ codigo, notas, leccionId, titulo, intentos, ajustes, onGuardar, onSalir, onRepetir, onSiguiente }: Props) {
   const [motor] = useState(() => new MotorCodigo(tokenizar(codigo), ajustes.estrictoPorDefecto));
   const [, repinta] = useReducer((n: number) => n + 1, 0);
   const [resultado, setResultado] = useState<Intento | null>(null);
@@ -155,7 +157,7 @@ export default function TecleoCodigo({ codigo, leccionId, titulo, intentos, ajus
       </div>
       {motor.inicio === null && <div className="tenue cronometro-pista">Empieza a teclear para arrancar el reloj</div>}
 
-      <AreaCodigo tokens={motor.tokens} tecleadas={motor.tecleadas} idx={motor.idx} />
+      <AreaCodigo tokens={motor.tokens} tecleadas={motor.tecleadas} idx={motor.idx} notasPropias={notas} />
 
       {ajustes.tecladoVisible && (
         <VirtualKeyboard nextChar={motor.siguienteCaracter} pressedKey={pressedKey} guide={ajustes.guiaDedos} />

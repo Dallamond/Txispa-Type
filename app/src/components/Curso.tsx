@@ -23,6 +23,7 @@ import {
   type EstadoLeccion,
 } from "../lib/progresoCurso";
 import TecleoCodigo from "./TecleoCodigo";
+import JefeCurso from "./JefeCurso";
 
 interface Props {
   ajustes: Ajustes;
@@ -58,6 +59,7 @@ export default function Curso({ ajustes, intentos, onGuardar }: Props) {
     const { modulo, leccion, n } = elegida;
     const proxima = siguienteLeccion(MODULOS_POR_CURSO[cursoId], modulo, leccion, libresDeCurso(cursoId));
     const puedeSeguir = proxima !== null && estados.get(idLeccion(proxima.modulo, proxima.leccion)) !== "bloqueada";
+    const siguiente = puedeSeguir && proxima ? () => setElegida({ modulo: proxima.modulo, leccion: proxima.leccion, n: 0 }) : undefined;
     return (
       <div>
         <div className="tarjeta cur-leccion">
@@ -77,18 +79,36 @@ export default function Curso({ ajustes, intentos, onGuardar }: Props) {
             </p>
           )}
         </div>
-        <TecleoCodigo
-          intentos={intentos}
-          key={`${idLeccion(modulo, leccion)}-${n}`}
-          codigo={leccion.codigo}
-          leccionId={idLeccion(modulo, leccion)}
-          titulo={`${leccion.id} · ${leccion.titulo}`}
-          ajustes={ajustes}
-          onGuardar={onGuardar}
-          onSalir={salir}
-          onRepetir={repetir}
-          onSiguiente={puedeSeguir && proxima ? () => setElegida({ modulo: proxima.modulo, leccion: proxima.leccion, n: 0 }) : undefined}
-        />
+        {leccion.tipo === "jefe" && leccion.opciones ? (
+          <JefeCurso
+            key={`${idLeccion(modulo, leccion)}-${n}`}
+            opciones={leccion.opciones}
+            intentos={intentos}
+            codigo={leccion.codigo}
+            notas={leccion.notas}
+            leccionId={idLeccion(modulo, leccion)}
+            titulo={`${leccion.id} · ${leccion.titulo}`}
+            ajustes={ajustes}
+            onGuardar={onGuardar}
+            onSalir={salir}
+            onRepetir={repetir}
+            onSiguiente={siguiente}
+          />
+        ) : (
+          <TecleoCodigo
+            intentos={intentos}
+            key={`${idLeccion(modulo, leccion)}-${n}`}
+            codigo={leccion.codigo}
+            notas={leccion.notas}
+            leccionId={idLeccion(modulo, leccion)}
+            titulo={`${leccion.id} · ${leccion.titulo}`}
+            ajustes={ajustes}
+            onGuardar={onGuardar}
+            onSalir={salir}
+            onRepetir={repetir}
+            onSiguiente={siguiente}
+          />
+        )}
       </div>
     );
   }
