@@ -14,10 +14,10 @@ Entrenador de mecanografía propio de Lucas. Sustituye a typing.com en su práct
 ## Reglas que no se negocian
 
 - **Idioma:** interfaz, comentarios, commits y documentación en español (es-ES). Fechas en `Europe/Madrid`.
-- **Local primero:** sin backend, sin cuentas, sin Supabase, sin analítica, sin CDN, sin fuentes externas. Tiene que funcionar sin internet. Lo único que sale a la red es la llamada opcional a Ollama en `localhost` (fase 4).
+- **Local primero:** sin analítica, sin CDN, sin fuentes externas. La app tiene que funcionar igual sin internet y sin cuenta. La nube es **opcional**: cuenta y sincronización con Firebase (proyecto `txispa-type`) solo si hay sesión, cargada de forma diferida y detrás de la interfaz `RunStore`; sin variables `VITE_FIREBASE_*` degrada a solo local. Fuera de eso solo sale a la red la llamada opcional a Ollama en `localhost`. Plan completo en `C:UsersLucas.claudeplans` y en `docs/PLAN_INTEGRACION_FIREBASE.md` y `docs/REVISION-SHELLPATH.md`.
 - **Shellpath es solo lectura.** Está en `../Shellpath/app/src`. Se copia código desde ahí, pero nunca se modifica ni se toca su repositorio. No abras `../Shellpath/app/.env.local` ni ningún archivo `.env*`.
 - **Claves de almacenamiento propias:** todo lo que se guarde en el navegador empieza por `txispatype.` para no pisar el `shellpath.*` de Shellpath.
-- **Dependencias:** solo React 19, Vite, TypeScript, Vitest y oxlint, con las mismas versiones que `../Shellpath/app/package.json`. Cualquier otra se pregunta a Lucas antes y se justifica.
+- **Dependencias:** React 19, Vite, TypeScript, Vitest y oxlint, con las mismas versiones que `../Shellpath/app/package.json`, y `firebase` (aprobada por Lucas el 13/11/2026 para la fase de cuenta y sincronización; import modular y diferido). Cualquier otra se pregunta a Lucas antes y se justifica.
 - **La lógica de cálculo va en `src/lib/` como funciones puras con tests de Vitest.** Los componentes no calculan nada: pintan.
 - **Un cambio = un commit.** Antes de cada commit tienen que pasar `npx tsc -b`, `npm run lint`, `npm test` y `npm run build`. Cuando exista, `npm run check` los agrupa (modelo: `../Shellpath/app/scripts/run-checks.mjs`).
 - **Calidad antes que velocidad.** La app nunca presenta una subida de ppm sin enseñar la precisión al lado, y los textos de práctica no deben premiar el tecleo descuidado.

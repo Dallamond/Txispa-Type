@@ -2,7 +2,11 @@
 
 > La sección del curso se actualiza en cada push. El resto del documento es la copia del 27 de octubre de 2026; el análisis técnico del 4 de noviembre está en `ESTADO_DEL_PROYECTO.md`.
 
-## Cursos (pestaña Curso)
+## Cursos (pestaña Cursos)
+
+**Actualización del 13 de noviembre de 2026:** hay **tres cursos independientes**, HTML, CSS (se abre al completar HTML) y **Linux** (8 módulos, 50 lecciones y 8 jefes, convertido desde Shellpath). La pestaña Cursos muestra una tarjeta por curso con su avance. Cada curso es una carpeta de temario más una línea en `CURSOS` (`docs/curso/AÑADIR-CURSO.md`); el generador lee todos los `docs/curso/**/TEMARIO*.md`. Los cursos de terminal llevan una nota por línea y un **jefe** al final de cada módulo (elegir el comando correcto del escenario y teclearlo). Los logros incluyen uno por curso. Hay un plan de cuenta, nube e interfaz en `C:UsersLucas.claudeplans	icklish-spinning-blossom.md` (resumen en `docs/REVISION-SHELLPATH.md`). La tabla de módulos de abajo sigue vigente para HTML y CSS.
+
+Pendiente de probar por Lucas con teclado físico: lección de HTML, jefe de Linux, y el `^` de L07.02 (tecla muerta, probablemente no se pueda teclear aún).
 
 **Curso de HTML y CSS:** se aprende tecleando código real. Cada línea se cierra con `Enter`, la sangría la pone la app, el cierre de cada palabra es el espacio, y al lado de la línea activa aparece el significado de sus etiquetas, atributos, selectores o propiedades. Una lección se supera con ≥ 95 % de precisión (la velocidad no cuenta para pasarla); se domina con 98 % y 8-16 ppm según su dificultad, o superándola en 3 días distintos.
 
@@ -26,15 +30,15 @@
 - **Datos:** no hay almacén nuevo. Cada lección tecleada es un intento (`fuente "curso"`, `modo "entreno"`, `leccionId` como `html/L01.01`); el progreso se calcula a partir de ellos, así que exportar/importar lo conserva. Las lecciones suman al tiempo del día, pero no cuentan como entreno del plan ni para la media de ppm. Nuevo ajuste `desbloquearCurso` en `txispatype.settings.v1`.
 - **Calidad:** `npm run check` incluye que los datos generados estén al día con el temario y un test que valida las 71 lecciones (longitud, sangría, caracteres tecleables, etiquetas y llaves balanceadas, símbolos nuevos, explicaciones) y que todo lo usado tiene nota en el glosario.
 - **Sin verificar en navegador por Claude** (la extensión de Chrome no conecta): lo prueba Lucas. Pendiente de su revisión: los textos del glosario y del diccionario, y el temario M06-M12. Checklists en `docs/FASES.md`, Fase 6.
-- **Pendiente del curso:** filtro de estadísticas por curso, símbolos de programación como teclas débiles, vista previa renderizada (opcional), y más cursos (ver `docs/curso/AÑADIR-CURSO.md` cuando exista).
-- **Futuro:** Lucas quiere fusionar otro juego de mecanografía que ya creó; mantener motor, datos y pantalla desacoplados.
+- **Pendiente del curso:** filtro de estadísticas por curso, símbolos de programación como teclas débiles, vista previa renderizada (opcional), y más cursos (MySQL, SMR, ASIR; ver `docs/curso/AÑADIR-CURSO.md`).
+- **Shellpath:** su contenido de Linux ya está aquí; se irán trayendo más piezas (mapa de nodos, mascota, sonido) según el plan.
 
 ## Resumen
 
 - **Objetivo:** sustituir a typing.com en la práctica diaria y subir de ~46 ppm a 65 (70 en mejores tests), cuidando la precisión.
 - **Stack:** Vite + React 19 + TypeScript, datos en el navegador (IndexedDB para intentos, localStorage para ajustes). Sin backend, sin internet salvo Ollama en localhost (opcional).
 - **Repo:** https://github.com/Dallamond/Txispa-Type — todo subido, incluyendo este doc.
-- **Calidad:** `npm run check` en verde (tsc + oxlint + **268 tests** de Vitest + build).
+- **Calidad:** `npm run check` en verde (tsc + oxlint + **1037 tests** de Vitest + build).
 
 ## Fases
 
