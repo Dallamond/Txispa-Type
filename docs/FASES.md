@@ -6,6 +6,17 @@ Marca las tareas con `- [x]` al terminarlas. Detalle técnico en `ESPECIFICACION
 
 ## Estado
 
+**Sesión del 14 de noviembre de 2026 (F2, cuenta y sincronización):** código en `ac21516`. Revisado: `npm run check` en verde; las reglas de `firestore.rules` encajan con el modelo (`modo` test/entreno, formato de `leccionId` de HTML, CSS y Linux, `syncedAt == request.time`). Riesgo conocido: en `remotoFirestore.subir`, un `permission-denied` se trata como "ya existía"; un intento que las reglas rechacen por forma inválida se daría por subido sin estarlo.
+
+Checklist manual de F2 (necesita Firebase real, lo hace Lucas):
+- [ ] Crear `app/.env.local` desde `.env.example` con el `firebaseConfig` y reiniciar `npm run dev`.
+- [ ] Publicar `firestore.rules` (consola > Firestore > Reglas, o `firebase deploy --only firestore:rules`) y activar correo/contraseña en Authentication.
+- [ ] Entrar con Google y con correo; salir; la app sigue funcionando en local.
+- [ ] Hacer un test, ver que aparece en Firestore (`users/{uid}/intentos`) y que en otro navegador con la misma cuenta baja al sincronizar.
+- [ ] Sin conexión: guardar un test y comprobar que queda pendiente y se sube al volver la red.
+- [ ] Entrar con otra cuenta en un navegador con datos: aparece la elección unir/limpio.
+- [ ] "Borrar todo en la nube" vacía también el otro dispositivo al sincronizar.
+
 **Sesión del 3 de noviembre de 2026:** mapa de actividad anual en Inicio, como el de contribuciones de GitHub (`lib/actividad.ts` con tests, `components/MapaActividad.tsx`). Una celda por día de las últimas 53 semanas (de lunes a domingo); el color sale de la meta diaria de minutos (tres tercios y la meta cumplida como color más fuerte); al pasar el ratón muestra el tiempo, las pulsaciones y los tests y entrenos del día. Cuentan solo intentos guardados: los calentamientos y el tiempo de sesiones abandonadas (`tiempoextra`) no salen.
 
 Verificado: tests unitarios y render de servidor con datos sintéticos (53 columnas, meses de noviembre a noviembre, resumen correcto). **No verificado en navegador** (la extensión de Chrome no estaba conectada): aspecto, tooltip y tema claro.
