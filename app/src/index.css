@@ -1916,3 +1916,10 @@ select:focus-visible {
 .jefe-opcion:hover:not(:disabled), .jefe-opcion:focus-visible { border-color: var(--acento, currentColor); }
 .jefe-opcion.fallada { opacity: 0.45; text-decoration: line-through; cursor: not-allowed; }
 .jefe-razon { color: var(--error, #e5534b); margin: 8px 0; }
+
+/* Nube: indicador de sincronización y formulario de cuenta */
+.sync-chip { font: inherit; font-size: 0.8rem; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--borde, #444); background: transparent; color: inherit; cursor: pointer; white-space: nowrap; }
+.sync-chip.sincronizado { border-color: var(--acierto, #3fb950); }
+.sync-chip.error, .sync-chip.cuenta-distinta { border-color: var(--error, #e5534b); }
+.sync-chip.sin-conexion { border-color: var(--aviso-color, #d29922); }
+.cuenta-form { display: flex; flex-direction: column; gap: 8px; margin: 12px 0; }

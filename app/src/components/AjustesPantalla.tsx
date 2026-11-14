@@ -7,15 +7,21 @@ import { DURACIONES_CALENTAMIENTO } from "../lib/calentamientos";
 import { crearExportacion, leerImportacion, nombreArchivo } from "../lib/exportar";
 import { diaLocal } from "../lib/estadisticas";
 import { listarModelos } from "../lib/ia";
+import type { Sesion } from "../hooks/useSesion";
+import type { ControladorSync } from "../lib/almacenSincronizado";
+import type { EstadoSync } from "../lib/sincronizacion";
+import PanelCuenta from "./PanelCuenta";
 
 interface Props {
   ajustes: Ajustes;
   onCambiar: (parcial: Partial<Ajustes>) => void;
   almacen: RunStore;
   intentos: readonly Intento[];
+  /** Cuenta y nube (sesión, estado de la sincronización y su controlador). */
+  cuenta: { sesion: Sesion; estado: EstadoSync; controlador: ControladorSync };
 }
 
-export default function AjustesPantalla({ ajustes, onCambiar, almacen, intentos }: Props) {
+export default function AjustesPantalla({ ajustes, onCambiar, almacen, intentos, cuenta }: Props) {
   const [mensaje, setMensaje] = useState("");
   const [confirmaBorrar, setConfirmaBorrar] = useState(false);
   const archivoRef = useRef<HTMLInputElement | null>(null);
@@ -66,12 +72,18 @@ export default function AjustesPantalla({ ajustes, onCambiar, almacen, intentos 
   async function borrarTodo() {
     await almacen.clear();
     setConfirmaBorrar(false);
-    setMensaje("Todos los intentos se han borrado.");
+    setMensaje(
+      cuenta.sesion.usuario
+        ? "Intentos borrados de este equipo. Siguen en la nube: pulsa «Sincronizar ahora» para recuperarlos o «Borrar también en la nube» para quitarlos de todos tus equipos."
+        : "Todos los intentos se han borrado."
+    );
   }
 
   return (
     <section className="tarjeta">
       <h1>Ajustes</h1>
+
+      <PanelCuenta sesion={cuenta.sesion} estado={cuenta.estado} controlador={cuenta.controlador} />
 
       <h2>Práctica</h2>
       <label className="fila">

@@ -1,0 +1,54 @@
+rules_version = '2';
+
+// Reglas de Firestore de Txispa Type. Cada persona solo accede a lo suyo, los intentos se crean una vez y no se
+// modifican, y se valida la forma de lo que se escribe. Todo lo demás está cerrado.
+// Se publican con `firebase deploy --only firestore:rules` o pegándolas en consola > Firestore > Reglas.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function esDueno(uid) {
+      return request.auth != null && request.auth.uid == uid;
+    }
+
+    match /users/{uid} {
+      allow read: if esDueno(uid);
+      // Solo el contador de "Borrar todo" y la versión del modelo.
+      allow create, update: if esDueno(uid)
+        && request.resource.data.keys().hasOnly(['schema', 'resetEpoch'])
+        && request.resource.data.schema is int
+        && request.resource.data.resetEpoch is int
+        && request.resource.data.resetEpoch >= 0;
+      allow delete: if false;
+
+      match /intentos/{id} {
+        allow read: if esDueno(uid);
+
+        // Se crea una vez; sin `update`: un intento es un hecho inmutable.
+        allow create: if esDueno(uid)
+          && id.matches('^[A-Za-z0-9-]{1,64}$')
+          && request.resource.data.id == id
+          && request.resource.data.modo in ['test', 'entreno']
+          && request.resource.data.wpm is number && request.resource.data.wpm >= 0 && request.resource.data.wpm < 500
+          && request.resource.data.acc is number && request.resource.data.acc >= 0 && request.resource.data.acc <= 100
+          && request.resource.data.durationSec is number
+          && request.resource.data.localDate is string
+          && request.resource.data.localDate.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$')
+          && request.resource.data.teclas is map
+          && request.resource.data.pares is map
+          && request.resource.data.confusiones is map
+          && request.resource.data.keys().size() < 40
+          && (!('leccionId' in request.resource.data)
+              || (request.resource.data.leccionId is string
+                  && request.resource.data.leccionId.matches('^[a-z]{2,12}/L[0-9]{2}\\.([0-9]{2}|R|J)$')))
+          && request.resource.data.syncedAt == request.time;
+        allow update: if false;
+        // Necesario para "Borrar también en la nube".
+        allow delete: if esDueno(uid);
+      }
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

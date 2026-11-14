@@ -3,6 +3,11 @@ import type { Intento } from "./types";
 import { useAjustes } from "./hooks/useAjustes";
 import { useTecladoFisico } from "./hooks/useTecladoFisico";
 import { crearAlmacenIndexedDB } from "./lib/almacen";
+import { crearAlmacenSincronizado } from "./lib/almacenSincronizado";
+import { almacenLocal } from "./lib/ajustes";
+import { etiquetaCorta } from "./lib/estadoSync";
+import { useSesion } from "./hooks/useSesion";
+import { useSincronizacion } from "./hooks/useSincronizacion";
 import { useIntentos } from "./hooks/useIntentos";
 import { formatoReloj } from "./lib/historial";
 import { nivelDe, xpTotal } from "./lib/xp";
@@ -107,7 +112,10 @@ export default function App() {
   const [ajustes, cambiarAjustes] = useAjustes();
   const [pestana, setPestana] = useState<PestanaId>("inicio");
   const tecladoFisico = useTecladoFisico();
-  const almacen = useMemo(() => crearAlmacenIndexedDB(), []);
+  const { almacen, controlador } = useMemo(() => crearAlmacenSincronizado(crearAlmacenIndexedDB(), almacenLocal()), []);
+  const sesion = useSesion();
+  const estadoSync = useSincronizacion(controlador, sesion.usuario?.uid ?? null);
+  const etiquetaSync = etiquetaCorta(estadoSync);
   const { intentos } = useIntentos(almacen);
   const { total: pulsaciones, segundosHoy, api: contador } = useTotalPulsaciones(intentos);
   const metaSeg = ajustes.objetivoMinutos * 60;
@@ -179,6 +187,11 @@ export default function App() {
             <b>{pulsaciones.toLocaleString("es-ES")}</b>
             <span>pulsaciones</span>
           </div>
+          {etiquetaSync && (
+            <button type="button" className={`sync-chip ${estadoSync.tipo}`} title="Estado de la sincronización: abre Ajustes" onClick={() => setAjustesAbiertos(true)}>
+              {etiquetaSync}
+            </button>
+          )}
           <button type="button" className="btn-rueda" title="Ajustes" aria-label="Ajustes" aria-haspopup="dialog" onClick={() => setAjustesAbiertos(true)}>
             <IconoEngranaje />
           </button>
@@ -223,7 +236,7 @@ export default function App() {
                 Cerrar
               </button>
             </div>
-            <AjustesPantalla ajustes={ajustes} onCambiar={cambiarAjustes} almacen={almacen} intentos={intentos} />
+            <AjustesPantalla ajustes={ajustes} onCambiar={cambiarAjustes} almacen={almacen} intentos={intentos} cuenta={{ sesion, estado: estadoSync, controlador }} />
           </div>
         </div>
       )}
