@@ -2,79 +2,79 @@
    Sin fuentes externas ni CDN: la app tiene que funcionar sin internet.
    Los estilos del teclado salen de Shellpath (index.css), solo lo necesario. */
 
-/* Paleta y forma tomadas de Shellpath (terminal: verde, rejilla, bordes marcados). */
+/* Paleta pastel sobria: azules grisáceos suaves, sin colores que llamen la atención. */
 :root,
 [data-theme="oscuro"] {
-  --bg: #0a0e14;
-  --bg2: #12171f;
-  --bg3: #1a212b;
-  --bg-elev: #141a22;
-  --border: #2a333f;
-  --border-soft: #222a34;
-  --text: #e6edf3;
-  --dim: #9aa7b5;
-  --faint: #6b7684;
-  --accent: #3fb950;
-  --accent-ink: #07130a;
-  --ok: #3fb950;
-  --warn: #e3b341;
-  --danger: #f85149;
-  --link: #79b8ff;
-  --cursor: #3fb95033;
-  --grid: rgba(63, 185, 80, 0.05);
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
-  --shadow: 0 6px 18px rgba(0, 0, 0, 0.45), 0 1px 3px rgba(0, 0, 0, 0.4);
-  --shadow-lg: 0 22px 60px -12px rgba(0, 0, 0, 0.65);
-  --ring: 0 0 0 3px rgba(63, 185, 80, 0.28);
+  --bg: #2a2f3a;
+  --bg2: #323846;
+  --bg3: #3b4252;
+  --bg-elev: #2f3542;
+  --border: #4a5265;
+  --border-soft: #3f4658;
+  --text: #eceff4;
+  --dim: #b4bccb;
+  --faint: #8993a6;
+  --accent: #9bb5e8;
+  --accent-ink: #1d2536;
+  --ok: #a6d4b0;
+  --warn: #e8cf94;
+  --danger: #eba0a0;
+  --link: #a5c0f0;
+  --cursor: #9bb5e833;
+  --grid: rgba(155, 181, 232, 0.05);
+  --shadow-sm: 0 1px 2px rgba(10, 14, 22, 0.25);
+  --shadow: 0 6px 18px rgba(10, 14, 22, 0.28), 0 1px 3px rgba(10, 14, 22, 0.2);
+  --shadow-lg: 0 22px 60px -12px rgba(10, 14, 22, 0.45);
+  --ring: 0 0 0 3px rgba(155, 181, 232, 0.35);
   color-scheme: dark;
 }
 
 [data-theme="claro"] {
-  --bg: #f4f2ea;
+  --bg: #f5f6fa;
   --bg2: #ffffff;
-  --bg3: #ebe8dc;
-  --bg-elev: #fbfaf5;
-  --border: #d6d2c2;
-  --border-soft: #e4e0d1;
-  --text: #1c2420;
-  --dim: #55605a;
-  --faint: #76807a;
-  --accent: #1f9d63;
+  --bg3: #eceef5;
+  --bg-elev: #fafbfd;
+  --border: #d9deea;
+  --border-soft: #e5e8f1;
+  --text: #2b3140;
+  --dim: #5d6678;
+  --faint: #7d8699;
+  --accent: #5876b8;
   --accent-ink: #ffffff;
-  --ok: #1c8a4a;
-  --warn: #9a6b00;
-  --danger: #c0392b;
-  --link: #1a5fb4;
-  --cursor: #1f9d6324;
-  --grid: rgba(31, 157, 99, 0.07);
-  --shadow-sm: 0 1px 2px rgba(20, 30, 25, 0.08);
-  --shadow: 0 6px 18px rgba(20, 30, 25, 0.1), 0 1px 3px rgba(20, 30, 25, 0.08);
-  --shadow-lg: 0 22px 60px -12px rgba(20, 30, 25, 0.25);
-  --ring: 0 0 0 3px rgba(31, 157, 99, 0.25);
+  --ok: #3f8a5c;
+  --warn: #8a6a1c;
+  --danger: #b4493f;
+  --link: #3f64a8;
+  --cursor: #5876b826;
+  --grid: rgba(88, 118, 184, 0.06);
+  --shadow-sm: 0 1px 2px rgba(40, 50, 80, 0.08);
+  --shadow: 0 6px 18px rgba(40, 50, 80, 0.1), 0 1px 3px rgba(40, 50, 80, 0.08);
+  --shadow-lg: 0 22px 60px -12px rgba(40, 50, 80, 0.25);
+  --ring: 0 0 0 3px rgba(88, 118, 184, 0.28);
   color-scheme: light;
 }
 
 :root {
   /* Superficie del teclado: oscura en ambos temas, como en Shellpath. */
-  --tbg2: #1f1e1c;
-  --tborder: #34322e;
-  --ttext: #d6d4cc;
-  --tdim: #8c8a82;
-  --tgreen: #4cc27d;
-  --tamber: #e3b341;
-  --tred: #f85149;
-  --tblue: #58a6ff;
+  --tbg2: #353b4a;
+  --tborder: #4a5265;
+  --ttext: #e4e8f0;
+  --tdim: #9aa4b6;
+  --tgreen: #a6d4b0;
+  --tamber: #e8cf94;
+  --tred: #eba0a0;
+  --tblue: #a5c0f0;
 
   /* Guía de dedos: mismo dedo de cada mano, mismo color. */
-  --f0: #f85149;
-  --f1: #e3b341;
-  --f2: #3fb950;
-  --f3: #58a6ff;
-  --f4: #58a6ff;
-  --f5: #3fb950;
-  --f6: #e3b341;
-  --f7: #f85149;
-  --fthumb: #8b949e;
+  --f0: #eba0a0;
+  --f1: #e8cf94;
+  --f2: #a6d4b0;
+  --f3: #a5c0f0;
+  --f4: #a5c0f0;
+  --f5: #a6d4b0;
+  --f6: #e8cf94;
+  --f7: #eba0a0;
+  --fthumb: #9aa4b6;
 
   --r-sm: 8px;
   --r: 12px;
@@ -143,8 +143,8 @@ button {
 .keyboard {
   --kb-tapa: var(--tbg2);
   --kb-borde: var(--tborder);
-  --kb-cara-a: #2a2926;
-  --kb-cara-b: #1e1d1b;
+  --kb-cara-a: #3d4455;
+  --kb-cara-b: #313847;
   --kb-texto: var(--ttext);
   --kb-sub: var(--tdim);
   --kb-brillo: #ffffff12;
@@ -1977,3 +1977,9 @@ select:focus-visible {
 .sync-chip.error, .sync-chip.cuenta-distinta { border-color: var(--error, #e5534b); }
 .sync-chip.sin-conexion { border-color: var(--aviso-color, #d29922); }
 .cuenta-form { display: flex; flex-direction: column; gap: 8px; margin: 12px 0; }
+
+/* Selector de vista dentro de la pestaña Cursos. */
+.cursos-vistas {
+  width: fit-content;
+  margin-bottom: 16px;
+}
