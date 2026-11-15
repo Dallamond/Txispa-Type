@@ -17,6 +17,9 @@ import Calentar from "./components/Calentar";
 import Test from "./components/Test";
 import Entrenar, { type FuenteEntrenar, type PedidoEntreno } from "./components/Entrenar";
 import Cursos, { type VistaCursos } from "./components/Cursos";
+import Ranking from "./components/Ranking";
+import { crearRankingNube } from "./lib/rankingFirestore";
+import { RankingMemoria } from "./lib/rankingMemoria";
 import Estadisticas from "./components/Estadisticas";
 import AjustesPantalla from "./components/AjustesPantalla";
 
@@ -29,6 +32,7 @@ const PESTANAS = [
   { id: "test", etiqueta: "Test" },
   { id: "entrenar", etiqueta: "Entrenar" },
   { id: "curso", etiqueta: "Cursos" },
+  { id: "ranking", etiqueta: "Ranking" },
 ] as const;
 
 type PestanaId = (typeof PESTANAS)[number]["id"];
@@ -113,6 +117,9 @@ export default function App() {
   const tecladoFisico = useTecladoFisico();
   const { almacen, controlador } = useMemo(() => crearAlmacenSincronizado(crearAlmacenIndexedDB(), almacenLocal()), []);
   const sesion = useSesion();
+  const uidSesion = sesion.usuario?.uid ?? null;
+  // Estable por usuario (la caché del hook va por instancia). Sin nube: memoria vacía, sin datos ficticios.
+  const rankingStore = useMemo(() => (sesion.disponible ? crearRankingNube(uidSesion) : new RankingMemoria({ filas: [] })), [sesion.disponible, uidSesion]);
   const estadoSync = useSincronizacion(controlador, sesion.usuario?.uid ?? null);
   const etiquetaSync = etiquetaCorta(estadoSync);
   const { intentos } = useIntentos(almacen);
@@ -219,6 +226,7 @@ export default function App() {
         {pestana === "calentar" && <Calentar ajustes={ajustes} intentos={intentos} onCambiarAjustes={cambiarAjustes} onIr={setPestana} />}
         {pestana === "test" && <Test ajustes={ajustes} intentos={intentos} onGuardar={guardar} onCambiarAjustes={cambiarAjustes} />}
         {pestana === "entrenar" && <Entrenar ajustes={ajustes} intentos={intentos} onGuardar={guardar} pedido={pedido} />}
+        {pestana === "ranking" && <Ranking store={rankingStore} intentos={intentos} haySesion={!!sesion.usuario} nubeDisponible={sesion.disponible} />}
         {pestana === "curso" && <Cursos ajustes={ajustes} intentos={intentos} onGuardar={guardar} vista={vistaCursos} onVista={setVistaCursos} />}
       </main>
 
