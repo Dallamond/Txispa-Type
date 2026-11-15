@@ -27,12 +27,14 @@ interface Props {
   intentos: Intento[];
   /** El ranking exige sesión: sin ella solo se puede ver la tabla. */
   haySesion: boolean;
+  /** ¿Esta versión tiene la nube configurada? Si no, el ranking no puede funcionar y se explica. Por defecto true. */
+  nubeDisponible?: boolean;
 }
 
 const formato = (n: number) => n.toLocaleString("es-ES", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
 
 /** Ranking público opt-in de mejor ppm en test. Sin XP ni verificación. */
-export default function Ranking({ store, intentos, haySesion }: Props) {
+export default function Ranking({ store, intentos, haySesion, nubeDisponible = true }: Props) {
   const datos = useRanking(store);
   const perfil = useMemo(() => perfilPublicoDesde(intentos), [intentos]);
   const [aliasGuardado, setAliasGuardado] = useState(leerAlias);
@@ -151,7 +153,9 @@ export default function Ranking({ store, intentos, haySesion }: Props) {
       </div>
 
       <div className="ranking-optin">
-        {!haySesion ? (
+        {!nubeDisponible ? (
+          <p className="tenue">El ranking necesita una cuenta y la nube, y esta versión de la app funciona solo en local. Tu práctica no se ve afectada.</p>
+        ) : !haySesion ? (
           <p className="tenue">Para entrar en el ranking necesitas iniciar sesión en Ajustes. Verlo es libre.</p>
         ) : !perfil ? (
           <p className="tenue">Aún no tienes ningún test con precisión del 95 % o más. Haz uno y vuelve.</p>
