@@ -87,6 +87,14 @@ Almacenamiento:
 - `txispatype.runs` en **IndexedDB** (base `txispatype`, almacén `intentos`, clave `id`, índices `localDate` y `date`). Un intento con teclas y pares ocupa unos 3-5 KB: con 4 tests y un entreno al día son varios MB al año, demasiado para el límite de localStorage. Se pide `navigator.storage.persist()`.
 - `txispatype.settings.v1` en localStorage.
 - `txispatype.ia.v1` en localStorage: últimos 20 textos generados por la IA, para no repetir.
+- `txispatype.calentamiento.v1` (total de pulsaciones de calentamiento) y `txispatype.tiempoextra.v1` (segundos extra del día, `{dia, segundos}`): contadores locales, sin cambios de formato.
+- Contadores y ajustes sincronizables (nube opcional, `lib/contadores.ts` y `lib/sincronizadorAjustes.ts`):
+  - `txispatype.contadores.v1` `{uid, calentamientoPuls, extraSeg: {YYYY-MM-DD: n}}`: sumas hechas aquí y aún no subidas a la nube (`increment`). Lo mostrado es "total de la nube + pendiente".
+  - `txispatype.migrado.v1` `{uid, fecha}`: marca de la migración única local -> nube. Mientras no existe no se anota nada pendiente; al existir, lo local no vuelve a subirse. Con otra cuenta distinta no se migra: manda lo de su nube.
+  - `txispatype.ajustesSync.v1` `{uid, vistoEn, sucioDesde}`: `vistoEn` es el `updatedAt` de servidor ya reflejado aquí; `sucioDesde`, el instante (reloj local) del último cambio sin subir.
+  - Firestore: `users/{uid}/contadores/global { calentamientoPuls }`, `users/{uid}/dias/{YYYY-MM-DD} { extraSeg }` (solo `setDoc` con `merge` + `increment`) y `users/{uid}/ajustes/actual` (siete claves sincronizables + `updatedAt` de servidor, documento entero, última escritura gana, subida con debounce de 1,5 s).
+  - Ajustes sincronizables: `objetivoTests`, `objetivoMinutos`, `estrictoPorDefecto`, `puntuacionYMayusculas`, `duracionPorDefecto`, `calentamientoMin`, `reglasDeAjuste` (`CLAVES_SINCRONIZABLES` en `types.ts`). Locales: `tema`, `zoom`, `tecladoVisible`, `guiaDedos`, `desbloquearCurso`, `sonidos`, `ollamaUrl`, `ollamaModelo`. Lo que llega de la nube se valida campo a campo con `normalizarAjustes`; un valor inválido conserva el local.
+  - Limitaciones conocidas: la resolución de ajustes compara el reloj del dispositivo con el del servidor (un desfase de segundos solo importa si se edita en dos dispositivos casi a la vez); si la app se cierra justo entre subir un `increment` y anotarlo como subido, ese incremento se repite en el siguiente arranque.
 - Esquema versionado (`schema: 1`). Si cambia el significado de un campo, se migra al leer, nunca se borra.
 - Todo acceso pasa por la interfaz `RunStore { list, add, clear, importMany, subscribe }`. En los tests se usa la versión en memoria.
 
