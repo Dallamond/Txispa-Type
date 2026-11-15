@@ -70,6 +70,21 @@ export interface Intento {
 
 export type Duracion = 30 | 60 | 120 | 180 | 300;
 
+/** Claves de `Ajustes` que viajan a la nube (`users/{uid}/ajustes/actual`). El resto es del dispositivo. */
+export const CLAVES_SINCRONIZABLES = [
+  "objetivoTests",
+  "objetivoMinutos",
+  "estrictoPorDefecto",
+  "puntuacionYMayusculas",
+  "duracionPorDefecto",
+  "calentamientoMin",
+  "reglasDeAjuste",
+] as const;
+
+export type ClaveSincronizable = (typeof CLAVES_SINCRONIZABLES)[number];
+export type AjustesSincronizables = Pick<Ajustes, ClaveSincronizable>;
+export type AjustesLocales = Omit<Ajustes, ClaveSincronizable>;
+
 export interface Ajustes {
   tema: "oscuro" | "claro";
   zoom: number;
