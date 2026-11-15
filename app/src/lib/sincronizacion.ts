@@ -92,3 +92,24 @@ export function unirIds(a: readonly string[], b: readonly string[]): string[] {
 export function paraNube(intento: Intento): Record<string, unknown> {
   return JSON.parse(JSON.stringify(intento)) as Record<string, unknown>;
 }
+
+/**
+ * Sube un lote uno a uno cuando el lote entero fue rechazado con `permission-denied`. Las reglas dan ese mismo error
+ * si el documento ya existía (los intentos no se sobrescriben) y si su forma no las cumple. Solo el primer caso cuenta
+ * como subido: ante un rechazo se comprueba si el documento está en la nube y, si no está, se lanza el error para que
+ * el intento siga pendiente y se vea el fallo en vez de darlo por sincronizado.
+ */
+export async function subirUnoAUno(
+  lote: readonly Intento[],
+  crear: (intento: Intento) => Promise<void>,
+  existe: (intento: Intento) => Promise<boolean>,
+  esDenegado: (e: unknown) => boolean,
+): Promise<void> {
+  for (const i of lote) {
+    try {
+      await crear(i);
+    } catch (e) {
+      if (!esDenegado(e) || !(await existe(i))) throw e;
+    }
+  }
+}

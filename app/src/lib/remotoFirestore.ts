@@ -24,7 +24,7 @@ import {
 } from "firebase/firestore";
 import type { Intento } from "../types";
 import { esIntentoValido } from "./exportar";
-import { LOTE, paraNube, trocear, type Remoto } from "./sincronizacion";
+import { LOTE, paraNube, subirUnoAUno, trocear, type Remoto } from "./sincronizacion";
 
 const SCHEMA_NUBE = 1;
 
@@ -62,15 +62,14 @@ export function crearRemotoFirestore(db: Firestore, uid: string): Remoto {
           await batch.commit();
         } catch (e) {
           if (!esPermisoDenegado(e)) throw e;
-          // Algún documento ya existía (una subida anterior se perdió antes de confirmarse) y las reglas rechazan
-          // sobrescribirlo: se repite uno a uno y lo que ya está en la nube cuenta como subido.
-          for (const i of lote) {
-            try {
-              await setDoc(doc(intentos, i.id), { ...paraNube(i), syncedAt: serverTimestamp() });
-            } catch (e2) {
-              if (!esPermisoDenegado(e2)) throw e2;
-            }
-          }
+          // Las reglas rechazan sobrescribir un intento que ya existe, pero también uno con forma inválida: se repite
+          // uno a uno y solo lo que de verdad está en la nube cuenta como subido.
+          await subirUnoAUno(
+            lote,
+            (i) => setDoc(doc(intentos, i.id), { ...paraNube(i), syncedAt: serverTimestamp() }),
+            async (i) => (await getDoc(doc(intentos, i.id))).exists(),
+            esPermisoDenegado,
+          );
         }
       }
     },

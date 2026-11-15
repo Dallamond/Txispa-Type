@@ -6,7 +6,7 @@ Marca las tareas con `- [x]` al terminarlas. Detalle técnico en `ESPECIFICACION
 
 ## Estado
 
-**Sesión del 14 de noviembre de 2026 (F2, cuenta y sincronización):** código en `ac21516`. Revisado: `npm run check` en verde; las reglas de `firestore.rules` encajan con el modelo (`modo` test/entreno, formato de `leccionId` de HTML, CSS y Linux, `syncedAt == request.time`). Riesgo conocido: en `remotoFirestore.subir`, un `permission-denied` se trata como "ya existía"; un intento que las reglas rechacen por forma inválida se daría por subido sin estarlo.
+**Sesión del 14 de noviembre de 2026 (F2, cuenta y sincronización):** código en `ac21516`. Revisado: `npm run check` en verde; las reglas de `firestore.rules` encajan con el modelo (`modo` test/entreno, formato de `leccionId` de HTML, CSS y Linux, `syncedAt == request.time`). Riesgo resuelto (15/11): en `remotoFirestore.subir`, un `permission-denied` ya no se da por "ya existía" sin más; `subirUnoAUno` (`lib/sincronizacion.ts`) comprueba con `getDoc` que el intento está en la nube y, si no, lanza el error y el intento sigue pendiente. Cubierto con test de la lógica; la comprobación contra Firestore real queda en la checklist de abajo. Consecuencia: un intento rechazado por forma inválida bloquea la cola y se verá como error de sincronización.
 
 Checklist manual de F2 (necesita Firebase real, lo hace Lucas):
 - [ ] Crear `app/.env.local` desde `.env.example` con el `firebaseConfig` y reiniciar `npm run dev`.
