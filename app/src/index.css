@@ -2,44 +2,55 @@
    Sin fuentes externas ni CDN: la app tiene que funcionar sin internet.
    Los estilos del teclado salen de Shellpath (index.css), solo lo necesario. */
 
+/* Paleta y forma tomadas de Shellpath (terminal: verde, rejilla, bordes marcados). */
 :root,
 [data-theme="oscuro"] {
---bg: #0e0e10;
-  --bg2: #151518;
-  --bg3: #1d1d21;
-  --border: #29292f;
-  --border-soft: #202025;
-  --text: #ededf0;
-  --dim: #9b9ba5;
-  --faint: #6b6b75;
-  --accent: #ff7a33;
-  --accent-ink: #111113;
-  --ok: #4cc27d;
+  --bg: #0a0e14;
+  --bg2: #12171f;
+  --bg3: #1a212b;
+  --bg-elev: #141a22;
+  --border: #2a333f;
+  --border-soft: #222a34;
+  --text: #e6edf3;
+  --dim: #9aa7b5;
+  --faint: #6b7684;
+  --accent: #3fb950;
+  --accent-ink: #07130a;
+  --ok: #3fb950;
   --warn: #e3b341;
-  --danger: #ff6b6b;
-  --cursor: #ff7a3333;
-  --shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
-  --ring: 0 0 0 3px rgba(255, 122, 51, 0.3);
+  --danger: #f85149;
+  --link: #79b8ff;
+  --cursor: #3fb95033;
+  --grid: rgba(63, 185, 80, 0.05);
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow: 0 6px 18px rgba(0, 0, 0, 0.45), 0 1px 3px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 22px 60px -12px rgba(0, 0, 0, 0.65);
+  --ring: 0 0 0 3px rgba(63, 185, 80, 0.28);
   color-scheme: dark;
 }
 
 [data-theme="claro"] {
---bg: #f6f6f8;
+  --bg: #f4f2ea;
   --bg2: #ffffff;
-  --bg3: #efeff3;
-  --border: #e2e2e8;
-  --border-soft: #ececf1;
-  --text: #1b1b1f;
-  --dim: #5d5d68;
-  --faint: #7a7a85;
-  --accent: #c8470a;
+  --bg3: #ebe8dc;
+  --bg-elev: #fbfaf5;
+  --border: #d6d2c2;
+  --border-soft: #e4e0d1;
+  --text: #1c2420;
+  --dim: #55605a;
+  --faint: #76807a;
+  --accent: #1f9d63;
   --accent-ink: #ffffff;
   --ok: #1c8a4a;
   --warn: #9a6b00;
   --danger: #c0392b;
-  --cursor: #e0560d22;
-  --shadow: 0 6px 20px rgba(20, 20, 30, 0.08);
-  --ring: 0 0 0 3px rgba(200, 71, 10, 0.25);
+  --link: #1a5fb4;
+  --cursor: #1f9d6324;
+  --grid: rgba(31, 157, 99, 0.07);
+  --shadow-sm: 0 1px 2px rgba(20, 30, 25, 0.08);
+  --shadow: 0 6px 18px rgba(20, 30, 25, 0.1), 0 1px 3px rgba(20, 30, 25, 0.08);
+  --shadow-lg: 0 22px 60px -12px rgba(20, 30, 25, 0.25);
+  --ring: 0 0 0 3px rgba(31, 157, 99, 0.25);
   color-scheme: light;
 }
 
@@ -67,7 +78,8 @@
 
   --r-sm: 8px;
   --r: 12px;
-  --r-lg: 16px;
+  --r-lg: 18px;
+  --r-xl: 26px;
   --ui: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --mono: ui-monospace, "Cascadia Mono", "JetBrains Mono", Menlo, Consolas, monospace;
 }
@@ -92,6 +104,11 @@ body {
   line-height: 1.5;
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
+  /* Rejilla sutil de fondo, identidad de terminal. */
+  background-image:
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 34px 34px;
 }
 
 button {
@@ -451,10 +468,11 @@ button {
 
 .tarjeta {
   background: var(--bg2);
-  border: 1px solid var(--border-soft);
-  border-radius: var(--r-lg);
+  border: 1.5px solid var(--border);
+  border-radius: var(--r);
   padding: 24px;
   margin-bottom: 16px;
+  box-shadow: var(--shadow-sm);
 }
 
 .tarjeta h1 {
@@ -489,17 +507,21 @@ button {
 }
 
 .btn {
-  border: 1px solid var(--border);
-  background: transparent;
+  border: 1.5px solid var(--border);
+  background: var(--bg2);
   padding: 8px 16px;
-  border-radius: 10px;
+  border-radius: 8px;
   cursor: pointer;
   font-size: 14px;
-  transition: background 0.12s ease, border-color 0.12s ease;
+  font-weight: 600;
+  box-shadow: var(--shadow-sm);
+  transition: background 0.12s ease, border-color 0.12s ease, transform 0.12s ease;
 }
 
 .btn:hover:not(:disabled) {
   background: var(--bg3);
+  border-color: var(--accent);
+  transform: translateY(-1px);
 }
 
 .btn:disabled {
@@ -510,12 +532,20 @@ button {
 .btn.primario {
   background: var(--accent);
   color: var(--accent-ink);
-  border-color: var(--accent);
-  font-weight: 600;
+  border-color: transparent;
+  border-bottom: 3px solid color-mix(in srgb, var(--accent) 62%, #000);
+  font-weight: 700;
+  box-shadow: none;
 }
 
 .btn.primario:hover:not(:disabled) {
-  background: color-mix(in srgb, var(--accent) 88%, white);
+  background: var(--accent);
+  filter: brightness(1.08);
+}
+
+.btn.primario:active:not(:disabled) {
+  transform: translateY(1px);
+  border-bottom-width: 2px;
 }
 
 .aviso {
