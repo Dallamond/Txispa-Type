@@ -8,7 +8,7 @@ describe("RankingMemoria", () => {
     const r = new RankingMemoria();
     const top = await r.listar(3);
     expect(top).toHaveLength(3);
-    expect(top.map((f) => f.mejorWpm)).toEqual([...top.map((f) => f.mejorWpm)].sort((a, b) => b - a));
+    expect(top.map((f) => f.mejorWpm)).toEqual(top.map((f) => f.mejorWpm).sort((a, b) => b - a));
   });
 
   it("publicar inserta en su sitio y miPuesto lo refleja", async () => {
