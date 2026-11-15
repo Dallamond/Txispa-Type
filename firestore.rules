@@ -47,6 +47,44 @@ service cloud.firestore {
       }
     }
 
+    // ======================================================================================================
+    // RANKING PÚBLICO (docs/RANKING.md). REGLAS NO PROBADAS: sin emulador de Firebase no se han ejecutado.
+    // Perfil público en publico/{uid} y reserva de alias en alias/{aliasLower} = { uid }; el cliente
+    // escribe ambos en un único writeBatch, por eso se valida con getAfter (estado tras el lote).
+    // Límite conocido: el ppm lo envía el cliente y estas reglas solo validan forma y rangos, no que el
+    // test haya ocurrido (ranking de confianza, la interfaz lo avisa).
+    // ======================================================================================================
+    match /publico/{uid} {
+      allow read: if true;
+      allow create, update: if esDueno(uid)
+        && request.resource.data.keys().hasOnly(['alias', 'mejorWpm', 'accMejor', 'tests', 'actualizadoEn'])
+        && request.resource.data.keys().hasAll(['alias', 'mejorWpm', 'accMejor', 'tests', 'actualizadoEn'])
+        && request.resource.data.alias is string
+        && request.resource.data.alias.matches('^[A-Za-z0-9_-]{3,20}$')
+        && request.resource.data.mejorWpm is number
+        && request.resource.data.mejorWpm >= 0 && request.resource.data.mejorWpm <= 300
+        && request.resource.data.accMejor is number
+        && request.resource.data.accMejor >= 95 && request.resource.data.accMejor <= 100
+        && request.resource.data.tests is int && request.resource.data.tests >= 1
+        && request.resource.data.actualizadoEn == request.time
+        // La reserva del alias (nueva o ya existente) tiene que ser nuestra tras el lote.
+        && getAfter(/databases/$(database)/documents/alias/$(request.resource.data.alias.lower())).data.uid == uid;
+      allow delete: if esDueno(uid);
+    }
+
+    match /alias/{aliasLower} {
+      // Solo lectura de un alias concreto (comprobar si está libre); sin listar la colección.
+      allow get: if true;
+      allow list: if false;
+      // Crear solo si el perfil público del lote usa ese alias; así nadie acapara alias sin publicar.
+      allow create: if esDueno(request.resource.data.uid)
+        && request.resource.data.keys().hasOnly(['uid'])
+        && aliasLower.matches('^[a-z0-9_-]{3,20}$')
+        && getAfter(/databases/$(database)/documents/publico/$(request.auth.uid)).data.alias.lower() == aliasLower;
+      allow update: if false;
+      allow delete: if request.auth != null && resource.data.uid == request.auth.uid;
+    }
+
     match /{document=**} {
       allow read, write: if false;
     }
