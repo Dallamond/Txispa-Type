@@ -52,7 +52,7 @@ Pendiente de probar por Lucas con teclado físico: lección de HTML, jefe de Lin
 
 ## Estado de la app (sesiones del 27-10-2026)
 
-Estructura de navegación actual: **Inicio, Calentar, Test, Entrenar** + ruedecita de ajustes.
+Estructura de navegación (actualizada el 15/11/2026): **Inicio, Calentar, Test, Entrenar, Cursos (cursos y progreso/logros), Ranking** + ruedecita de ajustes. Estilo y decisiones recientes en `SESION-2026-11-15.md`.
 
 ### Inicio = Hoy + Estadísticas fusionadas
 Plan del día, tiempo de práctica, y todas las estadísticas (Resumen, Teclas y errores, Historial) en la misma pestaña. El botón "Ver estadísticas" del plan baja con scroll en la misma página. El logo lleva a Inicio.
