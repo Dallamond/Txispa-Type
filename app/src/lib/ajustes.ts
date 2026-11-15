@@ -2,7 +2,7 @@
 // Los valores guardados se validan al leer: un campo roto vuelve a su valor
 // por defecto en vez de romper la app.
 
-import type { Ajustes, Duracion } from "../types";
+import { CLAVES_SINCRONIZABLES, type Ajustes, type AjustesSincronizables, type ClaveSincronizable, type Duracion } from "../types";
 import { DURACIONES_CALENTAMIENTO } from "./calentamientos";
 
 export const CLAVE_AJUSTES = "txispatype.settings.v1";
@@ -89,6 +89,45 @@ export function guardarAjustes(almacen: AlmacenClaveValor | null, ajustes: Ajust
   } catch {
     // Almacenamiento lleno o bloqueado: los ajustes de esta sesión siguen vivos.
   }
+}
+
+/** El subconjunto de ajustes que se comparte entre dispositivos. */
+export function extraerSincronizables(ajustes: Ajustes): AjustesSincronizables {
+  return {
+    objetivoTests: ajustes.objetivoTests,
+    objetivoMinutos: ajustes.objetivoMinutos,
+    estrictoPorDefecto: ajustes.estrictoPorDefecto,
+    puntuacionYMayusculas: ajustes.puntuacionYMayusculas,
+    duracionPorDefecto: ajustes.duracionPorDefecto,
+    calentamientoMin: ajustes.calentamientoMin,
+    reglasDeAjuste: ajustes.reglasDeAjuste,
+  };
+}
+
+/** ¿`valor` es aceptable para esa clave tal cual, sin que `normalizarAjustes` lo corrija? */
+function valorValido(clave: ClaveSincronizable, valor: unknown): boolean {
+  const norm = normalizarAjustes({ [clave]: valor })[clave];
+  // Los números se redondean/acotan: solo vale si sale idéntico. Un valor roto cae al defecto y no coincide.
+  return norm === valor;
+}
+
+/** Aplica lo recibido de la nube sobre los ajustes locales: solo cuentan las claves sincronizables, cada valor se
+ * valida con `normalizarAjustes` y lo inválido conserva el valor local. Los ajustes del dispositivo no se tocan. */
+export function aplicarSincronizables(base: Ajustes, crudo: unknown): Ajustes {
+  const o = (typeof crudo === "object" && crudo !== null ? crudo : {}) as Record<string, unknown>;
+  const resultado: Record<string, unknown> = { ...base };
+  for (const k of CLAVES_SINCRONIZABLES) if (k in o && valorValido(k, o[k])) resultado[k] = o[k];
+  return resultado as unknown as Ajustes;
+}
+
+/** ¿Este cambio parcial toca algún ajuste que se sincroniza? */
+export function tocaSincronizables(parcial: Partial<Ajustes>): boolean {
+  return CLAVES_SINCRONIZABLES.some((k) => k in parcial);
+}
+
+/** Igualdad de dos subconjuntos sincronizables. */
+export function mismosSincronizables(a: AjustesSincronizables, b: AjustesSincronizables): boolean {
+  return CLAVES_SINCRONIZABLES.every((k) => a[k] === b[k]);
 }
 
 /** `localStorage` si está disponible (puede lanzar en modo privado). */

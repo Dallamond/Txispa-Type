@@ -19,6 +19,14 @@ Checklist manual de F2 (necesita Firebase real, lo hace Lucas):
 - [ ] Entrar con otra cuenta en un navegador con datos: aparece la elección unir/limpio.
 - [ ] "Borrar todo en la nube" vacía también el otro dispositivo al sincronizar.
 
+Contadores y ajustes en la nube (código hecho, tests con nube simulada en memoria; **nada de esto está probado contra Firebase real** y **las reglas nuevas de `firestore.rules` no se han probado, hace falta el emulador o la consola**):
+- [ ] Publicar las reglas nuevas y comprobar que no hay errores de sintaxis en la consola (ajustes/actual, dias/{fecha}, contadores/global).
+- [ ] Con datos locales previos (calentamientos y tiempo extra del día), iniciar sesión por primera vez: aparecen en `users/{uid}/contadores/global` y `dias/{hoy}` una sola vez; cerrar sesión, volver a entrar y recargar no los duplica (marca `txispatype.migrado.v1` en localStorage).
+- [ ] Hacer un calentamiento en el PC A y abandonar un test; en el PC B (misma cuenta) y tras volver a la pestaña, el contador de pulsaciones y el tiempo de hoy suman lo de ambos.
+- [ ] Sin conexión, terminar un calentamiento: el total local sube; al volver la red se sube el incremento una sola vez.
+- [ ] Cambiar objetivo de minutos o la duración por defecto en A: tras 1-2 s aparece `ajustes/actual` y B lo recibe sin recargar. Cambiar el zoom o el tema en A no toca B.
+- [ ] Sin sesión (o sin variables `VITE_FIREBASE_*`) todo se comporta como antes y no sale ninguna petición a Firestore.
+- [ ] Las reglas rechazan (desde la consola de reglas o el emulador): un `extraSeg` que baje, un `objetivoTests` de 99, una clave de ajustes inventada y un `updatedAt` que no sea el del servidor.
 **Sesión del 3 de noviembre de 2026:** mapa de actividad anual en Inicio, como el de contribuciones de GitHub (`lib/actividad.ts` con tests, `components/MapaActividad.tsx`). Una celda por día de las últimas 53 semanas (de lunes a domingo); el color sale de la meta diaria de minutos (tres tercios y la meta cumplida como color más fuerte); al pasar el ratón muestra el tiempo, las pulsaciones y los tests y entrenos del día. Cuentan solo intentos guardados: los calentamientos y el tiempo de sesiones abandonadas (`tiempoextra`) no salen.
 
 Verificado: tests unitarios y render de servidor con datos sintéticos (53 columnas, meses de noviembre a noviembre, resumen correcto). **No verificado en navegador** (la extensión de Chrome no estaba conectada): aspecto, tooltip y tema claro.

@@ -5,6 +5,7 @@
 // Los intentos son inmutables con UUID, así que sincronizar es la unión de conjuntos por `id`.
 
 import type { Intento } from "../types";
+import type { AjustesSincronizables } from "../types";
 import type { AlmacenClaveValor } from "./ajustes";
 
 /** Estado que enseña el indicador de la cabecera. */
@@ -113,3 +114,39 @@ export async function subirUnoAUno(
     }
   }
 }
+
+// --- Ajustes y contadores en la nube (docs/PLAN_INTEGRACION_FIREBASE.md §3.3 y §3.4) ---
+// Interfaces aparte de `Remoto` para no obligar a quien solo sincroniza intentos a implementarlas.
+
+/** Documento `users/{uid}/ajustes/actual` ya leído: el subconjunto sincronizable (sin validar) y la hora del servidor. */
+export interface AjustesRemotos {
+  valores: unknown;
+  /** `updatedAt` de servidor, en milisegundos. */
+  updatedAt: number;
+}
+
+export interface RemotoAjustes {
+  /** Lee `ajustes/actual`; null si aún no existe. */
+  leerAjustes(): Promise<AjustesRemotos | null>;
+  /** Escribe el documento entero (última escritura gana) con `updatedAt` de servidor y devuelve ese instante en ms. */
+  escribirAjustes(valores: AjustesSincronizables): Promise<number>;
+  /** Escucha cambios del documento hechos desde otro dispositivo (no avisa de escrituras propias aún sin confirmar). Devuelve la baja. */
+  escucharAjustes(aviso: (a: AjustesRemotos) => void): () => void;
+}
+
+/** Lo que se suma a los contadores de la nube (siempre aditivo: `increment`). */
+export interface IncrementosContadores {
+  calentamientoPuls: number;
+  /** Segundos extra por día `YYYY-MM-DD`. */
+  extraSeg: Record<string, number>;
+}
+
+export interface RemotoContadores {
+  /** Total de pulsaciones de calentamiento y segundos extra del día `dia`. */
+  leerContadores(dia: string): Promise<{ calentamientoPuls: number; extraSeg: number }>;
+  /** Suma con `increment`: conmutativo, así que dos dispositivos que suman offline cuadran al reconectar. */
+  sumarContadores(incrementos: IncrementosContadores): Promise<void>;
+}
+
+/** Todo lo que la nube de una cuenta sabe hacer. */
+export interface RemotoCuenta extends Remoto, RemotoAjustes, RemotoContadores {}

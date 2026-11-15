@@ -1,8 +1,7 @@
-import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useMemo, useState, useSyncExternalStore, type ReactNode } from "react";
 import type { Intento } from "../types";
 import { almacenLocal } from "../lib/ajustes";
-import { leerPulsacionesCalentamiento, sumarPulsacionesCalentamiento } from "../lib/contador";
-import { leerTiempoExtra, sumarTiempoExtra } from "../lib/contador";
+import { contadoresApp, type Contadores } from "../lib/contadores";
 import { diaLocal, pulsacionesTotales, segundosDelDia } from "../lib/estadisticas";
 import { useHoy } from "./useHoy";
 
@@ -10,7 +9,7 @@ import { useHoy } from "./useHoy";
 //  - los intentos guardados (tests y entrenos),
 //  - los calentamientos terminados (contador aparte, no se guardan como intento),
 //  - la sesión en curso, que sube pulsación a pulsación.
-// La sesión en curso se pone a 0 cuando su intento aparece en el almacén, para no contarla dos veces.
+// Los calentamientos y el tiempo extra del día salen del servicio de contadores (local o sincronizado con la nube).
 // La sesión en curso se pone a 0 cuando su intento aparece en el almacén, para no contarla dos veces.
 
 interface ContadorApi {
@@ -36,12 +35,13 @@ export function useContadorTecleo(): ContadorApi {
   return useContext(Contexto);
 }
 
-export function useTotalPulsaciones(intentos: readonly Intento[]) {
+export function useTotalPulsaciones(intentos: readonly Intento[], contadores: Contadores = contadoresApp(almacenLocal())) {
   const [vivas, setVivas] = useState(0);
   const [vivosSeg, setVivosSeg] = useState(0);
-  const [extraSeg, setExtraSeg] = useState(0);
   const hoy = useHoy();
-  const [calentamiento, setCalentamiento] = useState(() => leerPulsacionesCalentamiento(almacenLocal()));
+  // Se leen del servicio en cada cambio (también los llegados de la nube); son números, así que el snapshot es estable.
+  const calentamiento = useSyncExternalStore(contadores.suscribir, () => contadores.calentamiento());
+  const segundosExtra = useSyncExternalStore(contadores.suscribir, () => contadores.tiempoExtra(hoy));
   const guardadas = useMemo(() => pulsacionesTotales([...intentos]), [intentos]);
 
   // El intento recién guardado ya está en `guardadas`: la sesión viva deja de sumar.
@@ -51,7 +51,6 @@ export function useTotalPulsaciones(intentos: readonly Intento[]) {
   }, [intentos]);
 
   const segundosGuardados = useMemo(() => segundosDelDia([...intentos], hoy), [intentos, hoy]);
-  const segundosExtra = useMemo(() => leerTiempoExtra(almacenLocal(), hoy), [hoy]);
 
   const api = useMemo<ContadorApi>(
     () => ({
@@ -59,27 +58,23 @@ export function useTotalPulsaciones(intentos: readonly Intento[]) {
       // Solo segundos enteros: así el estado no cambia (ni se repinta la app) 10 veces por segundo.
       reportarTiempo: (s) => setVivosSeg(Math.floor(s)),
       confirmar: (n) => {
-        setCalentamiento(sumarPulsacionesCalentamiento(almacenLocal(), n));
+        contadores.sumarCalentamiento(n);
         setVivas(0);
         setVivosSeg(0);
       },
       descartar: (segundos = 0) => {
         // Test abandonado: lo tecleado no se guarda, pero el tiempo del día sí. Solo la parte entera.
         if (segundos >= 1) {
-          setExtraSeg(sumarTiempoExtra(almacenLocal(), diaLocal(new Date()), Math.floor(segundos)));
+          contadores.sumarTiempoExtra(diaLocal(new Date()), Math.floor(segundos));
         }
         setVivas(0);
         setVivosSeg(0);
       },
     }),
-    []
+    [contadores]
   );
 
-  // Lo leído del almacén vale si el acumulado vivo no es mayor; si lo es (se acaba de
-  // sumar esta sesión), gana el vivo.
-  const totalExtra = Math.max(segundosExtra, extraSeg);
-
-  return { total: guardadas + calentamiento + vivas, segundosHoy: segundosGuardados + totalExtra + vivosSeg, api };
+  return { total: guardadas + calentamiento + vivas, segundosHoy: segundosGuardados + segundosExtra + vivosSeg, api };
 }
 
 export function ProveedorContador({ api, children }: { api: ContadorApi; children: ReactNode }) {

@@ -4,6 +4,9 @@
 // Modelo (docs/PLAN_INTEGRACION_FIREBASE.md §3):
 //   users/{uid}                  { schema, resetEpoch }
 //   users/{uid}/intentos/{id}    el intento tal cual + syncedAt (hora del servidor)
+//   users/{uid}/ajustes/actual   subconjunto sincronizable de Ajustes + updatedAt (servidor)
+//   users/{uid}/contadores/global  { calentamientoPuls }  (solo increment)
+//   users/{uid}/dias/{fecha}     { extraSeg }              (solo increment)
 // Los intentos se crean una vez y no se modifican: las reglas prohíben el `update`.
 // Siempre `set` del documento entero: las claves de `teclas`/`pares` son caracteres arbitrarios ('.', 'ñ', '␣'),
 // que con `update` y rutas con puntos se romperían.
@@ -13,6 +16,8 @@ import {
   doc,
   getDoc,
   getDocs,
+  increment,
+  onSnapshot,
   orderBy,
   query,
   serverTimestamp,
@@ -22,17 +27,26 @@ import {
   writeBatch,
   type Firestore,
 } from "firebase/firestore";
-import type { Intento } from "../types";
+import type { AjustesSincronizables, Intento } from "../types";
 import { esIntentoValido } from "./exportar";
-import { LOTE, paraNube, subirUnoAUno, trocear, type Remoto } from "./sincronizacion";
+import { LOTE, paraNube, subirUnoAUno, trocear, type AjustesRemotos, type RemotoCuenta } from "./sincronizacion";
 
 const SCHEMA_NUBE = 1;
 
 const esPermisoDenegado = (e: unknown) => typeof e === "object" && e !== null && (e as { code?: string }).code === "permission-denied";
 
-export function crearRemotoFirestore(db: Firestore, uid: string): Remoto {
+export function crearRemotoFirestore(db: Firestore, uid: string): RemotoCuenta {
   const intentos = collection(db, "users", uid, "intentos");
   const perfil = doc(db, "users", uid);
+  const refAjustes = doc(db, "users", uid, "ajustes", "actual");
+  const refGlobal = doc(db, "users", uid, "contadores", "global");
+  const refDia = (dia: string) => doc(db, "users", uid, "dias", dia);
+  const numero = (v: unknown) => (typeof v === "number" && Number.isFinite(v) && v > 0 ? Math.floor(v) : 0);
+  const leerAjustesDe = (d: { exists(): boolean; data(): Record<string, unknown> | undefined }): AjustesRemotos | null => {
+    if (!d.exists()) return null;
+    const { updatedAt, ...valores } = d.data() ?? {};
+    return { valores, updatedAt: updatedAt instanceof Timestamp ? updatedAt.toMillis() : 0 };
+  };
 
   async function epoch(): Promise<number> {
     const v = (await getDoc(perfil)).data()?.resetEpoch;
@@ -75,6 +89,41 @@ export function crearRemotoFirestore(db: Firestore, uid: string): Remoto {
     },
 
     epoch,
+
+    async leerAjustes() {
+      return leerAjustesDe(await getDoc(refAjustes));
+    },
+
+    async escribirAjustes(valores: AjustesSincronizables) {
+      // Documento entero (sin merge): las claves son fijas y la última escritura gana.
+      await setDoc(refAjustes, { ...valores, updatedAt: serverTimestamp() });
+      return leerAjustesDe(await getDoc(refAjustes))?.updatedAt ?? Date.now();
+    },
+
+    escucharAjustes(aviso) {
+      return onSnapshot(
+        refAjustes,
+        (snap) => {
+          if (snap.metadata.hasPendingWrites) return; // eco de una escritura propia aún sin confirmar
+          const a = leerAjustesDe(snap);
+          if (a) aviso(a);
+        },
+        () => undefined, // permiso o red: la sincronización normal reintenta
+      );
+    },
+
+    async leerContadores(dia) {
+      const [g, d] = await Promise.all([getDoc(refGlobal), getDoc(refDia(dia))]);
+      return { calentamientoPuls: numero(g.data()?.calentamientoPuls), extraSeg: numero(d.data()?.extraSeg) };
+    },
+
+    async sumarContadores({ calentamientoPuls, extraSeg }) {
+      // `merge` + `increment`: crea el documento si no existe y suma si existe. Campos fijos, sin rutas con puntos.
+      if (calentamientoPuls > 0) await setDoc(refGlobal, { calentamientoPuls: increment(calentamientoPuls) }, { merge: true });
+      for (const [dia, s] of Object.entries(extraSeg)) {
+        if (s > 0) await setDoc(refDia(dia), { extraSeg: increment(s) }, { merge: true });
+      }
+    },
 
     async borrarTodo() {
       const snap = await getDocs(intentos);
