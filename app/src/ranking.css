@@ -1,0 +1,22 @@
+.ranking { display: flex; flex-direction: column; gap: 16px; }
+.ranking h2 { margin: 0; }
+.ranking-tabla-caja { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--r, 10px); padding: 12px; overflow-x: auto; }
+.ranking-tabla { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+.ranking-tabla th, .ranking-tabla td { padding: 8px 10px; text-align: left; border-bottom: 1px solid var(--border-soft, var(--border)); color: var(--text); font-weight: 400; }
+.ranking-tabla thead th { color: var(--dim); font-size: 0.85em; }
+.ranking-tabla tbody tr:last-child > * { border-bottom: 0; }
+.ranking-tabla .ranking-mia > * { background: var(--bg3); color: var(--accent); font-weight: 600; }
+.ranking-optin { display: flex; flex-direction: column; gap: 12px; }
+.ranking-interruptor { display: inline-flex; align-items: center; gap: 10px; align-self: flex-start; background: none; border: 0; padding: 4px 0; color: var(--text); cursor: pointer; font: inherit; }
+.ranking-interruptor:disabled { opacity: 0.6; cursor: default; }
+.ranking-pomo { width: 38px; height: 22px; border-radius: 999px; background: var(--bg3); border: 1px solid var(--border); position: relative; transition: background 0.15s; }
+.ranking-pomo::after { content: ""; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%; background: var(--dim); transition: transform 0.15s, background 0.15s; }
+.ranking-interruptor[aria-checked="true"] .ranking-pomo { background: var(--accent); border-color: var(--accent); }
+.ranking-interruptor[aria-checked="true"] .ranking-pomo::after { transform: translateX(16px); background: var(--accent-ink); }
+.ranking-interruptor:focus-visible { outline: none; box-shadow: var(--ring); border-radius: var(--r, 10px); }
+.ranking-form { display: flex; flex-direction: column; gap: 8px; max-width: 360px; }
+.ranking-form input { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--r, 10px); color: var(--text); padding: 8px 10px; font: inherit; }
+.ranking-form input[aria-invalid="true"] { border-color: var(--danger); }
+.ranking-acciones { display: flex; gap: 8px; flex-wrap: wrap; }
+.ranking-msg { margin: 0; min-height: 1.4em; color: var(--dim); }
+@media (prefers-reduced-motion: reduce) { .ranking-pomo, .ranking-pomo::after { transition: none; } }
