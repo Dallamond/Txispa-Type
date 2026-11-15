@@ -385,6 +385,17 @@ button {
 
 .logo {
   cursor: pointer;
+  background: none;
+  border: 0;
+  padding: 0;
+  color: inherit;
+  font-family: var(--mono);
+  border-radius: var(--r-sm);
+}
+
+.logo:focus-visible {
+  outline: none;
+  box-shadow: var(--ring);
 }
 
 .logo {
@@ -399,7 +410,8 @@ button {
 
 .pestanas {
   display: flex;
-  gap: 2px;
+  gap: 6px;
+  flex-wrap: wrap;
 }
 
 .seg {
@@ -424,11 +436,27 @@ button {
 
 .pestanas button {
   position: relative;
+  border: 1.5px solid var(--border);
+  background: var(--bg2);
+  font-weight: 600;
+  font-size: 13px;
+  padding: 6px 14px;
+}
+
+/* Rótulo de ruta de terminal; el nombre accesible sigue siendo el texto. */
+.pestanas button::before {
+  content: "~/";
+  color: var(--faint);
+  margin-right: 1px;
 }
 
 .pestanas button:hover,
 .seg button:hover {
   color: var(--text);
+}
+
+.pestanas button:hover {
+  border-color: var(--accent);
 }
 
 .seg button.on {
@@ -437,20 +465,16 @@ button {
   box-shadow: 0 1px 2px #0003;
 }
 
-/* Pestañas principales: subrayado en el acento, sin cajas. */
+/* Pestaña activa: caja en el acento, como en Shellpath. */
 .pestanas button.on {
-  color: var(--text);
+  color: var(--accent);
+  border-color: var(--accent);
+  background: var(--bg3);
+  box-shadow: var(--shadow);
 }
 
-.pestanas button.on::after {
-  content: "";
-  position: absolute;
-  left: 14px;
-  right: 14px;
-  bottom: -13px;
-  height: 2px;
-  border-radius: 2px;
-  background: var(--accent);
+.pestanas button.on::before {
+  color: var(--accent);
 }
 
 .pestanas button:focus-visible,

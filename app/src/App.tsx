@@ -152,9 +152,9 @@ export default function App() {
     <ProveedorContador api={contador}>
     <div className="app">
       <header className="app-cabecera">
-        <div className="logo" onClick={() => setPestana("inicio")}>
+        <button type="button" className="logo" aria-label="Txispa Type, ir a Inicio" onClick={() => setPestana("inicio")}>
           txispa<span>type</span>
-        </div>
+        </button>
         <nav className="pestanas" aria-label="Secciones">
           {PESTANAS.map((p) => (
             <button
