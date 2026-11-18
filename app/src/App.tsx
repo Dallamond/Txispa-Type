@@ -31,6 +31,7 @@ const PESTANAS = [
   { id: "calentar", etiqueta: "Calentar" },
   { id: "test", etiqueta: "Test" },
   { id: "entrenar", etiqueta: "Entrenar" },
+  { id: "estadisticas", etiqueta: "Estadísticas" },
   { id: "curso", etiqueta: "Cursos" },
   { id: "ranking", etiqueta: "Ranking" },
 ] as const;
@@ -142,20 +143,14 @@ export default function App() {
     window.addEventListener("keydown", alPulsar);
     return () => window.removeEventListener("keydown", alPulsar);
   }, [ajustesAbiertos]);
-  /** Los botones de Hoy navegan; "estadisticas" solo baja a la sección de la misma página. */
+  /** Los botones de Inicio navegan a la pestaña de su destino. */
   const verProgreso = useCallback(() => {
     setVistaCursos("progreso");
     setPestana("curso");
   }, []);
 
   const irDesdeInicio = useCallback(
-    (destino: string) => {
-      if (destino === "estadisticas") {
-        document.getElementById("estadisticas-inicio")?.scrollIntoView({ behavior: "smooth", block: "start" });
-        return;
-      }
-      setPestana(destino as PestanaId);
-    },
+    (destino: string) => setPestana(destino as PestanaId),
     []
   );
 
@@ -215,14 +210,8 @@ export default function App() {
             No se detecta teclado físico. Txispa Type se practica con un teclado de verdad.
           </p>
         )}
-        {pestana === "inicio" && (
-          <>
-            <Hoy ajustes={ajustes} intentos={intentos} onIr={irDesdeInicio} />
-            <div id="estadisticas-inicio">
-              <Estadisticas intentos={intentos} ajustes={ajustes} pulsaciones={pulsaciones} onPracticar={practicar} />
-            </div>
-          </>
-        )}
+        {pestana === "inicio" && <Hoy ajustes={ajustes} intentos={intentos} onIr={irDesdeInicio} />}
+        {pestana === "estadisticas" && <Estadisticas intentos={intentos} ajustes={ajustes} pulsaciones={pulsaciones} onPracticar={practicar} />}
         {pestana === "calentar" && <Calentar ajustes={ajustes} intentos={intentos} onCambiarAjustes={cambiarAjustes} onIr={setPestana} />}
         {pestana === "test" && <Test ajustes={ajustes} intentos={intentos} onGuardar={guardar} onCambiarAjustes={cambiarAjustes} />}
         {pestana === "entrenar" && <Entrenar ajustes={ajustes} intentos={intentos} onGuardar={guardar} pedido={pedido} />}

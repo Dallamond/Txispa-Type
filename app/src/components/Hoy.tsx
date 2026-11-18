@@ -14,11 +14,16 @@ import { formatoNumero, formatoTiempo, formatoVariacion, precisionBaja } from ".
 import { PRECISION_MINIMA } from "../lib/medidas";
 import { useHoy } from "../hooks/useHoy";
 import MapaActividad from "./MapaActividad";
+import HeroInicio, { type DestinoHero } from "./HeroInicio";
+import "../styles/inicio.css";
+import { resumenInicio, listaConY } from "../lib/resumenInicio";
 import { CURSOS } from "../data/curso";
 import { progresoDeCursos, siguienteDelCursoActivo } from "../lib/progresoCurso";
 import { calcularAjustes, focoDelDia, pasosDelDia, type PasoPlan } from "../lib/plan";
 
-type Destino = "calentar" | "entrenar" | "test" | "estadisticas" | "curso";
+type Destino = DestinoHero | "estadisticas";
+
+const NOMBRES_CURSOS = listaConY(Object.values(CURSOS).map((c) => c.nombre));
 
 const DESTINO: Record<PasoPlan["id"], Destino> = {
   calentamiento: "calentar",
@@ -73,6 +78,7 @@ export default function Hoy({ ajustes, intentos, onIr }: Props) {
       pasos: pasosDelDia(hoy, hoy, lista, ajustes.objetivoTests),
       mejor: mejorDeLaSemana(lista, hoy),
       pulsaHoy: pulsaDeHoy(lista, hoy),
+      resumen: resumenInicio(lista, hoy),
       leccionesHoy: lista.filter((i) => i.fuente === "curso" && i.localDate === hoy).length,
       siguienteLeccion: siguienteDelCursoActivo(lista, progresoDeCursos(lista, { desbloquearTodo: ajustes.desbloquearCurso })),
     };
@@ -82,6 +88,8 @@ export default function Hoy({ ajustes, intentos, onIr }: Props) {
 
   return (
     <div>
+      <HeroInicio onIr={onIr} />
+
       <section className="tarjeta hoy-resumen">
         <div className="hoy-anillo-caja">
           <Anillo fraccion={objetivo.fraccion} hechos={objetivo.hechos} objetivo={objetivo.objetivo} />
@@ -141,7 +149,7 @@ export default function Hoy({ ajustes, intentos, onIr }: Props) {
       </section>
 
       <section className="tarjeta">
-        <h1>Curso de HTML y CSS</h1>
+        <h1>Cursos de {NOMBRES_CURSOS}</h1>
         <p className="tenue">
           {datos.siguienteLeccion
             ? `Siguiente lección (${CURSOS[datos.siguienteLeccion.modulo.curso].nombre}): ${datos.siguienteLeccion.leccion.id} · ${datos.siguienteLeccion.leccion.titulo}.`
@@ -156,6 +164,33 @@ export default function Hoy({ ajustes, intentos, onIr }: Props) {
       <section className="tarjeta">
         <h1>Actividad</h1>
         <MapaActividad intentos={intentos} hoy={hoy} objetivoMinutos={ajustes.objetivoMinutos} />
+      </section>
+
+      <section className="tarjeta">
+        <h1>Resumen de estadísticas</h1>
+        <div className="inicio-resumen-cifras">
+          <div className="cifra">
+            <div className="cifra-valor">{datos.resumen.media30 ? formatoNumero(datos.resumen.media30.wpm) : "—"}</div>
+            <div className="cifra-etiqueta">ppm media 30 días</div>
+            {datos.resumen.media30 && <div className="tenue">{formatoNumero(datos.resumen.media30.acc)} % de precisión</div>}
+          </div>
+          <div className="cifra">
+            <div className="cifra-valor">{datos.resumen.mejorWpm === null ? "—" : formatoNumero(datos.resumen.mejorWpm)}</div>
+            <div className="cifra-etiqueta">mejor test</div>
+            {datos.resumen.mejorWpm !== null && <div className="tenue">desde {PRECISION_MINIMA} % de precisión</div>}
+          </div>
+          <div className="cifra">
+            <div className="cifra-valor">{datos.resumen.testsTotales.toLocaleString("es-ES")}</div>
+            <div className="cifra-etiqueta">{datos.resumen.testsTotales === 1 ? "test en total" : "tests en total"}</div>
+          </div>
+          <div className="cifra">
+            <div className="cifra-valor">{datos.resumen.diasPracticados30}</div>
+            <div className="cifra-etiqueta">{datos.resumen.diasPracticados30 === 1 ? "día practicado · 30 días" : "días practicados · 30 días"}</div>
+          </div>
+        </div>
+        <button type="button" className="btn" onClick={() => onIr("estadisticas")}>
+          Ver estadísticas detalladas
+        </button>
       </section>
 
       <section className="tarjeta">
