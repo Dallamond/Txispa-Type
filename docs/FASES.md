@@ -6,6 +6,8 @@ Marca las tareas con `- [x]` al terminarlas. Detalle técnico en `ESPECIFICACION
 
 ## Estado
 
+**Backlog (18/11/2026):** todas las mejoras, imágenes, mascota, cursos nuevos e integraciones pendientes están en `docs/BACKLOG.md` (secciones A-M, con prioridad, esfuerzo y quién la hace). Es la lista a actualizar cuando surja una idea o se cierre una tarea.
+
 **Sesión del 18 de noviembre de 2026 (hero, Estadísticas y catálogo de Cursos):** `npm run check` en verde (1117 tests en la rama del hero, 1114 en la de Cursos; fusionadas sin conflictos). **Nada visto en navegador por Lucas.** Pestaña **Estadísticas** propia (entre Entrenar y Cursos); Inicio conserva anillo, cifras, mapa de actividad, plan y curso siguiente, y añade un resumen con enlace; hero plegable (`HeroInicio.tsx`, clave `txispatype.hero.plegado.v1`); catálogo de Cursos con ilustración, nivel, "para quién" y cabeceras de módulo (`styles/cursos.css`, `lib/catalogoCurso.ts`). Los textos `paraQuien` y `nivel` de `data/curso/tipos.ts` los redactó Claude: pendientes de revisión.
 
 **Reskin de capas y reactividad (18/11, tras ver Lucas la app en `localhost:5180`: "me gusta por donde va"):** `styles/capas.css`, cargado el último desde `main.tsx`. Fondo con dos luces fijas, tarjetas y cabecera de cristal translúcido, paneles hundidos dentro de las tarjetas, y hover/active en botones, pestañas, tarjetas de hero y cursos, y filas de lecciones y plan (solo con `hover: hover`; se apaga con `prefers-reduced-motion`). Sin tocar `index.css`. Si pierde contraste: `--vidrio` de 66 % a ~80 %. **Tema claro y ventana estrecha sin verificar.**

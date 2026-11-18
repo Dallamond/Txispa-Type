@@ -9,7 +9,8 @@ Entrenador de mecanografía propio de Lucas. Sustituye a typing.com en su práct
 3. `docs/ESPECIFICACION-TECNICA.md`: modelo de datos, fórmulas, estructura de carpetas y pantallas. Es la fuente de verdad técnica.
 4. `docs/REUTILIZAR-SHELLPATH.md`: qué archivos de Shellpath se copian, cuáles se adaptan y cuáles no.
 5. `docs/FASES.md`: fases, tareas y criterio de "hecho" de cada una. Trabaja una fase cada vez.
-6. `reference/`: capturas de typing.com y de Shellpath, y la v1 de un solo HTML (`txispa-type-v1.html`), que ya funciona y sirve de referencia de comportamiento.
+6. `docs/BACKLOG.md`: lista viva de tareas futuras (arte, mascota, cursos, integraciones). Las ideas nuevas se anotan ahí con fecha y, al hacer una tarea, se marca `[x]`.
+7. `reference/`: capturas de typing.com y de Shellpath, y la v1 de un solo HTML (`txispa-type-v1.html`), que ya funciona y sirve de referencia de comportamiento.
 
 ## Reglas que no se negocian
 

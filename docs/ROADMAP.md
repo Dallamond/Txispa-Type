@@ -2,6 +2,8 @@
 
 Fecha: 4 de noviembre de 2026. Basado en `ESTADO_DEL_PROYECTO.md` y `PLAN_INTEGRACION_FIREBASE.md`.
 
+> **Actualización del 18/11/2026:** este documento es el plan por fases del 4/11. Ya están hechos Firebase (código), ranking, XP y logros, los tres cursos, el hero, la pestaña Estadísticas y el reskin de capas (ver `FASES.md`). La lista viva de tareas futuras, con arte, mascota, cursos nuevos e integraciones, está en **`BACKLOG.md`**; las ideas nuevas se anotan allí. Las tareas F2-6 (rutas por hash), F2-14 (carga diferida), F2-10 (toasts) y F4-1/F4-9 (ranking) siguen vigentes y están enlazadas desde el backlog.
+
 **Leyenda.** Prioridad: 🔴 crítica · 🟠 alta · 🟡 media · 🟢 baja. Esfuerzo: **S** ≤ 2 h · **M** ≈ medio día · **L** 1-2 días · **XL** > 2 días (estimaciones para una persona con la base de código ya conocida). Dependencias entre corchetes, p. ej. `[F0-2]`.
 
 Regla de `CLAUDE.md` que se mantiene: un cambio = un commit, y antes de cada commit pasan `tsc -b`, `lint`, `test` y `build`.
