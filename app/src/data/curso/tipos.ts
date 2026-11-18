@@ -8,13 +8,38 @@ export interface InfoCurso {
   descripcion: string;
   /** Curso que hay que completar (su ruta, sin los módulos libres) para abrir este. Debe ir antes en `CURSOS`. */
   requiere?: string;
+  /** Ruta de la ilustración de la tarjeta, bajo `public/`, sin barra inicial (la app se sirve con `base: "./"`). Si falta el archivo, la tarjeta enseña un marcador. */
+  imagen?: string;
+  /** Para quién es el curso, en una frase. */
+  paraQuien?: string;
+  /** Punto de partida que se espera, en pocas palabras. */
+  nivel?: string;
 }
 
 /** Cursos que existen, en el orden en que se muestran. Para añadir uno: docs/curso/AÑADIR-CURSO.md. */
 export const CURSOS = {
-  html: { nombre: "HTML", descripcion: "Estructura, texto, enlaces, tablas, formularios y semántica de HTML5." },
-  css: { nombre: "CSS", descripcion: "Estilos, modelo de caja, Flexbox, Grid, diseño adaptable y animaciones.", requiere: "html" },
-  linux: { nombre: "Linux", descripcion: "Administración de sistemas en la terminal: archivos, red, permisos, usuarios, procesos, discos, pipes y homelab." },
+  html: {
+    nombre: "HTML",
+    descripcion: "Estructura, texto, enlaces, tablas, formularios y semántica de HTML5.",
+    imagen: "img/curso-html.webp",
+    paraQuien: "Para quien quiere escribir páginas web desde cero y saber qué hace cada etiqueta.",
+    nivel: "Sin requisitos previos",
+  },
+  css: {
+    nombre: "CSS",
+    descripcion: "Estilos, modelo de caja, Flexbox, Grid, diseño adaptable y animaciones.",
+    requiere: "html",
+    imagen: "img/curso-css.webp",
+    paraQuien: "Para quien ya sabe maquetar con HTML y quiere darle aspecto, orden y movimiento.",
+    nivel: "Requiere el curso de HTML",
+  },
+  linux: {
+    nombre: "Linux",
+    descripcion: "Administración de sistemas en la terminal: archivos, red, permisos, usuarios, procesos, discos, pipes y homelab.",
+    imagen: "img/curso-linux.webp",
+    paraQuien: "Para quien quiere manejar un servidor desde la terminal, como en un homelab con Proxmox.",
+    nivel: "Sin requisitos previos",
+  },
 } as const satisfies Record<string, InfoCurso>;
 export type CursoId = keyof typeof CURSOS;
 
