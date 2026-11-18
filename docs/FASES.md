@@ -6,6 +6,18 @@ Marca las tareas con `- [x]` al terminarlas. Detalle técnico en `ESPECIFICACION
 
 ## Estado
 
+**Sesión del 18 de noviembre de 2026 (hero, Estadísticas y catálogo de Cursos):** `npm run check` en verde (1117 tests en la rama del hero, 1114 en la de Cursos; fusionadas sin conflictos). **Nada visto en navegador por Lucas.** Pestaña **Estadísticas** propia (entre Entrenar y Cursos); Inicio conserva anillo, cifras, mapa de actividad, plan y curso siguiente, y añade un resumen con enlace; hero plegable (`HeroInicio.tsx`, clave `txispatype.hero.plegado.v1`); catálogo de Cursos con ilustración, nivel, "para quién" y cabeceras de módulo (`styles/cursos.css`, `lib/catalogoCurso.ts`). Los textos `paraQuien` y `nivel` de `data/curso/tipos.ts` los redactó Claude: pendientes de revisión.
+
+Imágenes que esperan archivo (en `app/public/img/`; sin ellas se ve un marcador): `hero.webp`, `ico-calentar.svg`, `ico-test.svg`, `ico-entrenar.svg`, `ico-cursos.svg`, `curso-html.webp`, `curso-css.webp`, `curso-linux.webp`.
+
+Checklist manual de esta sesión:
+- [ ] Inicio: el hero se pliega y se despliega, y al recargar recuerda el estado. Los 4 botones llevan a su pestaña.
+- [ ] El mapa de actividad, el plan y el resumen de estadísticas se ven bien en Inicio; "Ver estadísticas detalladas" abre la pestaña Estadísticas.
+- [ ] Estadísticas: se ven las tres vistas y "Practicar" sigue funcionando.
+- [ ] Cursos: el catálogo se entiende, los totales cuadran (módulo libre aparte), CSS sale cerrado hasta completar HTML.
+- [ ] Revisar los textos de "para quién" y nivel de cada curso.
+- [ ] Tema claro y ventana estrecha en Inicio, Estadísticas y Cursos.
+
 **Ranking público (15 de noviembre de 2026):** `RankingFirestore` (`lib/rankingFirestore.ts`, SDK en `lib/rankingFirestoreSdk.ts`), reglas en bloque separado de `firestore.rules` y pestaña "Ranking" en `App.tsx`. `npm run check` en verde y lógica cubierta con un Firestore simulado. **Reglas y adaptador del SDK sin probar contra Firebase real**; la checklist manual está en `docs/RANKING.md`.
 
 **Sesión del 14 de noviembre de 2026 (F2, cuenta y sincronización):** código en `ac21516`. Revisado: `npm run check` en verde; las reglas de `firestore.rules` encajan con el modelo (`modo` test/entreno, formato de `leccionId` de HTML, CSS y Linux, `syncedAt == request.time`). Riesgo resuelto (15/11): en `remotoFirestore.subir`, un `permission-denied` ya no se da por "ya existía" sin más; `subirUnoAUno` (`lib/sincronizacion.ts`) comprueba con `getDoc` que el intento está en la nube y, si no, lanza el error y el intento sigue pendiente. Cubierto con test de la lógica; la comprobación contra Firestore real queda en la checklist de abajo. Consecuencia: un intento rechazado por forma inválida bloquea la cola y se verá como error de sincronización.
