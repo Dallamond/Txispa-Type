@@ -1,0 +1,226 @@
+/* Capas y reactividad: profundidad entre superficies y respuesta al ratón.
+   Se importa el último (main.tsx) y solo añade a lo anterior: fondo con luz, superficies
+   translúcidas, paneles interiores más oscuros y movimientos cortos y discretos.
+   Todo el movimiento se apaga con prefers-reduced-motion (regla global de index.css). */
+
+:root,
+[data-theme="oscuro"] {
+  --luz-a: rgba(120, 150, 215, 0.16);
+  --luz-b: rgba(150, 130, 200, 0.1);
+  /* Capa 1: tarjetas de cristal. Capa 2: paneles hundidos dentro de ellas. */
+  --vidrio: color-mix(in srgb, var(--bg2) 66%, transparent);
+  --vidrio-borde: rgba(190, 205, 235, 0.13);
+  --vidrio-brillo: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  --hundido: color-mix(in srgb, var(--bg) 52%, transparent);
+  --hundido-hover: color-mix(in srgb, var(--bg3) 70%, transparent);
+  --elevacion-1: 0 1px 2px rgba(8, 11, 18, 0.3), 0 8px 24px -10px rgba(8, 11, 18, 0.45);
+  --elevacion-2: 0 2px 4px rgba(8, 11, 18, 0.3), 0 16px 34px -12px rgba(8, 11, 18, 0.6);
+  --resplandor: 0 0 0 1px color-mix(in srgb, var(--accent) 38%, transparent), 0 10px 30px -14px color-mix(in srgb, var(--accent) 55%, transparent);
+  --curva: cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+[data-theme="claro"] {
+  --luz-a: rgba(88, 118, 184, 0.14);
+  --luz-b: rgba(160, 140, 210, 0.1);
+  --vidrio: color-mix(in srgb, #ffffff 74%, transparent);
+  --vidrio-borde: rgba(90, 105, 150, 0.16);
+  --vidrio-brillo: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  --hundido: color-mix(in srgb, var(--bg3) 62%, transparent);
+  --hundido-hover: color-mix(in srgb, var(--bg3) 100%, transparent);
+  --elevacion-1: 0 1px 2px rgba(40, 50, 80, 0.08), 0 8px 22px -12px rgba(40, 50, 80, 0.22);
+  --elevacion-2: 0 2px 4px rgba(40, 50, 80, 0.1), 0 16px 32px -14px rgba(40, 50, 80, 0.3);
+  --resplandor: 0 0 0 1px color-mix(in srgb, var(--accent) 45%, transparent), 0 10px 28px -14px color-mix(in srgb, var(--accent) 60%, transparent);
+}
+
+/* Fondo: dos luces suaves fijas detrás de la rejilla; sin ellas el cristal no tiene nada que desenfocar. */
+body {
+  background-color: var(--bg);
+  background-image:
+    radial-gradient(900px 520px at 12% -8%, var(--luz-a), transparent 70%),
+    radial-gradient(760px 480px at 100% 18%, var(--luz-b), transparent 70%),
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: auto, auto, 34px 34px, 34px 34px;
+  background-attachment: fixed, fixed, scroll, scroll;
+}
+
+/* ---------- capa 1: cristal ---------- */
+
+.app-cabecera {
+  background: color-mix(in srgb, var(--bg) 62%, transparent);
+  backdrop-filter: blur(14px) saturate(1.2);
+  -webkit-backdrop-filter: blur(14px) saturate(1.2);
+  border-bottom-color: var(--vidrio-borde);
+}
+
+.tarjeta {
+  background: var(--vidrio);
+  backdrop-filter: blur(12px) saturate(1.15);
+  -webkit-backdrop-filter: blur(12px) saturate(1.15);
+  border: 1px solid var(--vidrio-borde);
+  box-shadow: var(--vidrio-brillo), var(--elevacion-1);
+  transition: border-color 0.2s var(--curva), box-shadow 0.25s var(--curva), transform 0.25s var(--curva);
+}
+
+/* ---------- capa 2: paneles hundidos dentro de las tarjetas ---------- */
+
+.hero-tarjeta,
+.cc-pasos li,
+.ficha,
+.fichas .ficha,
+.plan li,
+.cur-item,
+.cc-ficha {
+  background: var(--hundido);
+}
+
+.hero-tarjeta,
+.cc-pasos li {
+  border: 1px solid var(--vidrio-borde);
+  box-shadow: inset 0 1px 2px rgba(8, 11, 18, 0.18);
+}
+
+.seg {
+  background: var(--hundido);
+  box-shadow: inset 0 1px 2px rgba(8, 11, 18, 0.2);
+}
+
+.seg button.on {
+  background: var(--vidrio);
+  box-shadow: var(--vidrio-brillo), 0 1px 3px rgba(8, 11, 18, 0.3);
+}
+
+/* ---------- reactividad (solo con ratón; en táctil no hay hover) ---------- */
+
+@media (hover: hover) {
+  /* Tarjetas informativas: solo se aclara el borde. */
+  .tarjeta:hover {
+    border-color: color-mix(in srgb, var(--accent) 30%, var(--vidrio-borde));
+  }
+
+  /* Superficies que se pulsan: se levantan y se iluminan. */
+  .hero-tarjeta,
+  .cc-curso,
+  .cur-curso,
+  .cur-item,
+  .plan li,
+  .ficha {
+    transition: transform 0.2s var(--curva), box-shadow 0.25s var(--curva), background 0.2s var(--curva), border-color 0.2s var(--curva);
+  }
+
+  .hero-tarjeta:hover,
+  .cc-catalogo .cc-curso:hover,
+  .cur-curso:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--vidrio-brillo), var(--elevacion-2), var(--resplandor);
+  }
+
+  .cur-item:hover:not(:disabled),
+  .plan li:hover {
+    background: var(--hundido-hover);
+    transform: translateX(3px);
+  }
+
+  .ficha:hover {
+    transform: translateY(-1px);
+    border-color: color-mix(in srgb, var(--accent) 40%, var(--vidrio-borde));
+  }
+
+  /* Imagen del curso: zoom lento dentro de su marco. */
+  .cc-media img {
+    transition: transform 0.5s var(--curva);
+  }
+
+  .cc-curso:hover .cc-media img {
+    transform: scale(1.045);
+  }
+
+  /* Pestañas: el rótulo ~/ cobra vida. */
+  .pestanas button::before {
+    transition: color 0.15s ease, margin 0.2s var(--curva);
+  }
+
+  .pestanas button:hover::before {
+    color: var(--accent);
+    margin-right: 3px;
+  }
+}
+
+/* ---------- botones ---------- */
+
+.btn {
+  background: var(--vidrio);
+  border: 1px solid var(--vidrio-borde);
+  border-bottom-width: 2px;
+  box-shadow: var(--vidrio-brillo), var(--elevacion-1);
+  transition: transform 0.16s var(--curva), box-shadow 0.2s var(--curva), background 0.16s ease, border-color 0.16s ease, filter 0.16s ease;
+}
+
+.btn:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--accent) 14%, var(--vidrio));
+  border-color: color-mix(in srgb, var(--accent) 55%, var(--vidrio-borde));
+  box-shadow: var(--vidrio-brillo), var(--elevacion-2);
+  transform: translateY(-2px);
+}
+
+.btn:active:not(:disabled) {
+  transform: translateY(1px) scale(0.985);
+  box-shadow: inset 0 2px 4px rgba(8, 11, 18, 0.25);
+  transition-duration: 0.05s;
+}
+
+.btn.primario {
+  background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 100%, #fff 10%), var(--accent));
+  border: 0;
+  border-bottom: 3px solid color-mix(in srgb, var(--accent) 60%, #000);
+  box-shadow: 0 8px 20px -10px color-mix(in srgb, var(--accent) 70%, transparent);
+}
+
+.btn.primario:hover:not(:disabled) {
+  background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 100%, #fff 18%), var(--accent));
+  filter: none;
+  box-shadow: 0 12px 26px -10px color-mix(in srgb, var(--accent) 85%, transparent);
+}
+
+.btn.primario:active:not(:disabled) {
+  border-bottom-width: 1px;
+  box-shadow: none;
+}
+
+.pestanas button,
+.seg button {
+  transition: color 0.15s ease, background 0.18s ease, border-color 0.18s ease, transform 0.16s var(--curva), box-shadow 0.2s ease;
+}
+
+.pestanas button {
+  background: var(--vidrio);
+  border-color: var(--vidrio-borde);
+}
+
+.pestanas button:hover {
+  transform: translateY(-1px);
+  background: color-mix(in srgb, var(--accent) 10%, var(--vidrio));
+}
+
+.pestanas button:active,
+.seg button:active {
+  transform: translateY(1px) scale(0.98);
+}
+
+.pestanas button.on {
+  background: color-mix(in srgb, var(--accent) 16%, var(--vidrio));
+  border-color: color-mix(in srgb, var(--accent) 70%, transparent);
+  box-shadow: var(--vidrio-brillo), 0 6px 18px -8px color-mix(in srgb, var(--accent) 60%, transparent);
+}
+
+/* Entrada de pantalla: un fundido corto al cambiar de pestaña. */
+.app-main > * {
+  animation: entra 0.28s var(--curva) both;
+}
+
+@keyframes entra {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
