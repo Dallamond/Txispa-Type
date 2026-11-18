@@ -1,15 +1,22 @@
 import { describe, expect, it } from "vitest";
 import { CURSOS, IDS_CURSOS, MODULOS, MODULOS_POR_CURSO } from "../../data/curso";
+import { avanceDeCurso } from "../progresoCurso";
 import { accionDeCurso, glifoDeCurso, iconoDeModulo, plural, totalesDeCurso } from "../catalogoCurso";
 
 describe("catalogoCurso", () => {
   it("cuenta módulos y lecciones de cada curso", () => {
     for (const id of IDS_CURSOS) {
       const t = totalesDeCurso(MODULOS_POR_CURSO[id]);
-      expect(t.modulos).toBe(MODULOS_POR_CURSO[id].length);
-      expect(t.lecciones).toBe(MODULOS_POR_CURSO[id].reduce((n, m) => n + m.lecciones.length, 0));
+      expect(t.modulos + t.libres).toBe(MODULOS_POR_CURSO[id].length);
       expect(t.lecciones).toBeGreaterThan(0);
+      // El total del catálogo coincide con el denominador del avance del curso.
+      expect(t.lecciones).toBe(avanceDeCurso(id, new Map()).total);
     }
+  });
+
+  it("separa los módulos libres de la ruta", () => {
+    expect(totalesDeCurso(MODULOS_POR_CURSO.html).libres).toBe(1);
+    expect(totalesDeCurso(MODULOS_POR_CURSO.css).libres).toBe(0);
   });
 
   it("elige el texto del botón según el avance", () => {

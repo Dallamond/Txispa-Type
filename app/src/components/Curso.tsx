@@ -23,7 +23,7 @@ import {
   siguienteLeccion,
   type EstadoLeccion,
 } from "../lib/progresoCurso";
-import { accionDeCurso, glifoDeCurso, iconoDeModulo, plural, totalesDeCurso } from "../lib/catalogoCurso";
+import { accionDeCurso, glifoDeCurso, iconoDeModulo, plural, totalesDeCurso, type TotalesCurso } from "../lib/catalogoCurso";
 import TecleoCodigo from "./TecleoCodigo";
 import JefeCurso from "./JefeCurso";
 import "../styles/cursos.css";
@@ -56,6 +56,18 @@ function ImagenCurso({ curso, src }: { curso: CursoId; src?: string }) {
       <span className="cc-media-glifo">{glifoDeCurso(curso)}</span>
       {src && !rota && <img src={`${import.meta.env.BASE_URL}${src}`} alt="" loading="lazy" onError={() => setRota(true)} />}
     </div>
+  );
+}
+
+/** Fichas con los datos de un curso: módulos, lecciones, libres y nivel. */
+function DatosCurso({ totales, nivel }: { totales: TotalesCurso; nivel?: string }) {
+  return (
+    <ul className="cc-datos" aria-label="Datos del curso">
+      <li>{plural(totales.modulos, "módulo", "módulos")}</li>
+      <li>{plural(totales.lecciones, "lección", "lecciones")}</li>
+      {totales.libres > 0 && <li>{plural(totales.libres, "módulo libre", "módulos libres")}</li>}
+      {nivel && <li>{nivel}</li>}
+    </ul>
   );
 }
 
@@ -158,7 +170,7 @@ export default function Curso({ ajustes, intentos, onGuardar }: Props) {
           {IDS_CURSOS.map((id) => {
             const info: InfoCurso = CURSOS[id];
             const { hechas, total } = avanceDeCurso(id, estados);
-            const { modulos, lecciones } = totalesDeCurso(MODULOS_POR_CURSO[id]);
+            const totales = totalesDeCurso(MODULOS_POR_CURSO[id]);
             const requiere = requisitoDe(id);
             const cerrado = requiere !== undefined && !ajustes.desbloquearCurso && !rutaCompleta(requiere, estados);
             const accion = accionDeCurso(hechas, total);
@@ -173,11 +185,7 @@ export default function Curso({ ajustes, intentos, onGuardar }: Props) {
                     </span>
                   </div>
                   <p className="cc-desc">{info.descripcion}</p>
-                  <ul className="cc-datos" aria-label="Datos del curso">
-                    <li>{plural(modulos, "módulo", "módulos")}</li>
-                    <li>{plural(lecciones, "lección", "lecciones")}</li>
-                    {info.nivel && <li>{info.nivel}</li>}
-                  </ul>
+                  <DatosCurso totales={totales} nivel={info.nivel} />
                   {info.paraQuien && <p className="cc-para">{info.paraQuien}</p>}
                   <span className="cronometro-barra" role="progressbar" aria-valuemin={0} aria-valuemax={total} aria-valuenow={hechas} aria-label={`Progreso del curso de ${info.nombre}`}>
                     <span className="cronometro-relleno" style={{ width: `${total ? (hechas / total) * 100 : 0}%` }} />
@@ -209,11 +217,7 @@ export default function Curso({ ajustes, intentos, onGuardar }: Props) {
         </button>
         <h1>Curso de {infoCurso.nombre}</h1>
         <p className="tenue">{infoCurso.descripcion}</p>
-        <ul className="cc-datos" aria-label="Datos del curso">
-          <li>{plural(totales.modulos, "módulo", "módulos")}</li>
-          <li>{plural(totales.lecciones, "lección", "lecciones")}</li>
-          {infoCurso.nivel && <li>{infoCurso.nivel}</li>}
-        </ul>
+        <DatosCurso totales={totales} nivel={infoCurso.nivel} />
         {infoCurso.paraQuien && <p className="cc-para">{infoCurso.paraQuien}</p>}
         <div className="cur-acciones">
           {continuar ? (

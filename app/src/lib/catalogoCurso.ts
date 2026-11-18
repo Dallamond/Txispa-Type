@@ -1,15 +1,20 @@
 // Datos de presentación del catálogo de cursos: totales, texto del botón e icono de cada módulo.
 
-import type { Modulo } from "../data/curso";
+import { esModuloLibre, type Modulo } from "../data/curso";
 
 export interface TotalesCurso {
+  /** Módulos de la ruta (sin los libres). */
   modulos: number;
+  /** Lecciones de la ruta: las mismas que cuenta el avance `hechas/total`. */
   lecciones: number;
+  /** Módulos libres (el diccionario), abiertos desde el principio y fuera de la ruta. */
+  libres: number;
 }
 
-/** Cuántos módulos y lecciones tiene un curso. */
+/** Cuántos módulos y lecciones tiene la ruta de un curso, y cuántos módulos libres aparte. */
 export function totalesDeCurso(modulos: readonly Modulo[]): TotalesCurso {
-  return { modulos: modulos.length, lecciones: modulos.reduce((n, m) => n + m.lecciones.length, 0) };
+  const ruta = modulos.filter((m) => !esModuloLibre(m));
+  return { modulos: ruta.length, lecciones: ruta.reduce((n, m) => n + m.lecciones.length, 0), libres: modulos.length - ruta.length };
 }
 
 /** Texto del botón de una tarjeta de curso según lo avanzado. */
