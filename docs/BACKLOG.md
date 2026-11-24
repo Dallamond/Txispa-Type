@@ -34,6 +34,7 @@ Rutas en `app/public/img/`. Sin archivo se ve un marcador punteado, así que nad
 | A-11 | Insignias de logros (bronce→diamante) | Pantalla de logros y toasts | 96×96 | 💭 opcional |
 | A-12 | Imagen por curso nuevo (Git, SQL, Python…) | Catálogo | 640×360 | cuando haya curso |
 | A-13 | Fondo/ilustración de cabecera por tema (oscuro/claro) | Cabecera y hero | — | 💭 |
+| A-14 | Personajes (F y J, ver B) y resto de ambientación de la web: fondos, ilustraciones de cabecera, iconos, texturas y detalles decorativos con un estilo común | Toda la app y la landing | — | [ ] pendiente (24/11) |
 
 Notas para generarlas: pedir siempre fondo transparente en los iconos y mascotas, formato WebP (o SVG si se puede), y la misma paleta en todas para que no desentonen. Si una imagen sale con texto, regenerarla: el texto va en la interfaz, no en la imagen.
 
@@ -85,6 +86,7 @@ Idea de Lucas (18/11): **las teclas F y J**, con sus protuberancias, como person
 - [ ] **D-6 C:** página/pestaña "Ayuda y cómo funciona" (glosario ppm/neta/bruta, qué cuenta y qué no, ranking).
 - [ ] **D-7 💭 C:** buscador/paleta de comandos (`Ctrl+K`) para ir a cualquier lección o pantalla.
 - [ ] **D-8 C:** mapa de nodos por curso (camino serpenteante, "estás aquí") según `REVISION-SHELLPATH.md` §4. Necesita ideas de Lucas.
+- [ ] **D-9 C+L (24/11):** mejorar el inicio de sesión y la landing page. Inicio de sesión: hoy vive solo en Ajustes → Cuenta, sin acceso visible; añadir acceso claro en la cabecera, botones de Google y correo más cuidados (estado de carga, errores legibles, recuperar contraseña) y que se vea si hay sesión. Landing: página de presentación para quien llega sin cuenta (qué es Txispa Type, qué ofrece, entrar o probar sin cuenta). Depende en parte de A-14.
 
 ---
 
@@ -170,7 +172,7 @@ Idea de Lucas (18/11): **las teclas F y J**, con sus protuberancias, como person
 ## I. Nube y backend (resumen; el detalle está en `PLAN_INTEGRACION_FIREBASE.md`)
 
 - [ ] **I-1 C:** emulador de Firestore y tests de reglas (`@firebase/rules-unit-testing`, pedir permiso por dependencia) = F1-2. Hoy las reglas **no se han ejecutado nunca**.
-- [ ] **I-2 L:** pasar las checklists de F2 y ranking (offline → online, dos navegadores, borrar todo).
+- [ ] **I-2 L:** (24/11: base de datos y login funcionan en local; faltan offline→online, dos navegadores, borrar todo y Vercel) pasar las checklists de F2 y ranking (offline → online, dos navegadores, borrar todo).
 - [ ] **I-3 C:** indicador de sincronización siempre visible = M-28 (hay `estadoSync.ts`; revisar que se vea en la cabecera).
 - [ ] **I-4 C:** arreglar las limitaciones conocidas (relojes desfasados en ajustes, `increment` repetido tras cierre, cuenta distinta que no recibe lo pendiente) — ver `SESION-2026-11-15.md`.
 - [ ] **I-5 C:** App Check (F4-4) y copias de seguridad programadas (F4-7).
@@ -240,3 +242,4 @@ Idea de Lucas (18/11): **las teclas F y J**, con sus protuberancias, como person
 Añade aquí, con fecha, lo que vaya saliendo antes de clasificarlo en su sección.
 
 - 18/11/2026: F y J como mascotas con doble sentido (→ B). Hero plegable (hecho). Estadísticas como pestaña con mapa de actividad en Inicio (hecho). Reskin de capas (hecho, C-1).
+- 24/11/2026: base de datos y cuenta funcionando (Firestore, reglas publicadas, Google y correo activados, login probado en local). Nuevas tareas: D-9 (inicio de sesión y landing) y A-14 (personajes y ambientación).

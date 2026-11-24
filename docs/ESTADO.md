@@ -2,6 +2,10 @@
 
 > La sección del curso se actualiza en cada push. El resto del documento es la copia del 27 de octubre de 2026; el análisis técnico del 4 de noviembre está en `ESTADO_DEL_PROYECTO.md`.
 
+## Nube (actualización del 24 de noviembre de 2026)
+
+**Base de datos funcional.** Firebase real configurado (Firestore con reglas publicadas, inicio de sesión con Google y correo) y login probado en local. Pendiente de probar: sincronización entre dispositivos, offline, ranking y despliegue en Vercel. Detalle en `FASES.md` y tareas D-9 y A-14 en `BACKLOG.md`.
+
 ## Cursos (pestaña Cursos)
 
 **Actualización del 13 de noviembre de 2026:** hay **tres cursos independientes**, HTML, CSS (se abre al completar HTML) y **Linux** (8 módulos, 50 lecciones y 8 jefes, convertido desde Shellpath). La pestaña Cursos muestra una tarjeta por curso con su avance. Cada curso es una carpeta de temario más una línea en `CURSOS` (`docs/curso/AÑADIR-CURSO.md`); el generador lee todos los `docs/curso/**/TEMARIO*.md`. Los cursos de terminal llevan una nota por línea y un **jefe** al final de cada módulo (elegir el comando correcto del escenario y teclearlo). Los logros incluyen uno por curso. El análisis de Shellpath, la comparativa Firebase/Supabase y el esquema propuesto están en `docs/REVISION-SHELLPATH.md`; el plan por fases es: cimientos, cuenta y sincronización con Firebase, rework de la interfaz con mapa de nodos, mascota, más piezas de Shellpath, apertura pública y cursos nuevos. La tabla de módulos de abajo sigue vigente para HTML y CSS.
